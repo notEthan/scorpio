@@ -66,6 +66,7 @@ module Scorpio
   autoload :Model, 'scorpio/model'
   autoload :Swagger, 'scorpio/swagger'
   autoload :Google, 'scorpio/google_api_document'
+  autoload :JSON, 'scorpio/json'
 
   class << self
     def stringify_symbol_keys(hash)
