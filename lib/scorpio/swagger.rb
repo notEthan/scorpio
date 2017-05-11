@@ -44,5 +44,17 @@ module Scorpio
     Oauth2AccessCodeSecurity    = swagger_class.call('oauth2AccessCodeSecurity')
     Oauth2Scopes                = swagger_class.call('oauth2Scopes')
     JsonReference               = swagger_class.call('jsonReference')
+
+    class Operation
+      attr_accessor :path
+      attr_accessor :http_method
+
+      # there should only be one body parameter; this returns it
+      def body_parameter
+        (parameters || []).detect do |parameter|
+          parameter['in'] == 'body'
+        end
+      end
+    end
   end
 end
