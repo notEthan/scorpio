@@ -5,10 +5,10 @@ module Scorpio
   module Swagger
     swagger_schema_doc = YAML.load_file(File.join(File.dirname(__FILE__), 'swagger', 'swagger 2.0 json schema.yaml'))
     swagger_class = proc do |definitions_key|
-      Scorpio.class_for_schema(swagger_schema_doc['definitions'][definitions_key], swagger_schema_doc)
+      Scorpio.class_for_schema(swagger_schema_doc['definitions'][definitions_key], swagger_schema_doc, ['definitions', definitions_key])
     end
 
-    Document = Scorpio.class_for_schema(swagger_schema_doc, swagger_schema_doc)
+    Document = Scorpio.class_for_schema(swagger_schema_doc, swagger_schema_doc, [])
 
     # naming these is not strictly necessary, but is nice to have.
     # generated: puts Scorpio::Swagger::Document.document['definitions'].select { |k,v| v['type'] == 'object' }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = swagger_class.call('#{k}')" }
