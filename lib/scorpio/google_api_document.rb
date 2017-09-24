@@ -19,11 +19,11 @@ module Scorpio
     RestResource    = api_document_class.call('RestResource')
 
     class RestDescription
-      def to_swagger_document
-        Swagger::Document.new(to_swagger_hash)
+      def to_swagger_document(options = {})
+        Swagger::Document.new(to_swagger_hash(options))
       end
 
-      def to_swagger_hash
+      def to_swagger_hash(options = {})
         ad = self
         ad_methods = []
         if ad['methods']
@@ -49,9 +49,9 @@ module Scorpio
               #operation['tags'] = []
               #operation['summary'] = 
               operation['description'] = method['description'] if method['description']
-              if method['resource_name']
-                operation['x-resource'] = method['resource_name']
-                operation['x-resource-method'] = method['method_name']
+              if method.resource_name && options[:x]
+                operation['x-resource'] = method.resource_name
+                operation['x-resource-method'] = method.method_name
               end
               #operation['externalDocs'] = 
               operation['operationId'] = method['id'] || (method['resource_name'] ? "#{method['resource_name']}.#{method['method_name']}" : method['method_name'])
