@@ -24,15 +24,24 @@ module Scorpio
       end
 
       def to_swagger_hash(options = {})
-        ad = self
+        # we will be modifying the api document (RestDescription). clone self and modify that one.
+        ad = self.class.new(::JSON.parse(::JSON.generate(object.document)))
         ad_methods = []
         if ad['methods']
           ad_methods += ad['methods'].map do |mn, m|
-            m.class.new(m.object.merge('method_name' => mn))
+            m.tap do
+              m.send(:define_singleton_method, :resource_name) { }
+              m.send(:define_singleton_method, :method_name) { mn }
+            end
           end
         end
         ad_methods += ad.resources.map do |rn, r|
-          (r['methods'] || {}).map { |mn, m| m.class.new(m.object.merge('resource_name' => rn, 'method_name' => mn)) }
+          (r['methods'] || {}).map do |mn, m|
+            m.tap do
+              m.send(:define_singleton_method, :resource_name) { rn }
+              m.send(:define_singleton_method, :method_name) { mn }
+            end
+          end
         end.inject([], &:+)
 
         paths = ad_methods.group_by { |m| m['path'] }.map do |path, path_methods|
@@ -54,7 +63,7 @@ module Scorpio
                 operation['x-resource-method'] = method.method_name
               end
               #operation['externalDocs'] = 
-              operation['operationId'] = method['id'] || (method['resource_name'] ? "#{method['resource_name']}.#{method['method_name']}" : method['method_name'])
+              operation['operationId'] = method['id'] || (method.resource_name ? "#{method.resource_name}.#{method.method_name}" : method.method_name)
               #operation['produces'] = 
               #operation['consumes'] = 
               if method['parameters']
