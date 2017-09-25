@@ -103,17 +103,15 @@ module Scorpio
                   name: 'body',
                   in: 'body',
                   required: true,
-                  schema: method.object.content['request'],
+                  schema: method['request'],
                 }
               end
               if method['response']
                 operation['responses'] = {
                   'default' => {
                     description: 'default response',
-                    # we want the response without dereferencing, hence getting the object content
-                    # before subscripting response.
-                    # we also don't want an id field. openapi doesn't like it.
-                    schema: method.object.content['response'].reject { |k, v| k == 'id' },
+                    # we don't want an id field. openapi doesn't like it.
+                    schema: method['response'].reject { |k, v| k == 'id' },
                   },
                 }
               end
@@ -153,7 +151,7 @@ module Scorpio
         if ad.schemas
           swagger['definitions'] = {}
           ad.schemas.each do |name, schema|
-            swagger['definitions'][name] = schema.object.content.reject { |k, v| k == 'id' }
+            swagger['definitions'][name] = schema.reject { |k, v| k == 'id' }
           end
           ad.schemas.each do |name, schema|
             swagger = ycomb do |rec|
