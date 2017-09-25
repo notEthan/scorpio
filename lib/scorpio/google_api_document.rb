@@ -28,10 +28,16 @@ module Scorpio
         # swagger does not want an id field on schemas
         dup_doc.delete('id')
         if dup_doc['properties'].is_a?(Hash)
-          required_properties = dup_doc['properties'].map do |key, value|
-            key if value.is_a?(Hash) && value['required']
-          end.compact
-          dup_doc['required'] = required_properties unless required_properties.empty?
+          required_properties = dup_doc['properties'].select do |key, value|
+            value.is_a?(Hash) ? value.delete('required') : nil
+          end.keys
+          # put required before properties
+          unless required_properties.empty?
+            dup_doc = dup_doc.map do |k, v|
+              base = k == 'properties' ? {'required' => required_properties } : {}
+              base.merge({k => v})
+            end.inject({}, &:update)
+          end
         end
         dup_doc
       end
