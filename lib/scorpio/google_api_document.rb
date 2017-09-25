@@ -116,27 +116,27 @@ module Scorpio
                 operation['parameters'] ||= []
                 operation['parameters'] += unused_path_params.map do |param_name|
                   {
-                    name: param_name,
-                    in: 'path',
-                    required: true,
-                    type: 'string',
+                    'name' => param_name,
+                    'in' => 'path',
+                    'required' => true,
+                    'type' => 'string',
                   }
                 end
               end
               if method['request']
                 operation['parameters'] ||= []
                 operation['parameters'] << {
-                  name: 'body',
-                  in: 'body',
-                  required: true,
-                  schema: method['request'],
+                  'name' => 'body',
+                  'in' => 'body',
+                  'required' => true,
+                  'schema' => method['request'],
                 }
               end
               if method['response']
                 operation['responses'] = {
                   'default' => {
-                    description: 'default response',
-                    schema: method['response'],
+                    'description' => 'default response',
+                    'schema' => method['response'],
                   },
                 }
               end
@@ -147,31 +147,31 @@ module Scorpio
         end.inject({}, &:update)
 
         swagger = {
-          swagger: '2.0',
-          info: { #/definitions/info
-            title: ad.title || ad.name,
-            description: ad.description,
-            version: ad.version || '',
-            #termsOfService: '',
-            contact: {
-              name: ad.ownerName,
-              #url: 
-              #email: '',
-            },
-            #license: {
-              #name: '',
-              #url: '',
+          'swagger' => '2.0',
+          'info' => { #/definitions/info
+            'title' => ad.title || ad.name,
+            'description' => ad.description,
+            'version' => ad.version || '',
+            #'termsOfService' => '',
+            'contact' => {
+              'name' => ad.ownerName,
+              #'url' => 
+              #'email' => '',
+            }.reject { |_, v| v.nil? },
+            #'license' => {
+              #'name' => '',
+              #'url' => '',
             #},
           },
-          host: ad.rootUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.baseUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.name, # uhh ... got nothin' better 
-          basePath: begin
+          'host' => ad.rootUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.baseUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.name, # uhh ... got nothin' better 
+          'basePath' => begin
             path = ad.servicePath || ad.basePath || (ad.baseUrl ? Addressable::URI.parse(ad.baseUrl).path : '/')
             path =~ %r(\A/) ? path : "/" + path
           end,
-          schemes: ad.rootUrl ? [Addressable::URI.parse(ad.rootUrl).scheme] : ad.baseUrl ? [Addressable::URI.parse(ad.rootUrl).scheme] : [], #/definitions/schemesList
-          consumes: ['application/json'], # we'll just make this assumption
-          produces: ['application/json'],
-          paths: paths, #/definitions/paths
+          'schemes' => ad.rootUrl ? [Addressable::URI.parse(ad.rootUrl).scheme] : ad.baseUrl ? [Addressable::URI.parse(ad.rootUrl).scheme] : [], #/definitions/schemesList
+          'consumes' => ['application/json'], # we'll just make this assumption
+          'produces' => ['application/json'],
+          'paths' => paths, #/definitions/paths
         }
         if ad.schemas
           swagger['definitions'] = ad.schemas
