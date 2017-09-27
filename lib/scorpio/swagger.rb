@@ -1,9 +1,8 @@
 require 'scorpio/schema_object_base'
-require 'yaml'
 
 module Scorpio
   module Swagger
-    swagger_schema_doc = YAML.load_file(File.join(File.dirname(__FILE__), 'swagger', 'swagger 2.0 json schema.yaml'))
+    swagger_schema_doc = ::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read)
     swagger_class = proc do |definitions_key|
       Scorpio.class_for_schema(Scorpio::JSON::Node.new_by_type(swagger_schema_doc, ['definitions', definitions_key]))
     end
