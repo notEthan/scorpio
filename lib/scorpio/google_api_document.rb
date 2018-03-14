@@ -80,7 +80,7 @@ module Scorpio
                     # unused: header, formdata, body
                     end
                     unused_path_params.delete(name) if op_param['in'] == 'path'
-                    op_param['required'] = parameter.object.key?('required') ? parameter['required'] : op_param['in'] == 'path' ? true : false
+                    op_param['required'] = parameter.key?('required') ? parameter['required'] : op_param['in'] == 'path' ? true : false
                     op_param['type'] = parameter.type || 'string'
                     op_param['format'] = parameter.format if parameter.format
                   end
@@ -103,14 +103,17 @@ module Scorpio
                   name: 'body',
                   in: 'body',
                   required: true,
-                  schema: method['request'].object,
+                  schema: method.object.content['request'],
                 }
               end
               if method['response']
                 operation['responses'] = {
                   'default' => {
                     description: 'default response',
-                    schema: method['response'].object,
+                    # we want the response without dereferencing, hence getting the object content
+                    # before subscripting response.
+                    # we also don't want an id field. openapi doesn't like it.
+                    schema: method.object.content['response'].reject { |k, v| k == 'id' },
                   },
                 }
               end
@@ -150,7 +153,7 @@ module Scorpio
         if ad.schemas
           swagger['definitions'] = {}
           ad.schemas.each do |name, schema|
-            swagger['definitions'][name] = schema.object.reject { |k, v| k == 'id' }
+            swagger['definitions'][name] = schema.object.content.reject { |k, v| k == 'id' }
           end
           ad.schemas.each do |name, schema|
             swagger = ycomb do |rec|
