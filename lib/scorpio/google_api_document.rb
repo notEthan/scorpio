@@ -18,6 +18,10 @@ module Scorpio
     RestMethod      = api_document_class.call('RestMethod')
     RestResource    = api_document_class.call('RestResource')
 
+    # not generated
+    RestMethodRequest = api_document_class.call('RestMethod', 'properties', 'request')
+    RestMethodResponse = api_document_class.call('RestMethod', 'properties', 'response')
+
     class RestDescription
       def to_swagger_document(options = {})
         Swagger::Document.new(to_swagger_hash(options))
