@@ -76,7 +76,7 @@ module Scorpio
           end
           operations = path_methods.group_by { |m| m['httpMethod'] }.map do |http_method, http_method_methods|
             if http_method_methods.size > 1
-              #raise("http method #{http_method} at path #{path} not unique: #{http_method_methods.inspect}")
+              #raise("http method #{http_method} at path #{path} not unique: #{http_method_methods.pretty_inspect}")
             end
             method = http_method_methods.first
             unused_path_params = Addressable::Template.new(path).variables
@@ -195,7 +195,7 @@ module Scorpio
                           elsif [String, TrueClass, FalseClass, NilClass, Numeric].any? { |c| toswaggerobject.is_a?(c) }
                             toswaggerobject
                           else
-                            raise(toswaggerobject.inspect)
+                            raise(TypeError, "bad (not jsonifiable) object: #{toswaggerobject.pretty_inspect}")
                           end
                         end
                       end.call({k => rec.call(v)})
@@ -223,7 +223,7 @@ module Scorpio
             elsif [String, TrueClass, FalseClass, NilClass, Numeric].any? { |c| object.is_a?(c) }
               object
             else
-              raise(object.inspect)
+              raise(TypeError, "bad (not jsonifiable) object: #{object.pretty_inspect}")
             end
           end
         end.call(swagger)
