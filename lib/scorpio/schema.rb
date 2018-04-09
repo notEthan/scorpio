@@ -27,16 +27,15 @@ module Scorpio
     end
 
     def match_to_object(object)
-      object = object.content if object.is_a?(Scorpio::JSON::Node)
-      if schema_node && schema_node['oneOf']
-        matched = schema_node['oneOf'].map(&:deref).map do |oneof|
-          oneof_matched = self.class.new(oneof).match_to_object(object)
-          if oneof_matched.validate(object)
-            oneof_matched
+      %w(oneOf allOf anyOf).select { |k| schema_node[k].respond_to?(:to_ary) }.each do |someof_key|
+        schema_node[someof_key].map(&:deref).map do |someof_node|
+          someof_schema = self.class.new(someof_node)
+          if someof_schema.validate(object)
+            return someof_schema.match_to_object(object)
           end
-        end.compact.first
+        end
       end
-      matched || self
+      return self
     end
 
     def subschema_for_index(index)
