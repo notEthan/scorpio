@@ -13,7 +13,7 @@ class BlogModel < Scorpio::ResourceBase
   if ENV['SCORPIO_API_SPECIFIER'] == 'rest_description'
     self.openapi_document = Scorpio::Google::RestDescription.new(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
   else
-    self.openapi_document = YAML.load_file('test/blog.openapi.yml')
+    self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
   end
   self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
   self.faraday_request_middleware = [[:api_hammer_request_logger, logger]]
