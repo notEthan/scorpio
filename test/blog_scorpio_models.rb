@@ -12,10 +12,20 @@ class BlogModel < Scorpio::ResourceBase
 
   if ENV['SCORPIO_API_SPECIFIER'] == 'rest_description'
     self.openapi_document = Scorpio::Google::RestDescription.new(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
-  else
+    self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
+  elsif ENV['SCORPIO_API_SPECIFIER'] == 'openapi2'
     self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
+    self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
+  elsif ENV['SCORPIO_API_SPECIFIER'] == 'openapi3' || ENV['SCORPIO_API_SPECIFIER'].nil?
+    self.openapi_document = YAML.load_file('test/blog.openapi3.yml')
+    self.server_variables = {
+      'scheme' => 'http',
+      'host' => 'localhost',
+      'port' => $blog_port || raise(Bug),
+    }
+  else
+    abort("bad SCORPIO_API_SPECIFIER")
   end
-  self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
   self.faraday_request_middleware = [[:api_hammer_request_logger, logger]]
 end
 
@@ -24,7 +34,11 @@ end
 # specified to BlogModel) 
 class Article < BlogModel
   self.tag_name = 'articles'
-  self.represented_schemas = [openapi_document.definitions['articles']]
+  if openapi_document.v2?
+    self.represented_schemas = [openapi_document.definitions['articles']]
+  else
+    self.represented_schemas = [openapi_document.components.schemas['articles']]
+  end
 end
 
 class BlogClean < BlogModel
