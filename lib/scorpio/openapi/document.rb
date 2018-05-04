@@ -4,6 +4,14 @@ module Scorpio
       module Configurables
       end
       include Configurables
+
+      def v2?
+        is_a?(V2::Document)
+      end
+
+      def v3?
+        is_a?(V3::Document)
+      end
     end
 
     module V3
