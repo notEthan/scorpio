@@ -151,6 +151,7 @@ module Scorpio
       class Document
         include OpenAPI::Document
       end
+      require 'scorpio/openapi/v3/server'
     end
 
     module V2
