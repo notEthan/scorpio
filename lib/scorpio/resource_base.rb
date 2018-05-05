@@ -64,7 +64,22 @@ module Scorpio
     #   self.base_url = File.join('https://example.com/', openapi_document.basePath)
     # end
     define_inheritable_accessor(:base_url, default_getter: -> {
-      openapi_document.base_url
+      openapi_document.base_url(server: server, server_variables: server_variables)
+    })
+
+    define_inheritable_accessor(:server_variables, default_value: {}, on_set: -> {
+      if openapi_document && openapi_document.v2?
+        raise(ArgumentError, "server variables are not supported for OpenAPI V2")
+      end
+    })
+
+    define_inheritable_accessor(:server, on_set: -> {
+      if openapi_document && openapi_document.v2?
+        raise(ArgumentError, "servers are not supported for OpenAPI V2")
+      end
+      unless server.is_a?(Scorpio::OpenAPI::V3::Server)
+        raise(TypeError, "server must be an #{Scorpio::OpenAPI::V3::Server.inspect}. received: #{server.pretty_inspect.chomp}")
+      end
     })
 
     define_inheritable_accessor(:user_agent, default_getter: -> { openapi_document.user_agent })
