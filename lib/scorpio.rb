@@ -82,4 +82,6 @@ module Scorpio
   autoload :Google, 'scorpio/google_api_document'
   autoload :OpenAPI, 'scorpio/openapi'
   autoload :ResourceBase, 'scorpio/resource_base'
+  autoload :Request, 'scorpio/request'
+  autoload :Response, 'scorpio/response'
 end
