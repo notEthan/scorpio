@@ -253,65 +253,40 @@ module Scorpio
         end
       end
 
-      def connection
-        Faraday.new(:headers => {'User-Agent' => user_agent}) do |c|
-          faraday_request_middleware.each do |m|
-            c.request(*m)
-          end
-          faraday_response_middleware.each do |m|
-            c.response(*m)
-          end
-          c.adapter(*faraday_adapter)
-        end
-      end
-
       def call_operation(operation, call_params: nil, model_attributes: nil)
         call_params = JSI.stringify_symbol_keys(call_params) if call_params.is_a?(Hash)
         model_attributes = JSI.stringify_symbol_keys(model_attributes || {})
-        http_method = operation.http_method.downcase.to_sym
-        path_template = Addressable::Template.new(operation.path)
-        template_params = model_attributes
-        template_params = template_params.merge(call_params) if call_params.is_a?(Hash)
-        missing_variables = path_template.variables - template_params.keys
-        if missing_variables.any?
-          raise(ArgumentError, "path #{operation.path} for operation #{operation.operationId} requires attributes " +
-            "which were missing: #{missing_variables.inspect}")
-        end
-        empty_variables = path_template.variables.select { |v| template_params[v].to_s.empty? }
-        if empty_variables.any?
-          raise(ArgumentError, "path #{operation.path} for operation #{operation.operationId} requires attributes " +
-            "which were empty: #{empty_variables.inspect}")
-        end
-        path = path_template.expand(template_params)
-        # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
-        # we use File.join just to deal with consecutive slashes.
-        url = File.join(base_url, path)
-        url = Addressable::URI.parse(url)
+
+        request = Scorpio::Request.new(operation)
+
+        request.path_params = model_attributes || {}
+        request.path_params = request.path_params.merge(call_params) if call_params.is_a?(Hash)
+
         # assume that call_params must be included somewhere. model_attributes are a source of required things
         # but not required to be here.
         other_params = call_params
         if other_params.is_a?(Hash)
-          other_params.reject! { |k, _| path_template.variables.include?(k) }
+          other_params = other_params.reject { |k, _| request.path_template.variables.include?(k) }
         end
 
         if operation.request_schema
           # TODO deal with model_attributes / call_params better in nested whatever
           if call_params.nil?
-            body = request_body_for_schema(model_attributes, operation.request_schema)
+            request.body_object = request_body_for_schema(model_attributes, operation.request_schema)
           elsif call_params.is_a?(Hash)
             body = request_body_for_schema(model_attributes.merge(call_params), operation.request_schema)
-            body = body.merge(call_params) # TODO
+            request.body_object = body.merge(call_params) # TODO
           else
-            body = call_params
+            request.body_object = call_params
           end
         else
           if other_params
-            if METHODS_WITH_BODIES.any? { |m| m.to_s == http_method.downcase.to_s }
-              body = other_params
+            if METHODS_WITH_BODIES.any? { |m| m.to_s == operation.http_method.downcase.to_s }
+              request.body_object = other_params
             else
               if other_params.is_a?(Hash)
                 # TODO pay more attention to 'parameters' api method attribute
-                url.query_values = other_params
+                request.query_params = other_params
               else
                 raise
               end
@@ -319,31 +294,8 @@ module Scorpio
           end
         end
 
-        request_headers = {}
-
-        if METHODS_WITH_BODIES.any? { |m| m.to_s == http_method.downcase.to_s } && body != nil
-          consumes = operation.consumes || openapi_document.consumes || []
-          if consumes.include?("application/json") || (!body.respond_to?(:to_str) && consumes.empty?)
-          # if we have a body that's not a string and no indication of how to serialize it, we guess json.
-            request_headers['Content-Type'] = "application/json"
-            unless body.respond_to?(:to_str)
-              body = ::JSON.pretty_generate(JSI::Typelike.as_json(body))
-            end
-          elsif consumes.include?("application/x-www-form-urlencoded")
-            request_headers['Content-Type'] = "application/x-www-form-urlencoded"
-            unless body.respond_to?(:to_str)
-              body = URI.encode_www_form(body)
-            end
-          elsif body.is_a?(String)
-            if consumes.size == 1
-              request_headers['Content-Type'] = consumes.first
-            end
-          else
-            raise("do not know how to serialize for #{consumes.inspect}: #{body.pretty_inspect.chomp}")
-          end
-        end
-
-        response = connection.run_request(http_method, url, body, request_headers)
+        ur = request.run
+        response = ur.response
 
         if response.media_type == 'application/json'
           if response.body.empty?
@@ -382,7 +334,7 @@ module Scorpio
           HTTPError
         end
         if error_class
-          message = "Error calling operation #{operation.operationId} on #{self}:\n" + (response.env[:raw_body] || response.env.body)
+          message = "Error calling operation #{operation.operationId} on #{self}:\n" + response.body
           raise(error_class.new(message).tap do |e|
             e.faraday_response = response
             e.response_object = response_object
@@ -391,7 +343,7 @@ module Scorpio
 
         initialize_options = {
           'persisted' => true,
-          'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => url.to_s},
+          'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => ur.request.uri.to_s},
           'response' => response,
         }
         response_object_to_instances(response_object, initialize_options)
