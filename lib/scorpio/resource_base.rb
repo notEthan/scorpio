@@ -356,7 +356,9 @@ module Scorpio
         if operation.responses
           _, operation_response = operation.responses.detect { |k, v| k.to_s == response.status.to_s }
           operation_response ||= operation.responses['default']
-          response_schema = operation_response['schema'] if operation_response
+          if operation_response['content'] && operation_response['content'][response.media_type]
+            response_schema = operation_response['content'][response.media_type]['schema']
+          end
         end
         if response_schema
           # not too sure about this, but I don't think it makes sense to instantiate things that are
