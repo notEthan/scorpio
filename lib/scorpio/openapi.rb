@@ -2,6 +2,7 @@ module Scorpio
   module OpenAPI
     autoload :Operation, 'scorpio/openapi/operation'
     autoload :Document, 'scorpio/openapi/document'
+    autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
       openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/openapis.org/v3/schema.json').read))

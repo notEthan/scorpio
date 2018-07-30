@@ -12,6 +12,11 @@ module Scorpio
       def v3?
         is_a?(V3::Document)
       end
+
+      def operations
+        return @operations if instance_variable_defined?(:@operations)
+        @operations = OperationsScope.new(self)
+      end
     end
 
     module V3
