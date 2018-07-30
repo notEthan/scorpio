@@ -4,6 +4,27 @@ module Scorpio
       module Configurables
       end
       include Configurables
+
+      def path
+        return @path if instance_variable_defined?(:@path)
+        @path = begin
+          parent_is_pathitem = parent.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent.is_a?(Scorpio::OpenAPI::V3::PathItem)
+          parent_parent_is_paths = parent.parent.is_a?(Scorpio::OpenAPI::V2::Paths) || parent.parent.is_a?(Scorpio::OpenAPI::V3::Paths)
+          if parent_is_pathitem && parent_parent_is_paths
+            parent.instance.path.last
+          end
+        end
+      end
+
+      def http_method
+        return @http_method if instance_variable_defined?(:@http_method)
+        @http_method = begin
+          parent_is_pathitem = parent.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent.is_a?(Scorpio::OpenAPI::V3::PathItem)
+          if parent_is_pathitem
+            instance.path.last
+          end
+        end
+      end
     end
 
     module V3
@@ -20,18 +41,6 @@ module Scorpio
         module Configurables
         end
         include Configurables
-
-        def path
-          @path ||= if parent.is_a?(Scorpio::OpenAPI::V2::PathItem) && parent.parent.is_a?(Scorpio::OpenAPI::V2::Paths)
-            parent.instance.path.last
-          end
-        end
-
-        def http_method
-          @http_method ||= if parent.is_a?(Scorpio::OpenAPI::V2::PathItem)
-            instance.path.last
-          end
-        end
 
         # there should only be one body parameter; this returns it
         def body_parameter
