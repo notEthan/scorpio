@@ -31,6 +31,18 @@ module Scorpio
         openapi_document.base_url(server: server, server_variables: server_variables)
       end
 
+      attr_writer :body
+      def body
+        return @body if instance_variable_defined?(:@body)
+        raise(NotImplementedError)
+      end
+
+      attr_writer :headers
+      def headers
+        return @headers if instance_variable_defined?(:@headers)
+        {}
+      end
+
       attr_writer :user_agent
       def user_agent
         return @user_agent if instance_variable_defined?(:@user_agent)
