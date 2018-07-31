@@ -5,6 +5,10 @@ module Scorpio
       end
       include Configurables
 
+      def openapi_document
+        parents.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
+      end
+
       def path
         return @path if instance_variable_defined?(:@path)
         @path = begin
