@@ -185,5 +185,21 @@ module Scorpio
     def request_schema_class(media_type: self.media_type)
       JSI.class_for_schema(request_schema(media_type: media_type))
     end
+
+    def faraday_connection
+      Faraday.new do |c|
+        faraday_request_middleware.each do |m|
+          c.request(*m)
+        end
+        faraday_response_middleware.each do |m|
+          c.response(*m)
+        end
+        c.adapter(*faraday_adapter)
+      end
+    end
+
+    def run
+      faraday_connection.run_request(http_method, url, body, request_headers)
+    end
   end
 end
