@@ -28,7 +28,7 @@ module Scorpio
       attr_writer :base_url
       def base_url
         return @base_url if instance_variable_defined?(:@base_url)
-        raise(NotImplementedError)
+        openapi_document.base_url(server: server, server_variables: server_variables)
       end
 
       attr_writer :user_agent
