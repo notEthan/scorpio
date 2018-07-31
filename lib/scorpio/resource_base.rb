@@ -67,9 +67,8 @@ module Scorpio
       openapi_document.base_url
     })
 
-    define_inheritable_accessor(:user_agent, default_getter: -> {
-      "Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
-    })
+    define_inheritable_accessor(:user_agent, default_getter: -> { openapi_document.user_agent })
+
     define_inheritable_accessor(:faraday_request_middleware, default_value: [])
     define_inheritable_accessor(:faraday_adapter, default_getter: proc { Faraday.default_adapter })
     define_inheritable_accessor(:faraday_response_middleware, default_value: [])

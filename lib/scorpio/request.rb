@@ -31,6 +31,12 @@ module Scorpio
         raise(NotImplementedError)
       end
 
+      attr_writer :user_agent
+      def user_agent
+        return @user_agent if instance_variable_defined?(:@user_agent)
+        operation.openapi_document.user_agent
+      end
+
       attr_writer :faraday_request_middleware
       def faraday_request_middleware
         return @faraday_request_middleware if instance_variable_defined?(:@faraday_request_middleware)

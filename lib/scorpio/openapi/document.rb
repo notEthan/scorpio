@@ -2,6 +2,11 @@ module Scorpio
   module OpenAPI
     module Document
       module Configurables
+        attr_writer :user_agent
+        def user_agent
+          return @user_agent if instance_variable_defined?(:@user_agent)
+          "Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+        end
       end
       include Configurables
 
