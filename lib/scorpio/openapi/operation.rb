@@ -70,6 +70,18 @@ module Scorpio
           end
         end
       end
+
+      def build_request(*a, &b)
+        request = Scorpio::Request.new(self, *a, &b)
+      end
+
+      def run_ur(*a, &b)
+        build_request(*a, &b).run_ur
+      end
+
+      def run(*a, &b)
+        build_request(*a, &b).run
+      end
     end
 
     module V3
