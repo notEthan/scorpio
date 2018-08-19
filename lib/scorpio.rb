@@ -1,16 +1,13 @@
 require "scorpio/version"
+require "jsi"
 require "pathname"
 require "pp"
-require "api_hammer/ycomb"
-require "scorpio/json-schema-fragments"
 
 module Scorpio
   def self.root
     @root ||= Pathname.new(__FILE__).dirname.parent.expand_path
   end
 end
-
-require "scorpio/util"
 
 module Scorpio
   # generally put in code paths that are not expected to be valid control flow paths.
@@ -82,21 +79,7 @@ module Scorpio
   include HTTPErrors
   error_classes_by_status.freeze
 
-  autoload :JSON,       'scorpio/json'
-  autoload :Google,      'scorpio/google_api_document'
-  autoload :OpenAPI,      'scorpio/openapi'
-  autoload :Typelike,      'scorpio/typelike_modules'
-  autoload :Hashlike,       'scorpio/typelike_modules'
-  autoload :Arraylike,       'scorpio/typelike_modules'
-  autoload :ResourceBase,     'scorpio/resource_base'
-  autoload :Schema,            'scorpio/schema'
-  autoload :SchemaInstanceBase, 'scorpio/schema_instance_base'
-  autoload :SchemaClasses,       'scorpio/schema_instance_base'
-  autoload :ObjectJSONCoder,      'scorpio/schema_instance_json_coder'
-  autoload :StructJSONCoder,       'scorpio/struct_json_coder'
-  autoload :SchemaInstanceJSONCoder,'scorpio/schema_instance_json_coder'
-
-  def self.class_for_schema(*a, &b)
-    SchemaClasses.class_for_schema(*a, &b)
-  end
+  autoload :Google, 'scorpio/google_api_document'
+  autoload :OpenAPI, 'scorpio/openapi'
+  autoload :ResourceBase, 'scorpio/resource_base'
 end

@@ -1,11 +1,9 @@
-require 'scorpio/schema_instance_base'
-
 module Scorpio
   module OpenAPI
     module V3
-      openapi_schema = Scorpio::Schema.new(::JSON.parse(Scorpio.root.join('documents/openapis.org/v3/schema.json').read))
+      openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/openapis.org/v3/schema.json').read))
       openapi_class = proc do |*key|
-        Scorpio.class_for_schema(key.inject(openapi_schema, &:[]))
+        JSI.class_for_schema(key.inject(openapi_schema, &:[]))
       end
 
       Document = openapi_class.call()
@@ -73,9 +71,9 @@ module Scorpio
       DefaultType                 = openapi_class.call('definitions', 'defaultType')
     end
     module V2
-      openapi_schema = Scorpio::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
+      openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
       openapi_class = proc do |*key|
-        Scorpio.class_for_schema(key.inject(openapi_schema, &:[]))
+        JSI.class_for_schema(key.inject(openapi_schema, &:[]))
       end
 
       Document = openapi_class.call()
@@ -160,7 +158,7 @@ module Scorpio
 
         def request_schema
           if body_parameter && body_parameter['schema']
-            Scorpio::Schema.new(body_parameter['schema'])
+            JSI::Schema.new(body_parameter['schema'])
           end
         end
       end
