@@ -99,7 +99,13 @@ module Scorpio
 
       def openapi_document=(openapi_document)
         if openapi_document.is_a?(Hash)
+          openapi_document = JSI::JSON::Node.new_doc(openapi_document)
+        end
+        if openapi_document.is_a?(JSI::JSON::Node)
           openapi_document = OpenAPI::V2::Document.new(openapi_document)
+        end
+        unless openapi_document.is_a?(OpenAPI::V2::Document)
+          raise(TypeError)
         end
 
         begin
