@@ -59,9 +59,6 @@ module Scorpio
           unless schema.is_a?(JSI::Schema)
             schema = JSI::Schema.new(schema)
           end
-          unless schema['type'].nil? || schema.describes_hash?
-            raise(TypeError, "given schema for #{self.inspect} not of type object - type must be object for Scorpio ResourceBase to represent this schema. schema is: #{schema.pretty_inspect.chomp}")
-          end
           schema
         end
       end
@@ -142,7 +139,7 @@ module Scorpio
       end
 
       def all_schema_properties
-        represented_schemas.map(&:described_hash_property_names).inject(Set.new, &:|)
+        represented_schemas.map(&:described_object_property_names).inject(Set.new, &:|)
       end
 
       def update_instance_accessors
@@ -192,7 +189,7 @@ module Scorpio
         # should we define an instance method?
         #request_attributes |= method_desc['parameters'] ? method_desc['parameters'].keys : []
 
-        schema_attributes = represented_schemas.map(&:described_hash_property_names).inject(Set.new, &:|)
+        schema_attributes = represented_schemas.map(&:described_object_property_names).inject(Set.new, &:|)
 
         return request_resource_is_self || (request_attributes & schema_attributes.to_a).any?
       end
