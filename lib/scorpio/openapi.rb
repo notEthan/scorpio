@@ -21,6 +21,12 @@ module Scorpio
     autoload(:Server, 'scorpio/openapi/server')
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
+    module Paths
+    end
+
+    module PathItem
+    end
+
     autoload(:V2, 'scorpio/openapi/v2')
     autoload(:V3, 'scorpio/openapi/v3_0')
     autoload(:V3_0, 'scorpio/openapi/v3_0')

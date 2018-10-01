@@ -101,6 +101,14 @@ module Scorpio
         include(OpenAPI::Tag)
       end
 
+      module Paths
+        include(OpenAPI::Paths)
+      end
+
+      module PathItem
+        include(OpenAPI::PathItem)
+      end
+
       raise(Bug) unless Schema < JSI::Schema
     end
   end
