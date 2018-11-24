@@ -113,7 +113,7 @@ module Scorpio
         rescue NameError
         end
         define_singleton_method(:openapi_document) { openapi_document }
-        define_singleton_method(:openapi_document=) do
+        define_singleton_method(:openapi_document=) do |_|
           if self == openapi_document_class
             raise(ArgumentError, "openapi_document may only be set once on #{self.inspect}")
           else
