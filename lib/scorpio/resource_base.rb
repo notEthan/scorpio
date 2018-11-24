@@ -216,17 +216,19 @@ module Scorpio
           path_item.each do |http_method, operation|
             next if http_method == 'parameters' # parameters is not an operation. TOOD maybe just select the keys that are http methods?
             method_name = method_names_by_operation[operation]
-            # class method
-            if operation_for_resource_class?(operation) && !respond_to?(method_name)
-              define_singleton_method(method_name) do |call_params = nil|
-                call_operation(operation, call_params: call_params)
+            if method_name
+              # class method
+              if operation_for_resource_class?(operation) && !respond_to?(method_name)
+                define_singleton_method(method_name) do |call_params = nil|
+                  call_operation(operation, call_params: call_params)
+                end
               end
-            end
 
-            # instance method
-            if operation_for_resource_instance?(operation) && !method_defined?(method_name)
-              define_method(method_name) do |call_params = nil|
-                call_operation(operation, call_params: call_params)
+              # instance method
+              if operation_for_resource_instance?(operation) && !method_defined?(method_name)
+                define_method(method_name) do |call_params = nil|
+                  call_operation(operation, call_params: call_params)
+                end
               end
             end
           end
