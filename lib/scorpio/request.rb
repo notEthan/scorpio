@@ -60,6 +60,10 @@ module Scorpio
 
     attr_reader :operation
 
+    def openapi_document
+      operation.openapi_document
+    end
+
     def http_method
       operation.http_method.downcase.to_sym
     end
