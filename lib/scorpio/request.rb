@@ -40,8 +40,25 @@ module Scorpio
       attr_writer :body
       def body
         return @body if instance_variable_defined?(:@body)
-        raise(NotImplementedError)
+        if instance_variable_defined?(:@body_object)
+          # TODO handle media types like `application/schema-instance+json`
+          if media_type == 'application/json'
+            JSON.pretty_generate(JSI::Typelike.as_json(body_object))
+          elsif media_type == "application/x-www-form-urlencoded"
+            URI.encode_www_form(body_object)
+          else
+            if body_object.respond_to?(:to_str)
+              body_object
+            else
+              raise(NotImplementedError)
+            end
+          end
+        else
+          nil
+        end
       end
+
+      attr_accessor :body_object
 
       attr_writer :headers
       def headers
