@@ -2,6 +2,59 @@ module Scorpio
   module OpenAPI
     module Operation
       module Configurables
+        attr_writer :server
+        def server
+          return @server if instance_variable_defined?(:@server)
+          openapi_document.server
+        end
+
+        attr_writer :server_variables
+        def server_variables
+          return @server_variables if instance_variable_defined?(:@server_variables)
+          openapi_document.server_variables
+        end
+
+        attr_writer :base_url
+        def base_url(server: self.server, server_variables: self.server_variables)
+          return @base_url if instance_variable_defined?(:@base_url)
+          openapi_document.base_url(server: server, server_variables: server_variables)
+        end
+
+        attr_writer :request_headers
+        def request_headers
+          return @request_headers if instance_variable_defined?(:@request_headers)
+          openapi_document.request_headers
+        end
+
+        attr_writer :user_agent
+        def user_agent
+          return @user_agent if instance_variable_defined?(:@user_agent)
+          openapi_document.user_agent
+        end
+
+        attr_writer :faraday_request_middleware
+        def faraday_request_middleware
+          return @faraday_request_middleware if instance_variable_defined?(:@faraday_request_middleware)
+          openapi_document.faraday_request_middleware
+        end
+
+        attr_writer :faraday_response_middleware
+        def faraday_response_middleware
+          return @faraday_response_middleware if instance_variable_defined?(:@faraday_response_middleware)
+          openapi_document.faraday_response_middleware
+        end
+
+        attr_writer :faraday_adapter
+        def faraday_adapter
+          return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
+          openapi_document.faraday_adapter
+        end
+
+        attr_writer :logger
+        def logger
+          return @logger if instance_variable_defined?(:@logger)
+          openapi_document.logger
+        end
       end
       include Configurables
 
@@ -35,6 +88,11 @@ module Scorpio
       raise(Bug) unless const_defined?(:Operation)
       class Operation
         module Configurables
+          attr_writer :request_media_type
+          def request_media_type
+            return @request_media_type if instance_variable_defined?(:@request_media_type)
+            openapi_document.request_media_type
+          end
         end
         include Configurables
 
@@ -50,6 +108,11 @@ module Scorpio
       raise(Bug) unless const_defined?(:Operation)
       class Operation
         module Configurables
+          attr_writer :request_media_type
+          def request_media_type
+            return @request_media_type if instance_variable_defined?(:@request_media_type)
+            openapi_document.request_media_type
+          end
         end
         include Configurables
 

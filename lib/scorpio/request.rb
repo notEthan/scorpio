@@ -16,19 +16,19 @@ module Scorpio
       attr_writer :server
       def server
         return @server if instance_variable_defined?(:@server)
-        nil
+        operation.server
       end
 
       attr_writer :server_variables
       def server_variables
         return @server_variables if instance_variable_defined?(:@server_variables)
-        {}.freeze
+        operation.server_variables
       end
 
       attr_writer :base_url
       def base_url
         return @base_url if instance_variable_defined?(:@base_url)
-        openapi_document.base_url(server: server, server_variables: server_variables)
+        operation.base_url(server: server, server_variables: server_variables)
       end
 
       attr_writer :body
@@ -40,31 +40,43 @@ module Scorpio
       attr_writer :headers
       def headers
         return @headers if instance_variable_defined?(:@headers)
-        {}
+        operation.request_headers
+      end
+
+      attr_writer :media_type
+      def media_type
+        return @media_type if instance_variable_defined?(:@media_type)
+        operation.request_media_type
       end
 
       attr_writer :user_agent
       def user_agent
         return @user_agent if instance_variable_defined?(:@user_agent)
-        operation.openapi_document.user_agent
+        operation.user_agent
       end
 
       attr_writer :faraday_request_middleware
       def faraday_request_middleware
         return @faraday_request_middleware if instance_variable_defined?(:@faraday_request_middleware)
-        [].freeze
+        operation.faraday_request_middleware
       end
 
       attr_writer :faraday_response_middleware
       def faraday_response_middleware
         return @faraday_response_middleware if instance_variable_defined?(:@faraday_response_middleware)
-        [].freeze
+        operation.faraday_response_middleware
       end
 
       attr_writer :faraday_adapter
       def faraday_adapter
         return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
-        [Faraday.default_adapter].freeze
+        operation.faraday_adapter
+      end
+
+      attr_writer :logger
+      def logger
+        return @logger if instance_variable_defined?(:@logger)
+        operation.logger
       end
     end
     include Configurables

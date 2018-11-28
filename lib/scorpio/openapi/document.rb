@@ -28,10 +28,40 @@ module Scorpio
       end
 
       module Configurables
+        attr_writer :request_headers
+        def request_headers
+          return @request_headers if instance_variable_defined?(:@request_headers)
+          {}.freeze
+        end
+
         attr_writer :user_agent
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
           "Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+        end
+
+        attr_writer :faraday_request_middleware
+        def faraday_request_middleware
+          return @faraday_request_middleware if instance_variable_defined?(:@faraday_request_middleware)
+          [].freeze
+        end
+
+        attr_writer :faraday_response_middleware
+        def faraday_response_middleware
+          return @faraday_response_middleware if instance_variable_defined?(:@faraday_response_middleware)
+          [].freeze
+        end
+
+        attr_writer :faraday_adapter
+        def faraday_adapter
+          return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
+          [Faraday.default_adapter]
+        end
+
+        attr_writer :logger
+        def logger
+          return @logger if instance_variable_defined?(:@logger)
+          (Object.const_defined?(:Rails) && ::Rails.respond_to?(:logger) ? ::Rails.logger : nil)
         end
       end
       include Configurables
@@ -54,13 +84,32 @@ module Scorpio
       raise(Bug) unless const_defined?(:Document)
       class Document
         module Configurables
+          attr_writer :server
+          def server
+            return @server if instance_variable_defined?(:@server)
+            if servers.respond_to?(:to_ary) && servers.size == 1
+              servers.first
+            else
+              nil
+            end
+          end
+          attr_writer :server_variables
+          def server_variables
+            return @server_variables if instance_variable_defined?(:@server_variables)
+            {}.freeze
+          end
           attr_writer :base_url
-          def base_url(server: nil, server_variables: {})
+          def base_url(server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
-            server = servers.first if !server && servers.size == 1
             if server
               server.expanded_url(server_variables)
             end
+          end
+
+          attr_writer :request_media_type
+          def request_media_type
+            return @request_media_type if instance_variable_defined?(:@request_media_type)
+            nil
           end
         end
         include Configurables
@@ -90,6 +139,12 @@ module Scorpio
                 path: basePath,
               ).to_s
             end
+          end
+
+          attr_writer :request_media_type
+          def request_media_type
+            return @request_media_type if instance_variable_defined?(:@request_media_type)
+            nil
           end
         end
         include Configurables
