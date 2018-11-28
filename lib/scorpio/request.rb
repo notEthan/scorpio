@@ -186,7 +186,7 @@ module Scorpio
       JSI.class_for_schema(request_schema(media_type: media_type))
     end
 
-    def faraday_connection
+    def faraday_connection(yield_ur)
       Faraday.new do |c|
         faraday_request_middleware.each do |m|
           c.request(*m)
@@ -194,11 +194,13 @@ module Scorpio
         faraday_response_middleware.each do |m|
           c.response(*m)
         end
+        ::Ur::Faraday # autoload trigger
+        c.response(:yield_ur, ur_class: Scorpio::Ur, logger: self.logger, &yield_ur)
         c.adapter(*faraday_adapter)
       end
     end
 
-    def run
+    def run_ur
       headers = {}
       if user_agent
         headers['User-Agent'] = user_agent
@@ -209,7 +211,14 @@ module Scorpio
       if self.headers
         headers.update(self.headers)
       end
-      faraday_connection.run_request(http_method, url, body, headers)
+      ur = nil
+      faraday_connection(-> (yur) { ur = yur }).run_request(http_method, url, body, headers)
+      ur.scorpio_request = self
+      ur
+    end
+
+    def run
+      run_ur.response.body_object
     end
   end
 end
