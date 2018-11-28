@@ -180,7 +180,7 @@ module Scorpio
 
         return true if operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
 
-        if operation.request_schema && represented_schemas.include?(operation.request_schema)
+        if (operation.request_schemas || []).any? { |s| represented_schemas.include?(s) }
           return true
         end
 

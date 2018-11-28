@@ -37,6 +37,13 @@ module Scorpio
         module Configurables
         end
         include Configurables
+
+        def request_schemas
+          if requestBody && requestBody['content']
+            # oamt is for Scorpio::OpenAPI::V3::MediaType
+            requestBody['content'].values.map { |oamt| oamt['schema'] }.compact.map(&:deref)
+          end
+        end
       end
     end
     module V2
@@ -57,6 +64,10 @@ module Scorpio
           if body_parameter && body_parameter['schema']
             JSI::Schema.new(body_parameter['schema'])
           end
+        end
+
+        def request_schemas
+          [request_schema]
         end
       end
     end
