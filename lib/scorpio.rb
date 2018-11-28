@@ -1,5 +1,6 @@
 require "scorpio/version"
 require "jsi"
+require "ur"
 require "pathname"
 require "pp"
 
@@ -81,6 +82,7 @@ module Scorpio
 
   autoload :Google, 'scorpio/google_api_document'
   autoload :OpenAPI, 'scorpio/openapi'
+  autoload :Ur, 'scorpio/ur'
   autoload :ResourceBase, 'scorpio/resource_base'
   autoload :Request, 'scorpio/request'
   autoload :Response, 'scorpio/response'
