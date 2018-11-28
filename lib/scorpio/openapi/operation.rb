@@ -95,7 +95,11 @@ module Scorpio
           attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
-            openapi_document.request_media_type
+            if requestBody && requestBody['content'] && requestBody['content'].keys.size == 1
+              requestBody['content'].keys.first
+            elsif openapi_document.request_media_type
+              openapi_document.request_media_type
+            end
           end
         end
         include Configurables
