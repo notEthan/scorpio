@@ -104,6 +104,15 @@ module Scorpio
         end
         include Configurables
 
+        def request_schema(media_type: self.request_media_type)
+          # TODO typechecking on requestBody & children
+          requestBody &&
+            requestBody['content'] &&
+            requestBody['content'][media_type] &&
+            requestBody['content'][media_type]['schema'] &&
+            requestBody['content'][media_type]['schema'].deref
+        end
+
         def request_schemas
           if requestBody && requestBody['content']
             # oamt is for Scorpio::OpenAPI::V3::MediaType
@@ -170,7 +179,7 @@ module Scorpio
           end
         end
 
-        def request_schema
+        def request_schema(media_type: nil)
           if body_parameter && body_parameter['schema']
             JSI::Schema.new(body_parameter['schema'])
           end
