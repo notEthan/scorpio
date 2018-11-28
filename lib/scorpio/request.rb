@@ -151,5 +151,13 @@ module Scorpio
     def content_type
       content_type_header || media_type
     end
+
+    def request_schema(media_type: self.media_type)
+      operation.request_schema(media_type: media_type)
+    end
+
+    def request_schema_class(media_type: self.media_type)
+      JSI.class_for_schema(request_schema(media_type: media_type))
+    end
   end
 end
