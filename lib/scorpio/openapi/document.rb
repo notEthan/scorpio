@@ -11,10 +11,11 @@ module Scorpio
       class Document
         module Configurables
           attr_writer :base_url
-          def base_url
+          def base_url(server: nil, server_variables: {})
             return @base_url if instance_variable_defined?(:@base_url)
-            if servers.size == 1
-              servers.first.url
+            server = servers.first if !server && servers.size == 1
+            if server
+              server.expanded_url(server_variables)
             end
           end
         end
@@ -27,6 +28,9 @@ module Scorpio
       class Document
         module Configurables
           attr_writer :base_url
+          # the base url to which paths are appended.
+          # by default this looks at the openapi document's schemes, picking https or http first.
+          # it looks at the openapi_document's host and basePath.
           def base_url
             return @base_url if instance_variable_defined?(:@base_url)
             if schemes.nil?
