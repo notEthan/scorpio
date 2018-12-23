@@ -1,6 +1,7 @@
 module Scorpio
   module OpenAPI
     autoload :Operation, 'scorpio/openapi/operation'
+    autoload :Document, 'scorpio/openapi/document'
 
     module V3
       openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/openapis.org/v3/schema.json').read))
@@ -167,19 +168,25 @@ module Scorpio
     end
 
     begin
-      # OpenAPI::Operation autoload should not be triggered until all the classes its file references
-      # are defined (above)
+      # the autoloads for OpenAPI::Operation and OpenAPI::Document
+      # should not be triggered until all the classes their files reference are defined (above)
     end # (this block is here just so the above informative comment is not interpreted as module doc)
 
     module V3
       class Operation
         include OpenAPI::Operation
       end
+      class Document
+        include OpenAPI::Document
+      end
     end
 
     module V2
       class Operation
         include OpenAPI::Operation
+      end
+      class Document
+        include OpenAPI::Document
       end
     end
   end
