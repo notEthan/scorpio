@@ -84,9 +84,9 @@ module Scorpio
 
     define_inheritable_accessor(:user_agent, default_getter: -> { openapi_document.user_agent })
 
-    define_inheritable_accessor(:faraday_request_middleware, default_value: [])
-    define_inheritable_accessor(:faraday_adapter, default_getter: proc { Faraday.default_adapter })
-    define_inheritable_accessor(:faraday_response_middleware, default_value: [])
+    define_inheritable_accessor(:faraday_request_middleware, default_getter: -> { openapi_document.faraday_request_middleware })
+    define_inheritable_accessor(:faraday_response_middleware, default_getter: -> { openapi_document.faraday_response_middleware })
+    define_inheritable_accessor(:faraday_adapter, default_getter: -> { openapi_document.faraday_adapter })
     class << self
       # the openapi document
       def openapi_document
