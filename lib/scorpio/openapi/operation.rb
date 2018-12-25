@@ -55,8 +55,13 @@ module Scorpio
 
         # there should only be one body parameter; this returns it
         def body_parameter
-          (parameters || []).detect do |parameter|
-            parameter['in'] == 'body'
+          body_parameters = (parameters || []).select { |parameter| parameter['in'] == 'body' }
+          if body_parameters.size == 0
+            nil
+          elsif body_parameters.size == 1
+            body_parameters.first
+          else
+            raise(Bug) # TODO BLAME
           end
         end
 
