@@ -1,6 +1,32 @@
 module Scorpio
   module OpenAPI
     module Document
+      class << self
+        def from_instance(instance)
+          if instance.is_a?(Hash)
+            instance = JSI::JSON::Node.new_doc(instance)
+          end
+          if instance.is_a?(JSI::JSON::Node)
+            if instance['swagger'] =~ /\A2(\.|\z)/
+              instance = Scorpio::OpenAPI::V2::Document.new(instance)
+            elsif instance['openapi'] =~ /\A3(\.|\z)/
+              instance = Scorpio::OpenAPI::V3::Document.new(instance)
+            else
+              raise(ArgumentError, "instance does not look like a recognized openapi document")
+            end
+          end
+          if instance.is_a?(Scorpio::OpenAPI::Document)
+            instance
+          elsif instance.is_a?(JSI::Base)
+            raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
+          elsif instance.respond_to?(:to_hash)
+            from_instance(instance.to_hash)
+          else
+            raise(TypeError, "instance does not look like a hash (json object)")
+          end
+        end
+      end
+
       module Configurables
         attr_writer :user_agent
         def user_agent
