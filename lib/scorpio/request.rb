@@ -7,6 +7,12 @@ module Scorpio
         {}.freeze
       end
 
+      attr_writer :query_params
+      def query_params
+        return @query_params if instance_variable_defined?(:@query_params)
+        nil
+      end
+
       attr_writer :server
       def server
         return @server if instance_variable_defined?(:@server)
@@ -74,7 +80,11 @@ module Scorpio
           "which were empty: #{empty_variables.inspect}")
       end
 
-      path_template.expand(path_params)
+      path_template.expand(path_params).tap do |path|
+        if query_params
+          path.query_values = query_params
+        end
+      end
     end
 
     def url
