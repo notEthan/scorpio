@@ -263,6 +263,30 @@ module Scorpio
 
         request = Scorpio::Request.new(operation)
 
+        accessor_overridden = -> (accessor) do
+          # an accessor is overridden if the default accessor getter (UnboundMethod) is the same
+          # as the UnboundMethod returned from instance_method on the owner of that instance method.
+          # gotta be the owner since different classes return different UnboundMethod instances for
+          # the same method. for example, referring to models of scorpio/test/blog_scorpio_models.rb
+          # with the server_variables instance method:
+          #    Article.instance_method(:server_variables)
+          #    => #<UnboundMethod: #<Class:Article>#server_variables>
+          # returns a different UnboundMethod than
+          #    Scorpio::ResourceBase.instance_method(:server_variables)
+          #    => #<UnboundMethod: #<Class:Scorpio::ResourceBase>#server_variables>
+          # even though they are really the same method (the #owner for both is Scorpio::ResourceBase)
+          inheritable_accessor_defaults[accessor] != self.singleton_class.instance_method(accessor).owner.instance_method(accessor)
+        end
+
+        # pretty ugly... may find a better way to do this.
+        request.base_url =               self.base_url                    if accessor_overridden.(:base_url)
+        request.server_variables =        self.server_variables            if accessor_overridden.(:server_variables)
+        request.server =                   self.server                      if accessor_overridden.(:server)
+        request.user_agent =                self.user_agent                  if accessor_overridden.(:user_agent)
+        request.faraday_request_middleware = self.faraday_request_middleware  if accessor_overridden.(:faraday_request_middleware)
+        request.faraday_response_middleware = self.faraday_response_middleware if accessor_overridden.(:faraday_response_middleware)
+        request.faraday_adapter =            self.faraday_adapter             if accessor_overridden.(:faraday_adapter)
+
         request.path_params = request.path_template.variables.map do |var|
           if call_params.respond_to?(:to_hash) && call_params.key?(var)
             {var => call_params[var]}
