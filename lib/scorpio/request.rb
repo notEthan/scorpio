@@ -104,7 +104,16 @@ module Scorpio
     end
     include Configurables
 
-    def initialize(operation, &b)
+    def initialize(operation, **configuration, &b)
+      configuration.each do |k, v|
+        settername = "#{k}="
+        if Configurables.public_method_defined?(settername)
+          Configurables.instance_method(settername).bind(self).call(v)
+        else
+          raise(ArgumentError, "unsupported configuration value passed: #{k.inspect} => #{v.inspect}")
+        end
+      end
+
       @operation = operation
       if block_given?
         yield self
