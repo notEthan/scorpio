@@ -259,8 +259,15 @@ module Scorpio
 
         request = Scorpio::Request.new(operation)
 
-        request.path_params = model_attributes || {}
-        request.path_params = request.path_params.merge(call_params) if call_params.is_a?(Hash)
+        request.path_params = request.path_template.variables.map do |var|
+          if call_params.respond_to?(:to_hash) && call_params.key?(var)
+            {var => call_params[var]}
+          elsif model_attributes.respond_to?(:to_hash) && model_attributes.key?(var)
+            {var => model_attributes[var]}
+          else
+            {}
+          end
+        end.inject({}, &:update)
 
         # assume that call_params must be included somewhere. model_attributes are a source of required things
         # but not required to be here.
