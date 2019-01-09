@@ -10,6 +10,9 @@ module Scorpio
 
   class ResourceBase
     class << self
+      # a hash of accessor names (Symbol) to default getter methods (UnboundMethod), used to determine
+      # what accessors have been overridden from their defaults.
+      (-> (x) { define_method(:inheritable_accessor_defaults) { x } }).({})
       def define_inheritable_accessor(accessor, options = {})
         if options[:default_getter]
           # the value before the field is set (overwritten) is the result of the default_getter proc
@@ -19,6 +22,7 @@ module Scorpio
           default_value = options[:default_value]
           define_singleton_method(accessor) { default_value }
         end
+        inheritable_accessor_defaults[accessor] = self.singleton_class.instance_method(accessor)
         # field setter method. redefines the getter, replacing the method with one that returns the
         # setter's argument (that being inherited to the scope of the define_method(accessor) block
         define_singleton_method(:"#{accessor}=") do |value|
