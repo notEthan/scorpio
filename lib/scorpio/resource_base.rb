@@ -271,9 +271,15 @@ module Scorpio
 
         # assume that call_params must be included somewhere. model_attributes are a source of required things
         # but not required to be here.
-        other_params = call_params
-        if other_params.is_a?(Hash)
-          other_params = other_params.reject { |k, _| request.path_template.variables.include?(k) }
+        if call_params.respond_to?(:to_hash)
+          unused_call_params = call_params.reject { |k, _| request.path_template.variables.include?(k) }
+          if !unused_call_params.empty?
+            other_params = unused_call_params
+          else
+            other_params = nil
+          end
+        else
+          other_params = call_params
         end
 
         if operation.request_schema
