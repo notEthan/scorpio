@@ -338,36 +338,6 @@ module Scorpio
         ur = request.run
         response = ur.response
 
-        if response.media_type == 'application/json'
-          if response.body.empty?
-            response_object = nil
-          else
-            begin
-              response_object = ::JSON.parse(response.body)
-            rescue ::JSON::ParserError
-              # TODO warn
-              response_object = response.body
-            end
-          end
-        else
-          response_object = response.body
-        end
-
-        if operation.responses
-          _, operation_response = operation.responses.detect { |k, v| k.to_s == response.status.to_s }
-          operation_response ||= operation.responses['default']
-          if operation_response['content'] && operation_response['content'][response.media_type]
-            response_schema = operation_response['content'][response.media_type]['schema']
-          end
-        end
-        if response_schema
-          # not too sure about this, but I don't think it makes sense to instantiate things that are
-          # not hash or array as a JSI
-          if response_object.respond_to?(:to_hash) || response_object.respond_to?(:to_ary)
-            response_object = JSI.class_for_schema(response_schema).new(response_object)
-          end
-        end
-
         error_class = Scorpio.error_classes_by_status[response.status]
         error_class ||= if (400..499).include?(response.status)
           ClientError
@@ -380,7 +350,7 @@ module Scorpio
           message = "Error calling operation #{operation.operationId} on #{self}:\n" + response.body
           raise(error_class.new(message).tap do |e|
             e.faraday_response = response
-            e.response_object = response_object
+            e.response_object = response.body_object
           end)
         end
 
@@ -389,7 +359,7 @@ module Scorpio
           'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => ur.request.uri.to_s},
           'response' => response,
         }
-        response_object_to_instances(response_object, initialize_options)
+        response_object_to_instances(response.body_object, initialize_options)
       end
 
       def request_body_for_schema(object, schema)
