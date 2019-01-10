@@ -159,7 +159,11 @@ module Scorpio
           attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
-            nil
+            if consumes.respond_to?(:to_ary) && consumes.size == 1
+              consumes.first
+            else
+              nil
+            end
           end
         end
         include Configurables
