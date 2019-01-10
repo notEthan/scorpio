@@ -120,18 +120,23 @@ module Scorpio
       raise(Bug) unless const_defined?(:Document)
       class Document
         module Configurables
+          attr_writer :scheme
+          def scheme
+            return @scheme if instance_variable_defined?(:@scheme)
+            if schemes.nil?
+              'https'
+            elsif schemes.respond_to?(:to_ary)
+              # prefer https, then http, then anything else since we probably don't support.
+              schemes.sort_by { |s| ['https', 'http'].index(s) || (1.0 / 0) }.first
+            end
+          end
+
           attr_writer :base_url
           # the base url to which paths are appended.
           # by default this looks at the openapi document's schemes, picking https or http first.
           # it looks at the openapi_document's host and basePath.
           def base_url
             return @base_url if instance_variable_defined?(:@base_url)
-            if schemes.nil?
-              scheme = 'https'
-            elsif schemes.respond_to?(:to_ary)
-              # prefer https, then http, then anything else since we probably don't support.
-              scheme = schemes.sort_by { |s| ['https', 'http'].index(s) || (1.0 / 0) }.first
-            end
             if host && scheme
               Addressable::URI.new(
                 scheme: scheme,
