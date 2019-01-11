@@ -49,12 +49,12 @@ describe 'blog' do
     e = assert_raises(ArgumentError) do
       Article.read({})
     end
-    assert_equal('path /articles/{id} for operation articles.read requires attributes which were missing: ["id"]',
+    assert_equal('path /articles/{id} for operation articles.read requires path_params which were missing: ["id"]',
       e.message)
     e = assert_raises(ArgumentError) do
       Article.read({id: ''})
     end
-    assert_equal('path /articles/{id} for operation articles.read requires attributes which were empty: ["id"]',
+    assert_equal('path /articles/{id} for operation articles.read requires path_params which were empty: ["id"]',
       e.message)
   end
   it 'tries to read a nonexistent article' do
