@@ -453,7 +453,7 @@ module Scorpio
       end
 
       def request_schema_fail(object, schema)
-        raise(RequestSchemaFailure, "object does not conform to schema.\nobject = #{object.pretty_inspect}\nschema = #{::JSON.pretty_generate(schema, quirks_mode: true)}")
+        # TODO blame
       end
 
       def response_object_to_instances(object, initialize_options = {})
