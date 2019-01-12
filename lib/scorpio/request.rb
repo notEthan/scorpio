@@ -199,7 +199,17 @@ module Scorpio
     end
 
     def run
-      faraday_connection.run_request(http_method, url, body, request_headers)
+      headers = {}
+      if user_agent
+        headers['User-Agent'] = user_agent
+      end
+      if media_type && !content_type_header
+        headers['Content-Type'] = media_type
+      end
+      if self.headers
+        headers.update(self.headers)
+      end
+      faraday_connection.run_request(http_method, url, body, headers)
     end
   end
 end
