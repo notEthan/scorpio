@@ -136,5 +136,20 @@ module Scorpio
       url = File.join(base_url, path)
       url = Addressable::URI.parse(url)
     end
+
+    def content_type_attrs
+      Ur::ContentTypeAttrs.new(content_type)
+    end
+
+    def content_type_header
+      headers.each do |k, v|
+        return v if k =~ /\Acontent[-_]type\z/i
+      end
+      nil
+    end
+
+    def content_type
+      content_type_header || media_type
+    end
   end
 end
