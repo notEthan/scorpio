@@ -438,7 +438,7 @@ module Scorpio
                 if schema['type'] == 'array'
                   # TODO index based subschema or whatever else works for array
                   subschema = schema['items']
-                else
+                elsif schema['type']
                   request_schema_fail(object, schema)
                 end
               end
