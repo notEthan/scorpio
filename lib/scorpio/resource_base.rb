@@ -40,11 +40,6 @@ module Scorpio
         end
       end
     end
-    # the class on which the openapi document is defined. subclasses use the openapi document set on this class
-    # (except in the unlikely event it is overwritten by a subclass)
-    define_inheritable_accessor(:openapi_document_class)
-    # the openapi document
-    define_inheritable_accessor(:tag_name, on_set: -> { update_dynamic_methods })
     define_inheritable_accessor(:represented_schemas, default_value: [], on_set: proc do
       unless represented_schemas.respond_to?(:to_ary)
         raise(TypeError, "represented_schemas must be an array. received: #{represented_schemas.pretty_inspect.chomp}")
@@ -97,13 +92,15 @@ module Scorpio
     define_inheritable_accessor(:faraday_adapter, default_getter: proc { Faraday.default_adapter })
     define_inheritable_accessor(:faraday_response_middleware, default_value: [])
     class << self
+      # the openapi document
       def openapi_document
+        nil
+      end
+      def openapi_document_class
         nil
       end
 
       def openapi_document=(openapi_document)
-        self.openapi_document_class = self
-
         if openapi_document.is_a?(Hash)
           openapi_document = OpenAPI::V2::Document.new(openapi_document)
         end
@@ -112,7 +109,13 @@ module Scorpio
           singleton_class.instance_exec { remove_method(:openapi_document) }
         rescue NameError
         end
+        begin
+          singleton_class.instance_exec { remove_method(:openapi_document_class) }
+        rescue NameError
+        end
+        openapi_document_class = self
         define_singleton_method(:openapi_document) { openapi_document }
+        define_singleton_method(:openapi_document_class) { openapi_document_class }
         define_singleton_method(:openapi_document=) do |_|
           if self == openapi_document_class
             raise(ArgumentError, "openapi_document may only be set once on #{self.inspect}")
@@ -133,6 +136,28 @@ module Scorpio
 
         openapi_document.validate!
 
+        update_dynamic_methods
+      end
+
+      def tag_name
+        nil
+      end
+
+      def tag_name=(tag_name)
+        unless tag_name.respond_to?(:to_str)
+          raise(TypeError)
+        end
+        set_on_class = self
+        tag_name = tag_name.to_str
+
+        begin
+          singleton_class.instance_exec { remove_method(:tag_name) }
+        rescue NameError
+        end
+        define_singleton_method(:tag_name) { tag_name }
+        define_singleton_method(:tag_name=) do |_|
+          raise(ArgumentError, "tag_name may not be overridden. it is been set to #{tag_name.inspect}")
+        end
         update_dynamic_methods
       end
 
