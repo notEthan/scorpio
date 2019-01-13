@@ -1,4 +1,5 @@
 require 'logger'
+require 'api_hammer'
 
 # this is a virtual model to parent models representing resources of the blog. it sets
 # up connection information including base url, custom middleware or adapter for faraday.
