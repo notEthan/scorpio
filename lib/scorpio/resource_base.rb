@@ -44,18 +44,15 @@ module Scorpio
       unless represented_schemas.respond_to?(:to_ary)
         raise(TypeError, "represented_schemas must be an array. received: #{represented_schemas.pretty_inspect.chomp}")
       end
-      if represented_schemas.all? { |s| s.is_a?(Scorpio::Schema) }
+      if represented_schemas.all? { |s| s.is_a?(JSI::Schema) }
         represented_schemas.each do |schema|
           openapi_document_class.models_by_schema = openapi_document_class.models_by_schema.merge(schema => self)
         end
         update_dynamic_methods
       else
         self.represented_schemas = self.represented_schemas.map do |schema|
-          unless schema.is_a?(Scorpio::Schema)
-            schema = Scorpio::Schema.new(schema)
-          end
-          unless schema['type'].nil? || schema.describes_hash?
-            raise(TypeError, "given schema for #{self.inspect} not of type object - type must be object for Scorpio ResourceBase to represent this schema. schema is: #{schema.pretty_inspect.chomp}")
+          unless schema.is_a?(JSI::Schema)
+            schema = JSI::Schema.new(schema)
           end
           schema
         end
@@ -167,7 +164,7 @@ module Scorpio
       end
 
       def all_schema_properties
-        represented_schemas.map(&:described_hash_property_names).inject(Set.new, &:|)
+        represented_schemas.map(&:described_object_property_names).inject(Set.new, &:|)
       end
 
       def update_instance_accessors
@@ -217,7 +214,7 @@ module Scorpio
         # should we define an instance method?
         #request_attributes |= method_desc['parameters'] ? method_desc['parameters'].keys : []
 
-        schema_attributes = represented_schemas.map(&:described_hash_property_names).inject(Set.new, &:|)
+        schema_attributes = represented_schemas.map(&:described_object_property_names).inject(Set.new, &:|)
 
         return request_resource_is_self || (request_attributes & schema_attributes.to_a).any?
       end
@@ -273,8 +270,8 @@ module Scorpio
       end
 
       def call_operation(operation, call_params: nil, model_attributes: nil)
-        call_params = Scorpio.stringify_symbol_keys(call_params) if call_params.is_a?(Hash)
-        model_attributes = Scorpio.stringify_symbol_keys(model_attributes || {})
+        call_params = JSI.stringify_symbol_keys(call_params) if call_params.is_a?(Hash)
+        model_attributes = JSI.stringify_symbol_keys(model_attributes || {})
         http_method = operation.http_method.downcase.to_sym
         path_template = Addressable::Template.new(operation.path)
         template_params = model_attributes
@@ -334,7 +331,7 @@ module Scorpio
           # if we have a body that's not a string and no indication of how to serialize it, we guess json.
             request_headers['Content-Type'] = "application/json"
             unless body.respond_to?(:to_str)
-              body = ::JSON.pretty_generate(Typelike.as_json(body))
+              body = ::JSON.pretty_generate(JSI::Typelike.as_json(body))
             end
           elsif consumes.include?("application/x-www-form-urlencoded")
             request_headers['Content-Type'] = "application/x-www-form-urlencoded"
@@ -374,9 +371,9 @@ module Scorpio
         end
         if response_schema
           # not too sure about this, but I don't think it makes sense to instantiate things that are
-          # not hash or array as a SchemaInstanceBase
+          # not hash or array as a JSI
           if response_object.respond_to?(:to_hash) || response_object.respond_to?(:to_ary)
-            response_object = Scorpio.class_for_schema(response_schema).new(response_object)
+            response_object = JSI.class_for_schema(response_schema).new(response_object)
           end
         end
 
@@ -408,9 +405,9 @@ module Scorpio
         if object.is_a?(Scorpio::ResourceBase)
           # TODO request_schema_fail unless schema is for given model type 
           request_body_for_schema(object.attributes, schema)
-        elsif object.is_a?(Scorpio::SchemaInstanceBase)
+        elsif object.is_a?(JSI::Base)
           request_body_for_schema(object.instance, schema)
-        elsif object.is_a?(Scorpio::JSON::Node)
+        elsif object.is_a?(JSI::JSON::Node)
           request_body_for_schema(object.content, schema)
         else
           if object.is_a?(Hash)
@@ -482,12 +479,12 @@ module Scorpio
       end
 
       def response_object_to_instances(object, initialize_options = {})
-        if object.is_a?(SchemaInstanceBase)
+        if object.is_a?(JSI::Base)
           model = models_by_schema[object.schema]
         end
 
         if object.respond_to?(:to_hash)
-          out = Typelike.modified_copy(object) do
+          out = JSI::Typelike.modified_copy(object) do
             object.map do |key, value|
               {key => response_object_to_instances(value, initialize_options)}
             end.inject({}, &:update)
@@ -498,7 +495,7 @@ module Scorpio
             out
           end
         elsif object.respond_to?(:to_ary)
-          Typelike.modified_copy(object) do
+          JSI::Typelike.modified_copy(object) do
             object.map do |element|
               response_object_to_instances(element, initialize_options)
             end
@@ -510,8 +507,8 @@ module Scorpio
     end
 
     def initialize(attributes = {}, options = {})
-      @attributes = Scorpio.stringify_symbol_keys(attributes)
-      @options = Scorpio.stringify_symbol_keys(options)
+      @attributes = JSI.stringify_symbol_keys(attributes)
+      @options = JSI.stringify_symbol_keys(options)
       @persisted = !!@options['persisted']
     end
 
@@ -544,7 +541,7 @@ module Scorpio
       if @options['response'] && @options['response'].status && operation.responses
         _, response_schema_node = operation.responses.detect { |k, v| k.to_s == @options['response'].status.to_s }
       end
-      response_schema = Scorpio::Schema.new(response_schema_node) if response_schema_node
+      response_schema = JSI::Schema.new(response_schema_node) if response_schema_node
       response_resource_is_self = response_schema && self.class.represented_schemas.include?(response_schema)
       if request_resource_is_self && %w(put post).include?(operation.http_method.to_s.downcase)
         @persisted = true
@@ -558,7 +555,7 @@ module Scorpio
     end
 
     def as_json(*opt)
-      Typelike.as_json(@attributes, *opt)
+      JSI::Typelike.as_json(@attributes, *opt)
     end
 
     def inspect
@@ -579,8 +576,8 @@ module Scorpio
     end
 
     def fingerprint
-      {class: self.class, attributes: Typelike.as_json(@attributes)}
+      {class: self.class, attributes: JSI::Typelike.as_json(@attributes)}
     end
-    include FingerprintHash
+    include JSI::FingerprintHash
   end
 end

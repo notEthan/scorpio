@@ -1,22 +1,19 @@
-require 'api_hammer/ycomb'
-require 'scorpio/schema_instance_base'
-
 module Scorpio
   module Google
-    discovery_rest_description_doc = Scorpio::JSON::Node.new_by_type(::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read), [])
+    discovery_rest_description_doc = JSI::JSON::Node.new_by_type(::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read), [])
 
     discovery_metaschema = discovery_rest_description_doc['schemas']['JsonSchema']
-    rest_description_schema = Scorpio.class_for_schema(discovery_metaschema).new(discovery_rest_description_doc['schemas']['RestDescription'])
-    discovery_rest_description = Scorpio.class_for_schema(rest_description_schema).new(discovery_rest_description_doc)
+    rest_description_schema = JSI.class_for_schema(discovery_metaschema).new(discovery_rest_description_doc['schemas']['RestDescription'])
+    discovery_rest_description = JSI.class_for_schema(rest_description_schema).new(discovery_rest_description_doc)
 
     # naming these is not strictly necessary, but is nice to have.
-    DirectoryList      = Scorpio.class_for_schema(discovery_rest_description['schemas']['DirectoryList'])
-    JsonSchema         = Scorpio.class_for_schema(discovery_rest_description['schemas']['JsonSchema'])
-    RestDescription    = Scorpio.class_for_schema(discovery_rest_description['schemas']['RestDescription'])
-    RestMethod         = Scorpio.class_for_schema(discovery_rest_description['schemas']['RestMethod'])
-    RestResource       = Scorpio.class_for_schema(discovery_rest_description['schemas']['RestResource'])
-    RestMethodRequest  = Scorpio.class_for_schema(discovery_rest_description['schemas']['RestMethod']['properties']['request'])
-    RestMethodResponse = Scorpio.class_for_schema(discovery_rest_description['schemas']['RestMethod']['properties']['response'])
+    DirectoryList      = JSI.class_for_schema(discovery_rest_description['schemas']['DirectoryList'])
+    JsonSchema         = JSI.class_for_schema(discovery_rest_description['schemas']['JsonSchema'])
+    RestDescription    = JSI.class_for_schema(discovery_rest_description['schemas']['RestDescription'])
+    RestMethod         = JSI.class_for_schema(discovery_rest_description['schemas']['RestMethod'])
+    RestResource       = JSI.class_for_schema(discovery_rest_description['schemas']['RestResource'])
+    RestMethodRequest  = JSI.class_for_schema(discovery_rest_description['schemas']['RestMethod']['properties']['request'])
+    RestMethodResponse = JSI.class_for_schema(discovery_rest_description['schemas']['RestMethod']['properties']['response'])
 
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
     module SchemaLike
@@ -169,14 +166,14 @@ module Scorpio
         if ad.schemas
           openapi['definitions'] = ad.schemas
           ad.schemas.each do |name, schema|
-            openapi = ycomb do |rec|
+            openapi = JSI::Util.ycomb do |rec|
               proc do |object|
                 if object.respond_to?(:to_hash)
                   object.merge(object.map do |k, v|
                     if k == '$ref' && (v == schema['id'] || v == "#/schemas/#{name}" || v == name)
                       {k => "#/definitions/#{name}"}
                     else
-                      ycomb do |toopenapirec|
+                      JSI::Util.ycomb do |toopenapirec|
                         proc do |toopenapiobject|
                           toopenapiobject = toopenapiobject.to_openapi if toopenapiobject.respond_to?(:to_openapi)
                           if toopenapiobject.respond_to?(:to_hash)
@@ -204,7 +201,7 @@ module Scorpio
           end
         end
         # check we haven't got anything that shouldn't go in a openapi document
-        openapi = ycomb do |rec|
+        openapi = JSI::Util.ycomb do |rec|
           proc do |object|
             object = object.to_openapi if object.respond_to?(:to_openapi)
             if object.respond_to?(:to_hash)
