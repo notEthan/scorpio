@@ -52,7 +52,7 @@ module Scorpio
       attr_writer :media_type
       def media_type
         return @media_type if instance_variable_defined?(:@media_type)
-        operation.request_media_type
+        content_type_header ? content_type_attrs.media_type : operation.request_media_type
       end
 
       attr_writer :user_agent
