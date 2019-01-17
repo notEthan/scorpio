@@ -78,16 +78,10 @@ module Scorpio
         operation.user_agent
       end
 
-      attr_writer :faraday_request_middleware
-      def faraday_request_middleware
-        return @faraday_request_middleware if instance_variable_defined?(:@faraday_request_middleware)
-        operation.faraday_request_middleware
-      end
-
-      attr_writer :faraday_response_middleware
-      def faraday_response_middleware
-        return @faraday_response_middleware if instance_variable_defined?(:@faraday_response_middleware)
-        operation.faraday_response_middleware
+      attr_writer :faraday_builder
+      def faraday_builder
+        return @faraday_builder if instance_variable_defined?(:@faraday_builder)
+        operation.faraday_builder
       end
 
       attr_writer :faraday_adapter
@@ -187,16 +181,11 @@ module Scorpio
     end
 
     def faraday_connection(yield_ur)
-      Faraday.new do |c|
-        faraday_request_middleware.each do |m|
-          c.request(*m)
-        end
-        faraday_response_middleware.each do |m|
-          c.response(*m)
-        end
+      Faraday.new do |faraday_connection|
+        faraday_builder.call(faraday_connection)
         ::Ur::Faraday # autoload trigger
-        c.response(:yield_ur, ur_class: Scorpio::Ur, logger: self.logger, &yield_ur)
-        c.adapter(*faraday_adapter)
+        faraday_connection.response(:yield_ur, ur_class: Scorpio::Ur, logger: self.logger, &yield_ur)
+        faraday_connection.adapter(*faraday_adapter)
       end
     end
 

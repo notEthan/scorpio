@@ -40,16 +40,10 @@ module Scorpio
           "Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
         end
 
-        attr_writer :faraday_request_middleware
-        def faraday_request_middleware
-          return @faraday_request_middleware if instance_variable_defined?(:@faraday_request_middleware)
-          [].freeze
-        end
-
-        attr_writer :faraday_response_middleware
-        def faraday_response_middleware
-          return @faraday_response_middleware if instance_variable_defined?(:@faraday_response_middleware)
-          [].freeze
+        attr_writer :faraday_builder
+        def faraday_builder
+          return @faraday_builder if instance_variable_defined?(:@faraday_builder)
+          -> (_) { }
         end
 
         attr_writer :faraday_adapter

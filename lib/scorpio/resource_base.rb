@@ -87,8 +87,7 @@ module Scorpio
 
     define_inheritable_accessor(:user_agent, default_getter: -> { openapi_document.user_agent })
 
-    define_inheritable_accessor(:faraday_request_middleware, default_getter: -> { openapi_document.faraday_request_middleware })
-    define_inheritable_accessor(:faraday_response_middleware, default_getter: -> { openapi_document.faraday_response_middleware })
+    define_inheritable_accessor(:faraday_builder, default_getter: -> { openapi_document.faraday_builder })
     define_inheritable_accessor(:faraday_adapter, default_getter: -> { openapi_document.faraday_adapter })
     class << self
       # the openapi document
@@ -278,13 +277,12 @@ module Scorpio
         end
 
         # pretty ugly... may find a better way to do this.
-        request.base_url =               self.base_url                    if accessor_overridden.(:base_url)
-        request.server_variables =        self.server_variables            if accessor_overridden.(:server_variables)
-        request.server =                   self.server                      if accessor_overridden.(:server)
-        request.user_agent =                self.user_agent                  if accessor_overridden.(:user_agent)
-        request.faraday_request_middleware = self.faraday_request_middleware  if accessor_overridden.(:faraday_request_middleware)
-        request.faraday_response_middleware = self.faraday_response_middleware if accessor_overridden.(:faraday_response_middleware)
-        request.faraday_adapter =            self.faraday_adapter             if accessor_overridden.(:faraday_adapter)
+        request.base_url =        self.base_url        if accessor_overridden.(:base_url)
+        request.server_variables = self.server_variables if accessor_overridden.(:server_variables)
+        request.server =          self.server          if accessor_overridden.(:server)
+        request.user_agent =      self.user_agent      if accessor_overridden.(:user_agent)
+        request.faraday_builder = self.faraday_builder if accessor_overridden.(:faraday_builder)
+        request.faraday_adapter = self.faraday_adapter if accessor_overridden.(:faraday_adapter)
 
         request.path_params = request.path_template.variables.map do |var|
           if call_params.respond_to?(:to_hash) && call_params.key?(var)

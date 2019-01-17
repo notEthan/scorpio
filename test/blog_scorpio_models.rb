@@ -27,7 +27,9 @@ class BlogModel < Scorpio::ResourceBase
   else
     abort("bad SCORPIO_API_SPECIFIER")
   end
-  self.faraday_request_middleware = [[:api_hammer_request_logger, logger]]
+  self.faraday_builder = -> (conn) {
+    conn.request(:api_hammer_request_logger, logger)
+  }
 end
 
 # this is a model of Article, a resource of the blog API. it sets the resource_name
