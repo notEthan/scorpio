@@ -82,19 +82,7 @@ module Scorpio
       end
 
       def openapi_document=(openapi_document)
-        if openapi_document.is_a?(Hash)
-          openapi_document = JSI::JSON::Node.new_doc(openapi_document)
-        end
-        if openapi_document.is_a?(JSI::JSON::Node)
-          if openapi_document['swagger'] =~ /\A2(\.|\z)/
-            openapi_document = Scorpio::OpenAPI::V2::Document.new(openapi_document)
-          elsif openapi_document['openapi'] =~ /\A3(\.|\z)/
-            openapi_document = Scorpio::OpenAPI::V3::Document.new(openapi_document)
-          end
-        end
-        unless openapi_document.is_a?(OpenAPI::Document)
-          raise(TypeError)
-        end
+        openapi_document = OpenAPI::Document.from_instance(openapi_document)
 
         begin
           singleton_class.instance_exec { remove_method(:openapi_document) }
