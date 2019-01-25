@@ -13,6 +13,12 @@ module Scorpio
         nil
       end
 
+      attr_writer :scheme
+      def scheme
+        return @scheme if instance_variable_defined?(:@scheme)
+        operation.scheme
+      end
+
       attr_writer :server
       def server
         return @server if instance_variable_defined?(:@server)
@@ -28,7 +34,7 @@ module Scorpio
       attr_writer :base_url
       def base_url
         return @base_url if instance_variable_defined?(:@base_url)
-        operation.base_url(server: server, server_variables: server_variables)
+        operation.base_url(scheme: scheme, server: server, server_variables: server_variables)
       end
 
       attr_writer :body

@@ -84,6 +84,9 @@ module Scorpio
       raise(Bug) unless const_defined?(:Document)
       class Document
         module Configurables
+          def scheme
+            nil
+          end
           attr_writer :server
           def server
             return @server if instance_variable_defined?(:@server)
@@ -99,7 +102,7 @@ module Scorpio
             {}.freeze
           end
           attr_writer :base_url
-          def base_url(server: self.server, server_variables: self.server_variables)
+          def base_url(scheme: nil, server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
             if server
               server.expanded_url(server_variables)
@@ -131,11 +134,18 @@ module Scorpio
             end
           end
 
+          def server
+            nil
+          end
+          def server_variables
+            nil
+          end
+
           attr_writer :base_url
           # the base url to which paths are appended.
           # by default this looks at the openapi document's schemes, picking https or http first.
           # it looks at the openapi_document's host and basePath.
-          def base_url
+          def base_url(scheme: self.scheme, server: nil, server_variables: nil)
             return @base_url if instance_variable_defined?(:@base_url)
             if host && scheme
               Addressable::URI.new(

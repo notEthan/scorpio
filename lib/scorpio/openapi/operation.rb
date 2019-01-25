@@ -2,22 +2,10 @@ module Scorpio
   module OpenAPI
     module Operation
       module Configurables
-        attr_writer :server
-        def server
-          return @server if instance_variable_defined?(:@server)
-          openapi_document.server
-        end
-
-        attr_writer :server_variables
-        def server_variables
-          return @server_variables if instance_variable_defined?(:@server_variables)
-          openapi_document.server_variables
-        end
-
         attr_writer :base_url
-        def base_url(server: self.server, server_variables: self.server_variables)
+        def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
           return @base_url if instance_variable_defined?(:@base_url)
-          openapi_document.base_url(server: server, server_variables: server_variables)
+          openapi_document.base_url(scheme: scheme, server: server, server_variables: server_variables)
         end
 
         attr_writer :request_headers
@@ -88,6 +76,22 @@ module Scorpio
       raise(Bug) unless const_defined?(:Operation)
       class Operation
         module Configurables
+          def scheme
+            nil
+          end
+
+          attr_writer :server
+          def server
+            return @server if instance_variable_defined?(:@server)
+            openapi_document.server
+          end
+
+          attr_writer :server_variables
+          def server_variables
+            return @server_variables if instance_variable_defined?(:@server_variables)
+            openapi_document.server_variables
+          end
+
           attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
@@ -108,6 +112,18 @@ module Scorpio
       raise(Bug) unless const_defined?(:Operation)
       class Operation
         module Configurables
+          attr_writer :scheme
+          def scheme
+            return @scheme if instance_variable_defined?(:@scheme)
+            openapi_document.scheme
+          end
+          def server
+            nil
+          end
+          def server_variables
+            nil
+          end
+
           attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
