@@ -9,16 +9,18 @@ Note: The canonical location of this README is on [RubyDoc](http://rubydoc.info/
 
 ## Background
 
-To start with, you need an OpenAPI v2 (formerly known as Swagger) document describing a service you will be consuming. v3 support is planned. This document can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document specifying your service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+To start with, you need an OpenAPI (formerly known as Swagger) document describing a service you will be consuming. v2 and v3 are both supported[^1]. This document can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document specifying your service is outside the scope of Scorpio. Here are several resources on OpenAPI:
 
 - [OpenAPI Specification at Wikipedia](https://en.wikipedia.org/wiki/OpenAPI_Specification)
 - [OpenAPI Initiative](https://www.openapis.org/) is the official web site for OpenAPI
 - [OpenAPI Specification on GitHub](https://github.com/OAI/OpenAPI-Specification)
 - [swagger.io](https://swagger.io/) API tooling
 
-OpenAPI relies on the definition of schemas using the JSON schema specification, which can be learned about at http://json-schema.org/
+OpenAPI relies on the definition of schemas using the JSON schema specification, which can be learned about at https://json-schema.org/
 
 Once you have the OpenAPI document describing the service you will consume, you can get started implementing the code that will interact with that service.
+
+[^1] Certain features may be missing, but Scorpio tries to make workarounds easy. Issues and pull requests regarding missing functionality are welcome.
 
 ## Pet Store
 
