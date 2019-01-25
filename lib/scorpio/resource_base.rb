@@ -131,7 +131,7 @@ module Scorpio
           end
         end
 
-        openapi_document.validate!
+        # TODO blame validate openapi_document
 
         update_dynamic_methods
       end
