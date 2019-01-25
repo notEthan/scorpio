@@ -101,9 +101,9 @@ module Scorpio
           attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
-            if requestBody && requestBody['content'] && requestBody['content'].keys.size == 1
-              requestBody['content'].keys.first
-            elsif openapi_document.request_media_type
+            if requestBody && requestBody['content']
+              Request.best_media_type(requestBody['content'].keys)
+            else
               openapi_document.request_media_type
             end
           end
@@ -161,11 +161,7 @@ module Scorpio
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if key?('consumes')
-              if consumes.respond_to?(:to_ary) && consumes.size == 1
-                consumes.first
-              else
-                nil
-              end
+              Request.best_media_type(consumes)
             else
               openapi_document.request_media_type
             end

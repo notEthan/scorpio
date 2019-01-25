@@ -1,5 +1,14 @@
 module Scorpio
   class Request
+    SUPPORTED_REQUEST_MEDIA_TYPES = ['application/json', 'application/x-www-form-urlencoded']
+    def self.best_media_type(media_types)
+      if media_types.size == 1
+        media_types.first
+      else
+        SUPPORTED_REQUEST_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
+      end
+    end
+
     module Configurables
       attr_writer :path_params
       def path_params
@@ -46,6 +55,9 @@ module Scorpio
             JSON.pretty_generate(JSI::Typelike.as_json(body_object))
           elsif media_type == "application/x-www-form-urlencoded"
             URI.encode_www_form(body_object)
+
+          # NOTE: the supported media types above should correspond to Request::SUPPORTED_REQUEST_MEDIA_TYPES
+
           else
             if body_object.respond_to?(:to_str)
               body_object
