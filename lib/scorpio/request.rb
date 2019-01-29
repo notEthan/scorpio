@@ -218,7 +218,9 @@ module Scorpio
     end
 
     def run
-      run_ur.response.body_object
+      ur = run_ur
+      ur.raise_on_http_error
+      ur.response.body_object
     end
   end
 end

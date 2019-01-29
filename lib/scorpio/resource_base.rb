@@ -338,21 +338,7 @@ module Scorpio
         ur = request.run
         response = ur.response
 
-        error_class = Scorpio.error_classes_by_status[response.status]
-        error_class ||= if (400..499).include?(response.status)
-          ClientError
-        elsif (500..599).include?(response.status)
-          ServerError
-        elsif !response.success?
-          HTTPError
-        end
-        if error_class
-          message = "Error calling operation #{operation.operationId} on #{self}:\n" + response.body
-          raise(error_class.new(message).tap do |e|
-            e.ur = ur
-            e.response_object = response.body_object
-          end)
-        end
+        ur.raise_on_http_error
 
         initialize_options = {
           'persisted' => true,
