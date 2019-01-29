@@ -27,7 +27,7 @@ module Scorpio
         @status
       end
     end
-    attr_accessor :faraday_response, :response_object
+    attr_accessor :ur, :response_object
   end
   # HTTP Error classes' canonical names are like Scorpio::HTTPErrors::BadRequest400Error, but can
   # be referred to like Scorpio::BadRequest400Error. this is just to avoid clutter in the Scorpio

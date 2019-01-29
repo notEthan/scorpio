@@ -349,7 +349,7 @@ module Scorpio
         if error_class
           message = "Error calling operation #{operation.operationId} on #{self}:\n" + response.body
           raise(error_class.new(message).tap do |e|
-            e.faraday_response = response
+            e.ur = ur
             e.response_object = response.body_object
           end)
         end
@@ -357,7 +357,7 @@ module Scorpio
         initialize_options = {
           'persisted' => true,
           'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => ur.request.uri.to_s},
-          'response' => response,
+          'ur' => ur,
         }
         response_object_to_instances(response.body_object, initialize_options)
       end
