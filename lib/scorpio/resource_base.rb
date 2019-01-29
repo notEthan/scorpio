@@ -335,8 +335,7 @@ module Scorpio
           end
         end
 
-        ur = request.run
-        response = ur.response
+        ur = request.run_ur
 
         ur.raise_on_http_error
 
@@ -345,7 +344,7 @@ module Scorpio
           'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => ur.request.uri.to_s},
           'ur' => ur,
         }
-        response_object_to_instances(response.body_object, initialize_options)
+        response_object_to_instances(ur.response.body_object, initialize_options)
       end
 
       def request_body_for_schema(object, schema)
