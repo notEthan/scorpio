@@ -20,9 +20,9 @@ OpenAPI relies on the definition of schemas using the JSON schema specification,
 
 Once you have the OpenAPI document describing the service you will consume, you can get started implementing the code that will interact with that service.
 
-[^1] Certain features may be missing, but Scorpio tries to make workarounds easy. Issues and pull requests regarding missing functionality are welcome.
+[^1]: Certain features may be missing, but Scorpio tries to make workarounds easy. Issues and pull requests regarding missing functionality are welcome.
 
-## Pet Store
+## Pet Store (using Scorpio::ResourceBase)
 
 Let's dive into some code, shall we? If you have learned about OpenAPI, you likely learned using the example of the Pet Store service. This README will use the same service. Its documentation is at http://petstore.swagger.io/ and its OpenAPI 2 specification is at http://petstore.swagger.io/v2/swagger.json (yaml version: http://petstore.swagger.io/v2/swagger.yaml )
 
@@ -107,6 +107,49 @@ PetStore::Pet.getPetById(petId: 0)
 
 Isn't that cool? You get class methods like getPetById, instance methods like updatePet, attribute accessors like #name and #tags, all dynamically generated from the OpenAPI description. You just make a few classes with a line or two of configuration in each.
 
+## Pet Store (using Scorpio::OpenAPI classes)
+
+You do not have to define resource classes to use Scorpio to call OpenAPI operations - the classes Scorpio uses to represent concepts from OpenAPI can be called directly. Scorpio uses [JSI](https://github.com/notEthan/ur) classes to represent OpenAPI schemes such as the Document and its Operations.
+
+We start by instantiating the OpenAPI document. `Scorpio::OpenAPI::Document.from_instance` returns a V2 or V3 OpenAPI Document class instance.
+
+```ruby
+pet_store_doc = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('http://petstore.swagger.io/v2/swagger.json').body))
+# => #{<Scorpio::OpenAPI::V2::Document fragment="#"> "swagger" => "2.0", ...}
+```
+
+The OpenAPI document holds the JSON that represents it, so to get an Operation you go through the document's paths, just as it is represented in the JSON.
+
+```ruby
+# the store inventory operation will let us see what statuses there are in the store.
+inventory_op = pet_store_doc.paths['/store/inventory']['get']
+# => #{<Scorpio::OpenAPI::V2::Operation fragment="#/paths/~1store~1inventory/get">
+#      "summary" => "Returns pet inventories by status",
+#      "operationId" => "getInventory",
+#      ...
+#    }
+```
+
+Alternatively, Scorpio defines a helper `Document#operations` which behaves like an Enumerable of all the Operations in the Document. It can be subscripted with the `operationId`:
+
+```ruby
+inventory_op = pet_store_doc.operations['getInventory']
+# => returns the same inventory_op as above.
+```
+
+Now that we have an operation, we can run requests from it. {Scorpio::OpenAPI::Operation#run} performs the operation by running a request. If the response is an error, a {Scorpio::HTTPError} subclass will be raised. On success, it returns the response body entity, instantiated according to the OpenAPI schema for the operation response, if specified. For more detail on how json-schema instances are represented, see the gem [JSI](https://github.com/notEthan/jsi).
+
+```ruby
+inventory = inventory_op.run
+# => #{<JSI::SchemaClasses["dde3#/paths/~1store~1inventory/get/responses/200/schema"] fragment="#">
+#      "unavailable" => 4,
+#      "unloved - needs a home" => 1,
+#      "available" => 2350,
+#      "sold" => 5790,
+#      "dog" => 1,
+#    }
+```
+
 ### Another Example: Blog
 
 For another example of an API that a client interacts with using Scorpio::ResourceBase, Scorpio's tests implement the Blog service. This is defined in test/blog.rb. The service uses ActiveRecord models and Sinatra to make a simple RESTful service.
@@ -132,6 +175,16 @@ When these are set, Scorpio::ResourceBase looks through the API description and 
 
 - accessors for properties of the model defined as properties of schemas representing the resource in the specification
 - API method calls on the model class and, where appropriate, on the model instance
+
+## Scorpio::Ur
+
+If you need a more complete representation of the HTTP request and/or response, Scorpio::OpenAPI::Operation#run_ur or Scorpio::Request#run_ur will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (using Scorpio::OpenAPI classes)", this code will return an Ur:
+
+```ruby
+inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('http://petstore.swagger.io/v2/swagger.json').body)).paths['/store/inventory']['get']
+inventory_ur = inventory_op.run_ur
+# => #{<Scorpio::Ur fragment="#"> ...}
+```
 
 ### Scorpio ResourceBase pickle adapter
 

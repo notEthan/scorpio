@@ -1,7 +1,16 @@
 module Scorpio
   module OpenAPI
+    # A document that defines or describes an API.
+    # An OpenAPI definition uses and conforms to the OpenAPI Specification.
+    #
+    # Scorpio::OpenAPI::Document is a module common to V2 and V3 documents.
     module Document
       class << self
+        # takes a document, generally a Hash, and returns a Scorpio OpenAPI Document
+        # instantiating it.
+        #
+        # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
+        # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3::Document]
         def from_instance(instance)
           if instance.is_a?(Hash)
             instance = JSI::JSON::Node.new_doc(instance)
@@ -76,6 +85,10 @@ module Scorpio
 
     module V3
       raise(Bug) unless const_defined?(:Document)
+
+      # A document that defines or describes an API conforming to the OpenAPI Specification v3.
+      #
+      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
       class Document
         module Configurables
           def scheme
@@ -115,6 +128,10 @@ module Scorpio
 
     module V2
       raise(Bug) unless const_defined?(:Document)
+
+      # A document that defines or describes an API conforming to the OpenAPI Specification v2 (aka Swagger).
+      #
+      # The root document is known as the Swagger Object.
       class Document
         module Configurables
           attr_writer :scheme

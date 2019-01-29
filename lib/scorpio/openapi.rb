@@ -13,7 +13,7 @@ module Scorpio
       Document = openapi_class.call()
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: puts Scorpio::OpenAPI::V3::Document.schema['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = openapi_class.call('definitions', '#{k}')" }
+      # generated: `puts Scorpio::OpenAPI::V3::Document.schema['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = openapi_class.call('definitions', '#{k}')" }`
       Info       = openapi_class.call('definitions', 'info')
       Contact     = openapi_class.call('definitions', 'contact')
       License      = openapi_class.call('definitions', 'license')
@@ -83,7 +83,7 @@ module Scorpio
       Document = openapi_class.call()
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: puts Scorpio::OpenAPI::V2::Document.schema['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = openapi_class.call('definitions', '#{k}')" }
+      # generated: `puts Scorpio::OpenAPI::V2::Document.schema['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = openapi_class.call('definitions', '#{k}')" }`
       Info            = openapi_class.call('definitions', 'info')
       Contact          = openapi_class.call('definitions', 'contact')
       License           = openapi_class.call('definitions', 'license')

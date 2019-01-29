@@ -1,5 +1,8 @@
 module Scorpio
   module OpenAPI
+    # An OpenAPI operation
+    #
+    # Scorpio::OpenAPI::Operation is a module common to V2 and V3 operations.
     module Operation
       module Configurables
         attr_writer :base_url
@@ -50,6 +53,7 @@ module Scorpio
         is_a?(V2::Operation)
       end
 
+      # @return [Scorpio::OpenAPI::Document] the document whence this operation came
       def openapi_document
         parents.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
@@ -90,9 +94,14 @@ module Scorpio
 
     module V3
       raise(Bug) unless const_defined?(:Operation)
+
+      # Describes a single API operation on a path.
+      #
+      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#operationObject
       class Operation
         module Configurables
           def scheme
+            # not applicable; for OpenAPI v3, scheme is specified by servers.
             nil
           end
 
