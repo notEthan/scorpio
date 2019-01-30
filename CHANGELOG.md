@@ -1,3 +1,8 @@
+# v0.3.0
+- OpenAPI v3 support
+- classes Request/Response, OpenAPI::Operation, OpenAPI::Document handle a request. ResourceBase relies on these.
+- extract SchemaInstanceBase and friends to gem JSI
+
 # v0.2.3
 - fix mutability of SchemaInstanceBase with #[]=; instance is modified in place
 - add mutability to JSON::Node with #[]=
