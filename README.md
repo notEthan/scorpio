@@ -150,6 +150,47 @@ inventory = inventory_op.run
 #    }
 ```
 
+let's pick a state and find a pet. we'll go through the rest of the example in the ResourceBase section pretty much like it is up there:
+
+```ruby
+# call the operation findPetsByStatus: http://petstore.swagger.io/#/pet/findPetsByStatus
+sold_pets = pet_store_doc.operations['findPetsByStatus'].run(query_params: {status: 'sold'})
+# sold_pets is an array-like collection of JSI instances
+
+# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
+pet1 = sold_pets.detect { |pet| pet.tags.any? }
+pet2 = pet_store_doc.operations['getPetById'].run(path_params: {'petId' => pet1['id']})
+# without ResourceBase, pet1 and pet2 are not considered to be the same though [TODO may change in jsi]
+
+pet1 == pet2
+# false
+
+pet1.tags.map(&:name)
+# note that you have accessors on PetStore::Pet like #tags, and also that
+# tags have accessors for properties 'name' and 'id' from the tags schema
+# (your tag names will be different depending on what's in the pet store)
+# => ["aucune"]
+
+# let's name the pet after ourself
+pet1.name = ENV['USER']
+
+# store the result in the pet store. note the updatePet call from the instance - our
+# calls so far have been on the class PetStore::Pet, but scorpio defines instance
+# methods to call operations where appropriate as well.
+# updatePet: http://petstore.swagger.io/#/pet/updatePet
+pet1.updatePet
+
+# check that it was saved
+PetStore::Pet.getPetById(petId: pet1['id']).name
+# => "ethan" (unless for some reason your name is not Ethan)
+
+# here is how errors are handled:
+PetStore::Pet.getPetById(petId: 0)
+# raises: Scorpio::HTTPErrors::NotFound404Error
+#   Error calling operation getPetById on PetStore::Pet:
+#   {"code":1,"type":"error","message":"Pet not found"}
+```
+
 ### Another Example: Blog
 
 For another example of an API that a client interacts with using Scorpio::ResourceBase, Scorpio's tests implement the Blog service. This is defined in test/blog.rb. The service uses ActiveRecord models and Sinatra to make a simple RESTful service.
