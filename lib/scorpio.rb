@@ -19,7 +19,7 @@ module Scorpio
   proc { |v| define_singleton_method(:error_classes_by_status) { v } }.call({})
   class Error < StandardError; end
   class HTTPError < Error
-    define_singleton_method(:status) do |status = nil|
+    def self.status(status = nil)
       if status
         @status = status
         Scorpio.error_classes_by_status[status] = self
