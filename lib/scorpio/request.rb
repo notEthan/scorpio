@@ -192,11 +192,13 @@ module Scorpio
       JSI.class_for_schema(request_schema(media_type: media_type))
     end
 
-    def faraday_connection(yield_ur)
+    def faraday_connection(yield_ur = nil)
       Faraday.new do |faraday_connection|
         faraday_builder.call(faraday_connection)
-        ::Ur::Faraday # autoload trigger
-        faraday_connection.response(:yield_ur, ur_class: Scorpio::Ur, logger: self.logger, &yield_ur)
+        if yield_ur
+          ::Ur::Faraday # autoload trigger
+          faraday_connection.response(:yield_ur, ur_class: Scorpio::Ur, logger: self.logger, &yield_ur)
+        end
         faraday_connection.adapter(*faraday_adapter)
       end
     end
