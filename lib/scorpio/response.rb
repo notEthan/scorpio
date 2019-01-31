@@ -1,9 +1,13 @@
 module Scorpio
   class Response < ::Ur::Response
+    # @return [::JSI::Schema] the schema for this response according to its OpenAPI doc
     def response_schema
       ur.scorpio_request.operation.response_schema(status: status, media_type: media_type)
     end
 
+    # @return [Object] the body (String) is parsed according to the response media type and
+    #   if supported (only application/json is currently supported) instantiated according to
+    #   #response_schema
     def body_object
       # TODO handle media types like `application/schema-instance+json` or vendor things like github's
       if media_type == 'application/json'

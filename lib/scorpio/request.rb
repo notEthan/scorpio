@@ -110,6 +110,10 @@ module Scorpio
     end
     include Configurables
 
+    # @param operation [Scorpio::OpenAPI::Operation]
+    # @param configuration [#to_hash] a hash keyed with configurable attributes for
+    #   the request - instance methods of Scorpio::Request::Configurables, whose values
+    #   will be assigned for those attributes.
     def initialize(operation, **configuration, &b)
       configuration.each do |k, v|
         settername = "#{k}="
@@ -126,20 +130,27 @@ module Scorpio
       end
     end
 
+    # @return [Scorpio::OpenAPI::Operation]
     attr_reader :operation
 
+    # @return [Scorpio::OpenAPI::Document]
     def openapi_document
       operation.openapi_document
     end
 
+    # @return [Symbol] the http method for this request - :get, :post, etc.
     def http_method
       operation.http_method.downcase.to_sym
     end
 
+    # @return [Addressable::Template] the template for the request's path, to be expanded
+    #   with path_params and appended to the request's base_url
     def path_template
       Addressable::Template.new(operation.path)
     end
 
+    # @return [Addressable::URI] an Addressable::URI containing only the path to append to
+    #   the base_url for this request
     def path
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
@@ -159,6 +170,7 @@ module Scorpio
       end
     end
 
+    # @return [Addressable::URI] the full URL for this request
     def url
       unless base_url
         raise(ArgumentError, "no base_url has been specified for request")
@@ -169,10 +181,12 @@ module Scorpio
       url = Addressable::URI.parse(url)
     end
 
+    # @return [::Ur::ContentTypeAttrs] content type attributes for this request's Content-Type
     def content_type_attrs
       Ur::ContentTypeAttrs.new(content_type)
     end
 
+    # @return [String] the value of the request Content-Type header
     def content_type_header
       headers.each do |k, v|
         return v if k =~ /\Acontent[-_]type\z/i
@@ -180,18 +194,27 @@ module Scorpio
       nil
     end
 
+    # @return [String] Content-Type for this request, taken from request headers if
+    #   present, or the request media_type.
     def content_type
       content_type_header || media_type
     end
 
+    # @return [::JSI::Schema]
     def request_schema(media_type: self.media_type)
       operation.request_schema(media_type: media_type)
     end
 
+    # @return [Class subclassing JSI::Base]
     def request_schema_class(media_type: self.media_type)
       JSI.class_for_schema(request_schema(media_type: media_type))
     end
 
+    # builds a Faraday connection with this Request's faraday_builder and faraday_adapter.
+    # passes a given proc yield_ur to middleware to yield an Ur for requests made with the connection.
+    #
+    # @param yield_ur [Proc]
+    # @return [::Faraday::Connection]
     def faraday_connection(yield_ur = nil)
       Faraday.new do |faraday_connection|
         faraday_builder.call(faraday_connection)
@@ -203,6 +226,9 @@ module Scorpio
       end
     end
 
+    # runs this request and returns the full representation of the request that was run and its response.
+    #
+    # @return [Scorpio::Ur]
     def run_ur
       headers = {}
       if user_agent
@@ -220,6 +246,12 @@ module Scorpio
       ur
     end
 
+    # runs this request. returns the response body object - that is, the response body
+    # parsed according to an understood media type, and instantiated with the applicable
+    # response schema if one is specified. see Scorpio::Response#body_object for more detail.
+    #
+    # @raise [Scorpio::HTTPError] if the request returns a 4xx or 5xx status, the appropriate
+    #   error is raised - see Scorpio::HTTPErrors
     def run
       ur = run_ur
       ur.raise_on_http_error

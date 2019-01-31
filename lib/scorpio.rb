@@ -19,8 +19,18 @@ module Scorpio
   end
 
   proc { |v| define_singleton_method(:error_classes_by_status) { v } }.call({})
+  # Scorpio::Error encompasses certain Scorpio-defined errors encountered in using Scorpio.
+  # at the moment this only includes HTTPError[^1], but will likely cover errors in schemas and
+  # other things in the future.
+  #
+  # [^1]: unless I have, since writing this, implemented other things but forgotten to update this
+  # comment, which does seem likely enough.
   class Error < StandardError; end
   class HTTPError < Error
+    # for HTTPError subclasses representing a single status, sets and/or returns the represented status.
+    #
+    # @param status [Integer] if specified, sets the HTTP status the class represents
+    # @return [Integer] the HTTP status the class represents
     def self.status(status = nil)
       if status
         @status = status
@@ -35,7 +45,9 @@ module Scorpio
   # be referred to like Scorpio::BadRequest400Error. this is just to avoid clutter in the Scorpio
   # namespace in yardoc.
   module HTTPErrors
+    # an HTTP response with a status of 400-499
     class ClientError < HTTPError; end
+    # an HTTP response with a status of 500-599
     class ServerError < HTTPError; end
 
     class BadRequest400Error < ClientError;                    status(400); end
