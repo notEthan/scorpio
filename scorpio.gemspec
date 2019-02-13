@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "api_hammer"
   spec.add_development_dependency "activerecord"
-  spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "sqlite3", "~> 1.3.6" # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
   spec.add_development_dependency "database_cleaner"
   spec.add_development_dependency "simplecov"
 end
