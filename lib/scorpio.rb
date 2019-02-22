@@ -1,6 +1,8 @@
 require "scorpio/version"
 require "jsi"
 require "ur"
+require "addressable"
+require "faraday"
 require "pathname"
 require "pp"
 

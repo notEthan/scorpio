@@ -1,6 +1,3 @@
-require 'addressable/template'
-require 'faraday'
-
 module Scorpio
   # see also Faraday::Env::MethodsWithBodies
   METHODS_WITH_BODIES = %w(post put patch options)
