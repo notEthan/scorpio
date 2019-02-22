@@ -1,3 +1,6 @@
+# v0.3.1
+- miscellaneous minor fixes and improvements
+
 # v0.3.0
 - OpenAPI v3 support
 - classes Request/Response, OpenAPI::Operation, OpenAPI::Document handle a request. ResourceBase relies on these.
