@@ -1,6 +1,3 @@
-require 'addressable/template'
-require 'faraday'
-
 module Scorpio
   # see also Faraday::Env::MethodsWithBodies
   METHODS_WITH_BODIES = %w(post put patch options)
@@ -150,8 +147,10 @@ module Scorpio
         rescue NameError
         end
         define_singleton_method(:tag_name) { tag_name }
-        define_singleton_method(:tag_name=) do |_|
-          raise(ArgumentError, "tag_name may not be overridden. it is been set to #{tag_name.inspect}")
+        define_singleton_method(:tag_name=) do |tag_name|
+          unless tag_name == self.tag_name
+            raise(ArgumentError, "tag_name may not be overridden (to #{tag_name.inspect}). it is been set to #{self.tag_name.inspect}")
+          end
         end
         update_dynamic_methods
       end

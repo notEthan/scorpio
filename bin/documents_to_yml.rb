@@ -3,7 +3,8 @@
 require 'pathname'
 require 'json'
 require 'yaml'
-Pathname.glob('documents/**/*').select { |p| p.file? && !['.yml', '.yaml'].include?(p.extname) }.each do |file|
+
+Pathname.glob(Pathname.new(__FILE__).dirname.join('../documents/**/*')).select { |p| p.file? && !['.yml', '.yaml'].include?(p.extname) }.each do |file|
   begin
     json_contents = JSON.parse(file.read)
     yaml = YAML.dump(json_contents, line_width: -1)

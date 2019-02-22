@@ -2,15 +2,6 @@ module Scorpio
   class Ur < ::Ur
     attr_accessor :scorpio_request
 
-    def class_for_schema(schema)
-      jsi_class_for_schema = super
-      if jsi_class_for_schema == ::Ur::Response
-        Scorpio::Response
-      else
-        jsi_class_for_schema
-      end
-    end
-
     def raise_on_http_error
       error_class = Scorpio.error_classes_by_status[response.status]
       error_class ||= if (400..499).include?(response.status)
@@ -28,6 +19,16 @@ module Scorpio
         end)
       end
       nil
+    end
+
+    private
+    def class_for_schema(schema)
+      jsi_class_for_schema = super
+      if jsi_class_for_schema == ::Ur::Response
+        Scorpio::Response
+      else
+        jsi_class_for_schema
+      end
     end
   end
 end
