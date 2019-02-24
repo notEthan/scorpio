@@ -118,14 +118,6 @@ module Scorpio
         end
         update_dynamic_methods
 
-        openapi_document.paths.each do |path, path_item|
-          path_item.each do |http_method, operation|
-            unless operation.is_a?(Scorpio::OpenAPI::Operation)
-              next
-            end
-          end
-        end
-
         # TODO blame validate openapi_document
 
         update_dynamic_methods
@@ -233,7 +225,7 @@ module Scorpio
       def update_class_and_instance_api_methods
         openapi_document.paths.each do |path, path_item|
           path_item.each do |http_method, operation|
-            next if http_method == 'parameters' # parameters is not an operation. TOOD maybe just select the keys that are http methods?
+            next unless operation.is_a?(Scorpio::OpenAPI::Operation)
             method_name = method_names_by_operation[operation]
             if method_name
               # class method
