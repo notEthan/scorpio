@@ -213,8 +213,19 @@ module Scorpio
           h[operation] = begin
             raise(ArgumentError, operation.pretty_inspect) unless operation.is_a?(Scorpio::OpenAPI::Operation)
 
-            if operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name) && operation.operationId =~ /\A#{Regexp.escape(tag_name)}\.(\w+)\z/
-              method_name = $1
+            # if Pet is the Scorpio resource class
+            # and Pet.tag_name is "pet"
+            # and operation's operationId is "pet.add"
+            # then the operation's method name on Pet will be "add".
+            # if the operationId is just "addPet"
+            # then the operation's method name on Pet will be "addPet".
+            tag_name_match = tag_name &&
+              operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
+              operation.tags.include?(tag_name) &&
+              operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
+
+            if tag_name_match
+              method_name = tag_name_match[1]
             else
               method_name = operation.operationId
             end
