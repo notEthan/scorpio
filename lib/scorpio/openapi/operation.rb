@@ -40,6 +40,16 @@ module Scorpio
       end
       include Configurables
 
+      # @return [Boolean] v3?
+      def v3?
+        is_a?(V3::Operation)
+      end
+
+      # @return [Boolean] v2?
+      def v2?
+        is_a?(V2::Operation)
+      end
+
       def openapi_document
         parents.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
