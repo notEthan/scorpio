@@ -94,6 +94,12 @@ module Scorpio
   include HTTPErrors
   error_classes_by_status.freeze
 
+  class ConfigError < Error
+    attr_accessor :name
+  end
+  class AmbiguousParameter < ConfigError
+  end
+
   autoload :Google, 'scorpio/google_api_document'
   autoload :OpenAPI, 'scorpio/openapi'
   autoload :Ur, 'scorpio/ur'

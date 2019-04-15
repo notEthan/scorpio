@@ -228,6 +228,78 @@ module Scorpio
       end
     end
 
+    # if there is only one parameter with the given name, of any sort, this will set it.
+    #
+    # @param name [String, Symbol] the 'name' property of one applicable parameter
+    # @param value [Object] the applicable parameter will be applied to the request with the given value.
+    # @return [Object] echoes the value param
+    # @raise [Scorpio::AmbiguousParameter] if more than one paramater has the given name
+    def set_param(name, value)
+      name = name.to_s if name.is_a?(Symbol)
+      params = operation.inferred_parameters.select { |p| p['name'] == name }
+      if params.size == 1
+        set_param_from(params.first['in'], name, value)
+      else
+        raise(AmbiguousParameter.new("There are multiple parameters named #{name}; cannot use #set_param").tap { |e| e.name = name })
+      end
+      value
+    end
+
+    # @param name [String, Symbol] the 'name' property of one applicable parameter
+    # @return [Object] the value of the named parameter on this request
+    # @raise [Scorpio::AmbiguousParameter] if more than one paramater has the given name
+    def get_param(name)
+      name = name.to_s if name.is_a?(Symbol)
+      params = operation.inferred_parameters.select { |p| p['name'] == name }
+      if params.size == 1
+        get_param_from(params.first['in'], name)
+      else
+        raise(AmbiguousParameter.new("There are multiple parameters named #{name}; cannot use #get_param").tap { |e| e.name = name })
+      end
+    end
+
+    # @param in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply the named value
+    # @param name [String, Symbol] the parameter name to apply the value to
+    # @param value [Object] the value
+    # @return [Object] echoes the value param
+    # @raise [ArgumentError] invalid 'in' parameter
+    # @raise [NotImplementedError] cookies aren't implemented
+    def set_param_from(param_in, name, value)
+      param_in = param_in.to_s if param_in.is_a?(Symbol)
+      name = name.to_s if name.is_a?(Symbol)
+      if param_in == 'path'
+        self.path_params = self.path_params.merge(name => value)
+      elsif param_in == 'query'
+        self.query_params = (self.query_params || {}).merge(name => value)
+      elsif param_in == 'header'
+        self.headers = self.headers.merge(name => value)
+      elsif param_in == 'cookie'
+        raise(NotImplementedError, "cookies not implemented: #{name.inspect} => #{value.inspect}")
+      else
+        raise(ArgumentError, "cannot set param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp}, value: #{value.pretty_inspect.chomp})")
+      end
+      value
+    end
+
+    # @param in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply the named value
+    # @param name [String, Symbol] the parameter name
+    # @return [Object] the value of the named parameter on this request
+    # @raise [ArgumentError] invalid 'in' parameter
+    # @raise [NotImplementedError] cookies aren't implemented
+    def get_param_from(param_in, name)
+      if param_in == 'path'
+        path_params[name]
+      elsif param_in == 'query'
+        query_params ? query_params[name] : nil
+      elsif param_in == 'header'
+        headers[name]
+      elsif param_in == 'cookie'
+        raise(NotImplementedError, "cookies not implemented: #{name.inspect}")
+      else
+        raise(ArgumentError, "cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
+      end
+    end
+
     # runs this request and returns the full representation of the request that was run and its response.
     #
     # @return [Scorpio::Ur]
