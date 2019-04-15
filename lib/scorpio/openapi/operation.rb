@@ -193,7 +193,7 @@ module Scorpio
           elsif body_parameters.size == 1
             body_parameters.first
           else
-            raise(Bug) # TODO BLAME
+            raise(Bug, "multiple body parameters on operation #{operation.pretty_inspect.chomp}") # TODO BLAME
           end
         end
 
