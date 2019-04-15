@@ -142,6 +142,7 @@ module Scorpio
     end
 
     def path
+      path_params = JSI.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
         raise(ArgumentError, "path #{operation.path} for operation #{operation.operationId} requires path_params " +
