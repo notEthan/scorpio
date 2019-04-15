@@ -99,6 +99,7 @@ module Scorpio
       class Operation
         module Configurables
           def scheme
+            # not applicable; for OpenAPI v3, scheme is specified by servers.
             nil
           end
 
