@@ -85,6 +85,27 @@ module Scorpio
         end
       end
 
+      # this method is not intended to be API-stable at the moment.
+      #
+      # @return [#to_ary<#to_h>] the parameters specified for this operation, plus any others
+      #   scorpio considers to be parameters
+      def inferred_parameters
+        parameters = self.parameters ? self.parameters.to_a.dup : []
+        path_template.variables.each do |var|
+          unless parameters.any? { |p| p['in'] == 'path' && p['name'] == var }
+            # we could instantiate this as a V2::Parameter or a V3::Parameter
+            # or a ParameterWithContentInPath or whatever. but I can't be bothered.
+            parameters << {
+              'name' => var,
+              'in' => 'path',
+              'required' => true,
+              'type' => 'string',
+            }
+          end
+        end
+        parameters
+      end
+
       def build_request(*a, &b)
         request = Scorpio::Request.new(self, *a, &b)
       end
