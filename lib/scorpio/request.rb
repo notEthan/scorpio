@@ -138,6 +138,8 @@ module Scorpio
         end
       end
 
+      extend operation.request_accessor_module
+
       if block_given?
         yield self
       end

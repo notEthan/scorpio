@@ -106,6 +106,28 @@ module Scorpio
         parameters
       end
 
+      # @return [Module] a module with accessor methods for unambiguously named parameters of this operation.
+      def request_accessor_module
+        return @request_accessor_module if instance_variable_defined?(:@request_accessor_module)
+        @request_accessor_module = begin
+          params_by_name = inferred_parameters.group_by { |p| p['name'] }
+          Module.new do
+            instance_method_modules = [Request, Request::Configurables]
+            instance_method_names = instance_method_modules.map do |mod|
+              (mod.instance_methods + mod.private_instance_methods).map(&:to_s)
+            end.inject(Set.new, &:|)
+            params_by_name.each do |name, params|
+              next if instance_method_names.include?(name)
+              if params.size == 1
+                param = params.first
+                define_method("#{name}=") { |value| set_param_from(param['in'], param['name'], value) }
+                define_method(name) { get_param_from(param['in'], param['name']) }
+              end
+            end
+          end
+        end
+      end
+
       def build_request(*a, &b)
         request = Scorpio::Request.new(self, *a, &b)
       end
