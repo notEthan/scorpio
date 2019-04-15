@@ -118,11 +118,23 @@ module Scorpio
       @operation = operation
 
       configuration = JSI.stringify_symbol_keys(configuration)
+      params_set = Set.new # the set of params that have been set
+      # do the Configurables first
       configuration.each do |name, value|
         if Configurables.public_method_defined?("#{name}=")
           Configurables.instance_method("#{name}=").bind(self).call(value)
-        else
+          params_set << name
+        end
+      end
+      # then do other top-level params
+      configuration.reject { |name, _| params_set.include?(name) }.each do |name, value|
+        params = operation.inferred_parameters.select { |p| p['name'] == name }
+        if params.size == 1
+          set_param_from(params.first['in'], name, value)
+        elsif params.size == 0
           raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
+        else
+          raise(AmbiguousParameter.new("There are multiple parameters named #{name.inspect} - cannot use it as a configuration key").tap { |e| e.name = name })
         end
       end
 
