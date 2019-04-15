@@ -200,11 +200,13 @@ module Scorpio
         def request_schema(media_type: nil)
           if body_parameter && body_parameter['schema']
             JSI::Schema.new(body_parameter['schema'])
+          else
+            nil
           end
         end
 
         def request_schemas
-          [request_schema]
+          request_schema ? [request_schema] : []
         end
 
         # @return JSI::Schema
