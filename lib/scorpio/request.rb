@@ -137,7 +137,7 @@ module Scorpio
     end
 
     def path_template
-      Addressable::Template.new(operation.path)
+      operation.path_template
     end
 
     def path
