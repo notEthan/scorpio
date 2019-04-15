@@ -259,5 +259,22 @@ module Scorpio
       ur.raise_on_http_error
       ur.response.body_object
     end
+
+    # todo make a proper iterator interface
+    # @param next_page [#call] a callable which will take a parameter `page_ur`, which is a {Scorpio::Ur},
+    #   and must result in an Ur representing the next page, which will be yielded to the block.
+    # @yield [Scorpio::Ur] yields the first page, and each subsequent result of calls to `next_page` until
+    #   that results in nil
+    # @return [void]
+    def each_page_ur(next_page: , raise_on_http_error: true)
+      return to_enum(__method__, next_page: next_page, raise_on_http_error: raise_on_http_error) unless block_given?
+      page_ur = run_ur
+      while page_ur
+        page_ur.raise_on_http_error if raise_on_http_error
+        yield page_ur
+        page_ur = next_page.call(page_ur)
+      end
+      nil
+    end
   end
 end
