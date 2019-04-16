@@ -65,6 +65,12 @@ module Scorpio
         end
       end
 
+      # @return [Addressable::Template] the path as an Addressable::Template
+      def path_template
+        return @path_template if instance_variable_defined?(:@path_template)
+        @path_template = Addressable::Template.new(path)
+      end
+
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         @http_method = begin

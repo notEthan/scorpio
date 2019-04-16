@@ -111,16 +111,17 @@ module Scorpio
     include Configurables
 
     def initialize(operation, **configuration, &b)
-      configuration.each do |k, v|
-        settername = "#{k}="
-        if Configurables.public_method_defined?(settername)
-          Configurables.instance_method(settername).bind(self).call(v)
+      @operation = operation
+
+      configuration = JSI.stringify_symbol_keys(configuration)
+      configuration.each do |name, value|
+        if Configurables.public_method_defined?("#{name}=")
+          Configurables.instance_method("#{name}=").bind(self).call(value)
         else
-          raise(ArgumentError, "unsupported configuration value passed: #{k.inspect} => #{v.inspect}")
+          raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
         end
       end
 
-      @operation = operation
       if block_given?
         yield self
       end
@@ -137,7 +138,7 @@ module Scorpio
     end
 
     def path_template
-      Addressable::Template.new(operation.path)
+      operation.path_template
     end
 
     def path
