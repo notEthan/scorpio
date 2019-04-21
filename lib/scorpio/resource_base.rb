@@ -118,14 +118,6 @@ module Scorpio
         end
         update_dynamic_methods
 
-        openapi_document.paths.each do |path, path_item|
-          path_item.each do |http_method, operation|
-            unless operation.is_a?(Scorpio::OpenAPI::Operation)
-              next
-            end
-          end
-        end
-
         # TODO blame validate openapi_document
 
         update_dynamic_methods
@@ -221,8 +213,19 @@ module Scorpio
           h[operation] = begin
             raise(ArgumentError, operation.pretty_inspect) unless operation.is_a?(Scorpio::OpenAPI::Operation)
 
-            if operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name) && operation.operationId =~ /\A#{Regexp.escape(tag_name)}\.(\w+)\z/
-              method_name = $1
+            # if Pet is the Scorpio resource class
+            # and Pet.tag_name is "pet"
+            # and operation's operationId is "pet.add"
+            # then the operation's method name on Pet will be "add".
+            # if the operationId is just "addPet"
+            # then the operation's method name on Pet will be "addPet".
+            tag_name_match = tag_name &&
+              operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
+              operation.tags.include?(tag_name) &&
+              operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
+
+            if tag_name_match
+              method_name = tag_name_match[1]
             else
               method_name = operation.operationId
             end
@@ -233,7 +236,7 @@ module Scorpio
       def update_class_and_instance_api_methods
         openapi_document.paths.each do |path, path_item|
           path_item.each do |http_method, operation|
-            next if http_method == 'parameters' # parameters is not an operation. TOOD maybe just select the keys that are http methods?
+            next unless operation.is_a?(Scorpio::OpenAPI::Operation)
             method_name = method_names_by_operation[operation]
             if method_name
               # class method

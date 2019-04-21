@@ -69,6 +69,12 @@ module Scorpio
         end
       end
 
+      # @return [Addressable::Template] the path as an Addressable::Template
+      def path_template
+        return @path_template if instance_variable_defined?(:@path_template)
+        @path_template = Addressable::Template.new(path)
+      end
+
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         @http_method = begin
@@ -196,18 +202,20 @@ module Scorpio
           elsif body_parameters.size == 1
             body_parameters.first
           else
-            raise(Bug) # TODO BLAME
+            raise(Bug, "multiple body parameters on operation #{operation.pretty_inspect.chomp}") # TODO BLAME
           end
         end
 
         def request_schema(media_type: nil)
           if body_parameter && body_parameter['schema']
             JSI::Schema.new(body_parameter['schema'])
+          else
+            nil
           end
         end
 
         def request_schemas
-          [request_schema]
+          request_schema ? [request_schema] : []
         end
 
         # @return JSI::Schema
