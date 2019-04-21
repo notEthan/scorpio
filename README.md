@@ -155,12 +155,12 @@ let's pick a state and find a pet. we'll go through the rest of the example in t
 
 ```ruby
 # call the operation findPetsByStatus: http://petstore.swagger.io/#/pet/findPetsByStatus
-sold_pets = pet_store_doc.operations['findPetsByStatus'].run(query_params: {status: 'sold'})
+sold_pets = pet_store_doc.operations['findPetsByStatus'].run(status: 'sold')
 # sold_pets is an array-like collection of JSI instances
 
 # compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
 pet1 = sold_pets.detect { |pet| pet.tags.any? }
-pet2 = pet_store_doc.operations['getPetById'].run(path_params: {'petId' => pet1['id']})
+pet2 = pet_store_doc.operations['getPetById'].run(petId: pet1['id'])
 # without ResourceBase, pet1 and pet2 are not considered to be the same though [TODO may change in jsi]
 
 pet1 == pet2
@@ -180,11 +180,11 @@ pet1.name = ENV['USER']
 pet_store_doc.operations['updatePet'].run(body_object: pet1)
 
 # check that it was saved
-pet_store_doc.operations['getPetById'].run(path_params: {'petId' => pet1['id']}).name
+pet_store_doc.operations['getPetById'].run(petId: pet1['id']).name
 # => "ethan" (unless for some reason your name is not Ethan)
 
 # here is how errors are handled:
-pet_store_doc.operations['getPetById'].run(path_params: {'petId' => 0})
+pet_store_doc.operations['getPetById'].run(petId: 0)
 # raises: Scorpio::HTTPErrors::NotFound404Error
 #   Error calling operation getPetById:
 #   {"code":1,"type":"error","message":"Pet not found"}
