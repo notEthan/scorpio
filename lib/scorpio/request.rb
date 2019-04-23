@@ -179,8 +179,7 @@ module Scorpio
       end
       # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
       # we use File.join just to deal with consecutive slashes.
-      url = File.join(base_url, path)
-      url = Addressable::URI.parse(url)
+      Addressable::URI.parse(File.join(base_url, path))
     end
 
     # @return [::Ur::ContentTypeAttrs] content type attributes for this request's Content-Type
