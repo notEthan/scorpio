@@ -58,9 +58,9 @@ module Scorpio
         parents.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
 
-      def path
-        return @path if instance_variable_defined?(:@path)
-        @path = begin
+      def path_template_str
+        return @path_template_str if instance_variable_defined?(:@path_template_str)
+        @path_template_str = begin
           parent_is_pathitem = parent.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent.is_a?(Scorpio::OpenAPI::V3::PathItem)
           parent_parent_is_paths = parent.parent.is_a?(Scorpio::OpenAPI::V2::Paths) || parent.parent.is_a?(Scorpio::OpenAPI::V3::Paths)
           if parent_is_pathitem && parent_parent_is_paths
@@ -72,7 +72,7 @@ module Scorpio
       # @return [Addressable::Template] the path as an Addressable::Template
       def path_template
         return @path_template if instance_variable_defined?(:@path_template)
-        @path_template = Addressable::Template.new(path)
+        @path_template = Addressable::Template.new(path_template_str)
       end
 
       # @param base_url [#to_str] the base URL to which the path template is appended
