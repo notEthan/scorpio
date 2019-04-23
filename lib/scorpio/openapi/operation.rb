@@ -75,6 +75,18 @@ module Scorpio
         @path_template = Addressable::Template.new(path)
       end
 
+      # @param base_url [#to_str] the base URL to which the path template is appended
+      # @return [Addressable::Template] the URI template, consisting of the base_url
+      #   concatenated with the path template
+      def uri_template(base_url: self.base_url)
+        unless base_url
+          raise(ArgumentError, "no base_url has been specified for operation #{self}")
+        end
+        # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
+        # we use File.join just to deal with consecutive slashes.
+        Addressable::Template.new(File.join(base_url, path_template_str))
+      end
+
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         @http_method = begin
