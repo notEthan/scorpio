@@ -1,3 +1,10 @@
+# v0.4.0
+- Scorpio::OpenAPI v3 classes updated from OAI/OpenAPI-Specification branch oas3-schema
+- any uniquely-named request parameter will have accessors on Request and can be passed as config to #initialize
+- Request#each_page_ur for pagination
+- significantly improved documentation
+- many refactorings, improvements, and fixes
+
 # v0.3.1
 - miscellaneous minor fixes and improvements
 
