@@ -194,7 +194,7 @@ module Scorpio
         request_attributes = []
         # if the path has attributes in common with model schema attributes, we'll define on 
         # instance method
-        request_attributes |= Addressable::Template.new(operation.path).variables
+        request_attributes |= operation.path_template.variables
         # TODO if the method request schema has attributes in common with the model schema attributes,
         # should we define an instance method?
         #request_attributes |= request_schema && request_schema['type'] == 'object' && request_schema['properties'] ?

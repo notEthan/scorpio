@@ -114,6 +114,7 @@ You do not have to define resource classes to use Scorpio to call OpenAPI operat
 We start by instantiating the OpenAPI document. `Scorpio::OpenAPI::Document.from_instance` returns a V2 or V3 OpenAPI Document class instance.
 
 ```ruby
+require 'scorpio'
 pet_store_doc = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('http://petstore.swagger.io/v2/swagger.json').body))
 # => #{<Scorpio::OpenAPI::V2::Document fragment="#"> "swagger" => "2.0", ...}
 ```
@@ -174,20 +175,18 @@ pet1.tags.map(&:name)
 # let's name the pet after ourself
 pet1.name = ENV['USER']
 
-# store the result in the pet store. note the updatePet call from the instance - our
-# calls so far have been on the class PetStore::Pet, but scorpio defines instance
-# methods to call operations where appropriate as well.
+# store the result in the pet store.
 # updatePet: http://petstore.swagger.io/#/pet/updatePet
-pet1.updatePet
+pet_store_doc.operations['updatePet'].run(body_object: pet1)
 
 # check that it was saved
-PetStore::Pet.getPetById(petId: pet1['id']).name
+pet_store_doc.operations['getPetById'].run(path_params: {'petId' => pet1['id']}).name
 # => "ethan" (unless for some reason your name is not Ethan)
 
 # here is how errors are handled:
-PetStore::Pet.getPetById(petId: 0)
+pet_store_doc.operations['getPetById'].run(path_params: {'petId' => 0})
 # raises: Scorpio::HTTPErrors::NotFound404Error
-#   Error calling operation getPetById on PetStore::Pet:
+#   Error calling operation getPetById:
 #   {"code":1,"type":"error","message":"Pet not found"}
 ```
 

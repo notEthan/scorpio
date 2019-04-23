@@ -114,7 +114,7 @@ module Scorpio
     # @param configuration [#to_hash] a hash keyed with configurable attributes for
     #   the request - instance methods of Scorpio::Request::Configurables, whose values
     #   will be assigned for those attributes.
-    def initialize(operation, **configuration, &b)
+    def initialize(operation, configuration = {}, &b)
       @operation = operation
 
       configuration = JSI.stringify_symbol_keys(configuration)
@@ -170,12 +170,12 @@ module Scorpio
       path_params = JSI.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
-        raise(ArgumentError, "path #{operation.path} for operation #{operation.operationId} requires path_params " +
+        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.operationId} requires path_params " +
           "which were missing: #{missing_variables.inspect}")
       end
       empty_variables = path_template.variables.select { |v| path_params[v].to_s.empty? }
       if empty_variables.any?
-        raise(ArgumentError, "path #{operation.path} for operation #{operation.operationId} requires path_params " +
+        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.operationId} requires path_params " +
           "which were empty: #{empty_variables.inspect}")
       end
 
@@ -193,8 +193,7 @@ module Scorpio
       end
       # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
       # we use File.join just to deal with consecutive slashes.
-      url = File.join(base_url, path)
-      url = Addressable::URI.parse(url)
+      Addressable::URI.parse(File.join(base_url, path))
     end
 
     # @return [::Ur::ContentTypeAttrs] content type attributes for this request's Content-Type
@@ -344,6 +343,23 @@ module Scorpio
       ur = run_ur
       ur.raise_on_http_error
       ur.response.body_object
+    end
+
+    # todo make a proper iterator interface
+    # @param next_page [#call] a callable which will take a parameter `page_ur`, which is a {Scorpio::Ur},
+    #   and must result in an Ur representing the next page, which will be yielded to the block.
+    # @yield [Scorpio::Ur] yields the first page, and each subsequent result of calls to `next_page` until
+    #   that results in nil
+    # @return [void]
+    def each_page_ur(next_page: , raise_on_http_error: true)
+      return to_enum(__method__, next_page: next_page, raise_on_http_error: raise_on_http_error) unless block_given?
+      page_ur = run_ur
+      while page_ur
+        page_ur.raise_on_http_error if raise_on_http_error
+        yield page_ur
+        page_ur = next_page.call(page_ur)
+      end
+      nil
     end
   end
 end
