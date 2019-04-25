@@ -55,16 +55,16 @@ module Scorpio
 
       # @return [Scorpio::OpenAPI::Document] the document whence this operation came
       def openapi_document
-        parents.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
+        parent_jsis.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
 
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
         @path_template_str = begin
-          parent_is_pathitem = parent.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent.is_a?(Scorpio::OpenAPI::V3::PathItem)
-          parent_parent_is_paths = parent.parent.is_a?(Scorpio::OpenAPI::V2::Paths) || parent.parent.is_a?(Scorpio::OpenAPI::V3::Paths)
+          parent_is_pathitem = parent_jsi.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent_jsi.is_a?(Scorpio::OpenAPI::V3::PathItem)
+          parent_parent_is_paths = parent_jsi.parent_jsi.is_a?(Scorpio::OpenAPI::V2::Paths) || parent_jsi.parent_jsi.is_a?(Scorpio::OpenAPI::V3::Paths)
           if parent_is_pathitem && parent_parent_is_paths
-            parent.instance.path.last
+            parent_jsi.jsi_ptr.reference_tokens.last
           end
         end
       end
@@ -92,9 +92,9 @@ module Scorpio
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         @http_method = begin
-          parent_is_pathitem = parent.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent.is_a?(Scorpio::OpenAPI::V3::PathItem)
+          parent_is_pathitem = parent_jsi.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent_jsi.is_a?(Scorpio::OpenAPI::V3::PathItem)
           if parent_is_pathitem
-            instance.path.last
+            jsi_ptr.reference_tokens.last
           end
         end
       end

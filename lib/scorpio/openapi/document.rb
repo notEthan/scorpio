@@ -12,10 +12,11 @@ module Scorpio
         # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
         # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3::Document]
         def from_instance(instance)
-          if instance.is_a?(Hash)
-            instance = JSI::JSON::Node.new_doc(instance)
-          end
-          if instance.is_a?(JSI::JSON::Node)
+          if instance.is_a?(Scorpio::OpenAPI::Document)
+            instance
+          elsif instance.is_a?(JSI::Base)
+            raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
+          elsif instance.respond_to?(:to_hash)
             if instance['swagger'] =~ /\A2(\.|\z)/
               instance = Scorpio::OpenAPI::V2::Document.new(instance)
             elsif instance['openapi'] =~ /\A3(\.|\z)/
@@ -23,13 +24,6 @@ module Scorpio
             else
               raise(ArgumentError, "instance does not look like a recognized openapi document")
             end
-          end
-          if instance.is_a?(Scorpio::OpenAPI::Document)
-            instance
-          elsif instance.is_a?(JSI::Base)
-            raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
-          elsif instance.respond_to?(:to_hash)
-            from_instance(instance.to_hash)
           else
             raise(TypeError, "instance does not look like a hash (json object)")
           end
