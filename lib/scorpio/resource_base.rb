@@ -356,11 +356,11 @@ module Scorpio
               if schema
                 if schema['type'] == 'object'
                   # TODO code dup with response_object_to_instances
-                  if schema['properties'] && schema['properties'][key]
+                  if schema['properties'].respond_to?(:to_hash) && schema['properties'][key]
                     subschema = schema['properties'][key]
                     include_pair = true
                   else
-                    if schema['patternProperties']
+                    if schema['patternProperties'].respond_to?(:to_hash)
                       _, pattern_schema = schema['patternProperties'].detect do |pattern, _|
                         key =~ Regexp.new(pattern) # TODO map pattern to ruby syntax
                       end
@@ -371,8 +371,7 @@ module Scorpio
                     else
                       if schema['additionalProperties'] == false
                         include_pair = false
-                      elsif schema['additionalProperties'] == nil
-                        # TODO decide on this (can combine with `else` if treating nil same as schema present)
+                      elsif [nil, true].include?(schema['additionalProperties'])
                         include_pair = true
                         subschema = nil
                       else
