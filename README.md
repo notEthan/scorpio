@@ -24,7 +24,7 @@ Once you have the OpenAPI document describing the service you will consume, you 
 
 ## Pet Store (using Scorpio::ResourceBase)
 
-Let's dive into some code, shall we? If you have learned about OpenAPI, you likely learned using the example of the Pet Store service. This README will use the same service. Its documentation is at http://petstore.swagger.io/ and its OpenAPI 2 specification is at http://petstore.swagger.io/v2/swagger.json (yaml version: http://petstore.swagger.io/v2/swagger.yaml )
+Let's dive into some code, shall we? If you have learned about OpenAPI, you likely learned using the example of the Pet Store service. This README will use the same service. Its documentation is at http://petstore.swagger.io/.
 
 Using the specification, we can start interacting with the pet store with very little code. Here is that code, with explanations of each part in the comments.
 
