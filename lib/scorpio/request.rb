@@ -62,7 +62,7 @@ module Scorpio
             if body_object.respond_to?(:to_str)
               body_object
             else
-              raise(NotImplementedError)
+              raise(NotImplementedError, "Scorpio does not know how to generate the request body with media_type = #{media_type.respond_to?(:to_str) ? media_type : media_type.inspect} for operation: #{operation.human_id}. Scorpio supports media types: #{SUPPORTED_REQUEST_MEDIA_TYPES.join(', ')}. body_object was: #{body_object.pretty_inspect.chomp}")
             end
           end
         else
