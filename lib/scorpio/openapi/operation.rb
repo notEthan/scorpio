@@ -97,6 +97,16 @@ module Scorpio
         end
       end
 
+      # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
+      def oa_response(status: )
+        status = status.to_s if status.is_a?(Numeric)
+        if self.responses
+          _, oa_response = self.responses.detect { |k, v| k.to_s == status }
+          oa_response ||= self.responses['default']
+        end
+        oa_response
+      end
+
       # this method is not intended to be API-stable at the moment.
       #
       # @return [#to_ary<#to_h>] the parameters specified for this operation, plus any others
@@ -208,12 +218,7 @@ module Scorpio
 
         # @return JSI::Schema
         def response_schema(status: , media_type: )
-          status = status.to_s if status.is_a?(Numeric)
-          if self.responses
-            # Scorpio::OpenAPI::V3::Response
-            _, oa_response = self.responses.detect { |k, v| k.to_s == status }
-            oa_response ||= self.responses['default']
-          end
+          oa_response = self.oa_response(status: status)
           oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3::MediaTypes
           oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3::MediaType
           oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3::Schema
@@ -275,12 +280,7 @@ module Scorpio
 
         # @return JSI::Schema
         def response_schema(status: , media_type: nil)
-          status = status.to_s if status.is_a?(Numeric)
-          if self.responses
-            # Scorpio::OpenAPI::V2::Response
-            _, oa_response = self.responses.detect { |k, v| k.to_s == status }
-            oa_response ||= self.responses['default']
-          end
+          oa_response = self.oa_response(status: status)
           oa_response_schema = oa_response ? oa_response['schema'] : nil # Scorpio::OpenAPI::V2::Schema
           oa_response_schema ? JSI::Schema.new(oa_response_schema) : nil
         end
