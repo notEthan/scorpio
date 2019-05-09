@@ -156,7 +156,7 @@ module Scorpio
       end
 
       def build_request(*a, &b)
-        request = Scorpio::Request.new(self, *a, &b)
+        Scorpio::Request.new(self, *a, &b)
       end
 
       def run_ur(*a, &b)
