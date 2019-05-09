@@ -97,6 +97,11 @@ module Scorpio
         end
       end
 
+      # @return [String] a short identifier for this operation appropriate for an error message
+      def human_id
+        operationId || "path: #{path_template_str}, method: #{http_method}"
+      end
+
       # this method is not intended to be API-stable at the moment.
       #
       # @return [#to_ary<#to_h>] the parameters specified for this operation, plus any others

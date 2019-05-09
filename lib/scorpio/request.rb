@@ -170,12 +170,12 @@ module Scorpio
       path_params = JSI.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
-        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.operationId} requires path_params " +
+        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.human_id} requires path_params " +
           "which were missing: #{missing_variables.inspect}")
       end
       empty_variables = path_template.variables.select { |v| path_params[v].to_s.empty? }
       if empty_variables.any?
-        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.operationId} requires path_params " +
+        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.human_id} requires path_params " +
           "which were empty: #{empty_variables.inspect}")
       end
 
