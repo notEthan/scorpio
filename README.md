@@ -71,31 +71,29 @@ That should be all you need to start calling operations:
 sold_pets = PetStore::Pet.findPetsByStatus(status: 'sold')
 # sold_pets is an array-like collection of PetStore::Pet instances
 
-# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
-pet1 = sold_pets.last
-pet2 = PetStore::Pet.getPetById(petId: pet1['id'])
-# pet2 is the same pet as pet1, retrieved using the getPetById operation
+pet = sold_pets.sample
 
-pet1 == pet2
-# should return true. they are the same pet.
-
-pet1.tags.map(&:name)
+pet.tags.map(&:name)
 # note that you have accessors on PetStore::Pet like #tags, and also that
 # tags have accessors for properties 'name' and 'id' from the tags schema
 # (your tag names will be different depending on what's in the pet store)
 # => ["aucune"]
 
+# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
+pet == PetStore::Pet.getPetById(petId: pet['id'])
+# pet is the same, retrieved using the getPetById operation
+
 # let's name the pet after ourself
-pet1.name = ENV['USER']
+pet.name = ENV['USER']
 
 # store the result in the pet store. note the updatePet call from the instance - our
 # calls so far have been on the class PetStore::Pet, but scorpio defines instance
 # methods to call operations where appropriate as well.
 # updatePet: http://petstore.swagger.io/#/pet/updatePet
-pet1.updatePet
+pet.updatePet
 
 # check that it was saved
-PetStore::Pet.getPetById(petId: pet1['id']).name
+PetStore::Pet.getPetById(petId: pet['id']).name
 # => "ethan" (unless for some reason your name is not Ethan)
 
 # here is how errors are handled:
@@ -158,29 +156,28 @@ let's pick a state and find a pet. we'll go through the rest of the example in t
 sold_pets = pet_store_doc.operations['findPetsByStatus'].run(status: 'sold')
 # sold_pets is an array-like collection of JSI instances
 
-# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
-pet1 = sold_pets.detect { |pet| pet.tags.any? }
-pet2 = pet_store_doc.operations['getPetById'].run(petId: pet1['id'])
-# without ResourceBase, pet1 and pet2 are not considered to be the same though [TODO may change in jsi]
+pet = sold_pets.detect { |pet| pet.tags.any? }
 
-pet1 == pet2
-# false
-
-pet1.tags.map(&:name)
+pet.tags.map(&:name)
 # note that you have accessors on PetStore::Pet like #tags, and also that
 # tags have accessors for properties 'name' and 'id' from the tags schema
 # (your tag names will be different depending on what's in the pet store)
 # => ["aucune"]
 
+# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
+pet == pet_store_doc.operations['getPetById'].run(petId: pet['id'])
+# => false
+# without ResourceBase, pet is not considered to be the same compared with getPetById [TODO may change in jsi]
+
 # let's name the pet after ourself
-pet1.name = ENV['USER']
+pet.name = ENV['USER']
 
 # store the result in the pet store.
 # updatePet: http://petstore.swagger.io/#/pet/updatePet
-pet_store_doc.operations['updatePet'].run(body_object: pet1)
+pet_store_doc.operations['updatePet'].run(body_object: pet)
 
 # check that it was saved
-pet_store_doc.operations['getPetById'].run(petId: pet1['id']).name
+pet_store_doc.operations['getPetById'].run(petId: pet['id']).name
 # => "ethan" (unless for some reason your name is not Ethan)
 
 # here is how errors are handled:
