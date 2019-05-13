@@ -246,7 +246,7 @@ module Scorpio
     # @param name [String, Symbol] the 'name' property of one applicable parameter
     # @param value [Object] the applicable parameter will be applied to the request with the given value.
     # @return [Object] echoes the value param
-    # @raise [Scorpio::AmbiguousParameter] if more than one paramater has the given name
+    # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
     def set_param(name, value)
       name = name.to_s if name.is_a?(Symbol)
       params = operation.inferred_parameters.select { |p| p['name'] == name }
@@ -260,7 +260,7 @@ module Scorpio
 
     # @param name [String, Symbol] the 'name' property of one applicable parameter
     # @return [Object] the value of the named parameter on this request
-    # @raise [Scorpio::AmbiguousParameter] if more than one paramater has the given name
+    # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
     def get_param(name)
       name = name.to_s if name.is_a?(Symbol)
       params = operation.inferred_parameters.select { |p| p['name'] == name }
