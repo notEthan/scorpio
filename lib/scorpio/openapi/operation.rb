@@ -87,6 +87,8 @@ module Scorpio
         Addressable::Template.new(File.join(base_url, path_template_str))
       end
 
+      # @return the HTTP method of this operation as indicated by the attribute name
+      #   for this operation from the parent PathItem
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         @http_method = begin
@@ -140,14 +142,20 @@ module Scorpio
         end
       end
 
+      # @param a, b are passed to Scorpio::Request#initialize
+      # @return [Scorpio::Request]
       def build_request(*a, &b)
         request = Scorpio::Request.new(self, *a, &b)
       end
 
+      # @param a, b are passed to Scorpio::Request#initialize
+      # @return [Scorpio::Ur] response ur
       def run_ur(*a, &b)
         build_request(*a, &b).run_ur
       end
 
+      # @param a, b are passed to Scorpio::Request#initialize
+      # @return response body object
       def run(*a, &b)
         build_request(*a, &b).run
       end
