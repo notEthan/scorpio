@@ -198,6 +198,7 @@ module Scorpio
         end
         include Configurables
 
+        # @return [JSI::Schema]
         def request_schema(media_type: self.request_media_type)
           # TODO typechecking on requestBody & children
           requestBody &&
@@ -207,6 +208,7 @@ module Scorpio
             requestBody['content'][media_type]['schema'].deref
         end
 
+        # @return [Array<JSI::Schema>]
         def request_schemas
           if requestBody && requestBody['content']
             # oamt is for Scorpio::OpenAPI::V3::MediaType
@@ -214,7 +216,7 @@ module Scorpio
           end
         end
 
-        # @return JSI::Schema
+        # @return [JSI::Schema]
         def response_schema(status: , media_type: )
           status = status.to_s if status.is_a?(Numeric)
           if self.responses
@@ -269,6 +271,8 @@ module Scorpio
           end
         end
 
+        # @param media_type unused
+        # @return [JSI::Schema] request schema for the given media_type
         def request_schema(media_type: nil)
           if body_parameter && body_parameter['schema']
             JSI::Schema.new(body_parameter['schema'])
@@ -277,11 +281,14 @@ module Scorpio
           end
         end
 
+        # @return [Array<JSI::Schema>]
         def request_schemas
           request_schema ? [request_schema] : []
         end
 
-        # @return JSI::Schema
+        # @param status [Integer, String] response status
+        # @param media_type unused
+        # @return [JSI::Schema]
         def response_schema(status: , media_type: nil)
           status = status.to_s if status.is_a?(Numeric)
           if self.responses
