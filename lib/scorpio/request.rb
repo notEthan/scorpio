@@ -305,7 +305,8 @@ module Scorpio
       elsif param_in == 'query'
         query_params ? query_params[name] : nil
       elsif param_in == 'header'
-        headers[name]
+        _, value = headers.detect { |headername, _| headername.downcase == name.downcase }
+        value
       elsif param_in == 'cookie'
         raise(NotImplementedError, "cookies not implemented: #{name.inspect}")
       else
