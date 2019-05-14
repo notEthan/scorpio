@@ -187,7 +187,9 @@ module Scorpio
         return false unless operation_for_resource_class?(operation)
 
         # define an instance method if the request schema is for this model 
-        request_resource_is_self = operation.request_schema && represented_schemas.include?(operation.request_schema)
+        request_resource_is_self = operation.request_schemas.any? do |request_schema|
+          represented_schemas.include?(request_schema)
+        end
 
         # also define an instance method depending on certain attributes the request description 
         # might have in common with the model's schema attributes
