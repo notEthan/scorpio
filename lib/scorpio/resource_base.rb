@@ -116,10 +116,7 @@ module Scorpio
             raise(ArgumentError, "openapi_document may not be overridden on subclass #{self.inspect} after it was set on #{openapi_document_class.inspect}")
           end
         end
-        update_dynamic_methods
-
         # TODO blame validate openapi_document
-
         update_dynamic_methods
       end
 
