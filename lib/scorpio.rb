@@ -97,6 +97,8 @@ module Scorpio
   class ConfigError < Error
     attr_accessor :name
   end
+  class ParameterError < ConfigError
+  end
   class AmbiguousParameter < ConfigError
   end
 
