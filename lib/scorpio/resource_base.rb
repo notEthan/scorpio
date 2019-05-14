@@ -128,7 +128,6 @@ module Scorpio
         unless tag_name.respond_to?(:to_str)
           raise(TypeError)
         end
-        set_on_class = self
         tag_name = tag_name.to_str
 
         begin
