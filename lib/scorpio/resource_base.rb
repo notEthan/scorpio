@@ -129,7 +129,7 @@ module Scorpio
 
       def tag_name=(tag_name)
         unless tag_name.respond_to?(:to_str)
-          raise(TypeError)
+          raise(TypeError, "tag_name must be a string; got: #{tag_name.inspect}")
         end
         set_on_class = self
         tag_name = tag_name.to_str
