@@ -267,7 +267,8 @@ module Scorpio
           elsif body_parameters.size == 1
             body_parameters.first
           else
-            raise(Bug, "multiple body parameters on operation #{operation.pretty_inspect.chomp}") # TODO BLAME
+            # TODO blame
+            raise(OpenAPI::SemanticError, "multiple body parameters on operation #{operation.pretty_inspect.chomp}")
           end
         end
 
