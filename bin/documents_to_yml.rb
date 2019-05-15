@@ -4,7 +4,13 @@ require 'pathname'
 require 'json'
 require 'yaml'
 
-Pathname.glob(Pathname.new(__FILE__).dirname.join('../documents/**/*')).select { |p| p.file? && !['.yml', '.yaml'].include?(p.extname) }.each do |file|
+root = Pathname.new(__FILE__).dirname.join('..')
+
+document_dirs = [root.join('documents'), root.join('test/documents')]
+documents = document_dirs.map { |d| Pathname.glob(d.join('**/*')) }.inject([], &:+)
+json_documents = documents.select { |p| p.file? && !['.yml', '.yaml'].include?(p.extname) }
+
+json_documents.each do |file|
   begin
     json_contents = JSON.parse(file.read)
     yaml = YAML.dump(json_contents, line_width: -1)
