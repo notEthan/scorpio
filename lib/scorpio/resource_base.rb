@@ -224,6 +224,7 @@ module Scorpio
             tag_name_match = tag_name &&
               operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
               operation.tags.include?(tag_name) &&
+              operation.operationId &&
               operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
 
             if tag_name_match
