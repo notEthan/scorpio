@@ -97,6 +97,11 @@ module Scorpio
         end
       end
 
+      # @return [String] a short identifier for this operation appropriate for an error message
+      def human_id
+        operationId || "path: #{path_template_str}, method: #{http_method}"
+      end
+
       # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
       def oa_response(status: )
         status = status.to_s if status.is_a?(Numeric)
