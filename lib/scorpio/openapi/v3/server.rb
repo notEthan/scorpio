@@ -1,7 +1,7 @@
 module Scorpio
   module OpenAPI
     module V3
-      raise(Bug) unless const_defined?(:Server)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Server') unless const_defined?(:Server)
 
       # An object representing a Server.
       #

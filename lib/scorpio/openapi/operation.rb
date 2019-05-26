@@ -169,7 +169,7 @@ module Scorpio
     end
 
     module V3
-      raise(Bug) unless const_defined?(:Operation)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Operation') unless const_defined?(:Operation)
 
       # Describes a single API operation on a path.
       #
@@ -235,7 +235,7 @@ module Scorpio
       end
     end
     module V2
-      raise(Bug) unless const_defined?(:Operation)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Operation') unless const_defined?(:Operation)
       class Operation
         module Configurables
           attr_writer :scheme
