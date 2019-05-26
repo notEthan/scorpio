@@ -1,3 +1,8 @@
+# v0.4.1
+- Request#param_for
+- Operation#human_id
+- bugfixes
+
 # v0.4.0
 - Scorpio::OpenAPI v3 classes updated from OAI/OpenAPI-Specification branch oas3-schema
 - any uniquely-named request parameter will have accessors on Request and can be passed as config to #initialize
