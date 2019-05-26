@@ -126,7 +126,7 @@ module Scorpio
 
       def tag_name=(tag_name)
         unless tag_name.respond_to?(:to_str)
-          raise(TypeError)
+          raise(TypeError, "tag_name must be a string; got: #{tag_name.inspect}")
         end
         tag_name = tag_name.to_str
 
@@ -183,7 +183,9 @@ module Scorpio
         return false unless operation_for_resource_class?(operation)
 
         # define an instance method if the request schema is for this model 
-        request_resource_is_self = operation.request_schema && represented_schemas.include?(operation.request_schema)
+        request_resource_is_self = operation.request_schemas.any? do |request_schema|
+          represented_schemas.include?(request_schema)
+        end
 
         # also define an instance method depending on certain attributes the request description 
         # might have in common with the model's schema attributes
@@ -218,6 +220,7 @@ module Scorpio
             tag_name_match = tag_name &&
               operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
               operation.tags.include?(tag_name) &&
+              operation.operationId &&
               operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
 
             if tag_name_match

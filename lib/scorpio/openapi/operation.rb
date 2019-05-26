@@ -207,17 +207,20 @@ module Scorpio
 
         def request_schema(media_type: self.request_media_type)
           # TODO typechecking on requestBody & children
-          requestBody &&
+          schema_object = requestBody &&
             requestBody['content'] &&
             requestBody['content'][media_type] &&
-            requestBody['content'][media_type]['schema'] &&
-            requestBody['content'][media_type]['schema'].deref
+            requestBody['content'][media_type]['schema']
+          schema_object ? JSI::Schema.from_object(schema_object) : nil
         end
 
         def request_schemas
           if requestBody && requestBody['content']
             # oamt is for Scorpio::OpenAPI::V3::MediaType
-            requestBody['content'].values.map { |oamt| oamt['schema'] }.compact.map(&:deref)
+            oamts = requestBody['content'].values.select { |oamt| oamt.key?('schema') }
+            oamts.map { |oamt| JSI::Schema.from_object(oamt['schema']) }
+          else
+            []
           end
         end
 
