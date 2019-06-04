@@ -427,10 +427,13 @@ module Scorpio
         end
 
         if object.respond_to?(:to_hash)
-          out = JSI::Typelike.modified_copy(object) do
-            object.map do |key, value|
+          out = JSI::Typelike.modified_copy(object) do |_object|
+            mod = object.map do |key, value|
               {key => response_object_to_instances(value, initialize_options)}
             end.inject({}, &:update)
+            mod = mod.instance if mod.is_a?(JSI::Base)
+            mod = mod.content if mod.is_a?(JSI::JSON::Node)
+            mod
           end
           if model
             model.new(out, initialize_options)
