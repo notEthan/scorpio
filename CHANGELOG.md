@@ -1,3 +1,7 @@
+# v0.4.2
+- improve documentation
+- misc bugfixes
+
 # v0.4.1
 - Request#param_for
 - Operation#human_id
