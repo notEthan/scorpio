@@ -99,6 +99,21 @@ module Scorpio
         end
       end
 
+      # @return [String] a short identifier for this operation appropriate for an error message
+      def human_id
+        operationId || "path: #{path_template_str}, method: #{http_method}"
+      end
+
+      # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
+      def oa_response(status: )
+        status = status.to_s if status.is_a?(Numeric)
+        if self.responses
+          _, oa_response = self.responses.detect { |k, v| k.to_s == status }
+          oa_response ||= self.responses['default']
+        end
+        oa_response
+      end
+
       # this method is not intended to be API-stable at the moment.
       #
       # @return [#to_ary<#to_h>] the parameters specified for this operation, plus any others
@@ -145,7 +160,7 @@ module Scorpio
       # @param a, b are passed to Scorpio::Request#initialize
       # @return [Scorpio::Request]
       def build_request(*a, &b)
-        request = Scorpio::Request.new(self, *a, &b)
+        Scorpio::Request.new(self, *a, &b)
       end
 
       # @param a, b are passed to Scorpio::Request#initialize
@@ -162,7 +177,7 @@ module Scorpio
     end
 
     module V3
-      raise(Bug) unless const_defined?(:Operation)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Operation') unless const_defined?(:Operation)
 
       # Describes a single API operation on a path.
       #
@@ -201,29 +216,27 @@ module Scorpio
         # @return [JSI::Schema]
         def request_schema(media_type: self.request_media_type)
           # TODO typechecking on requestBody & children
-          requestBody &&
+          schema_object = requestBody &&
             requestBody['content'] &&
             requestBody['content'][media_type] &&
-            requestBody['content'][media_type]['schema'] &&
-            requestBody['content'][media_type]['schema'].deref
+            requestBody['content'][media_type]['schema']
+          schema_object ? JSI::Schema.from_object(schema_object) : nil
         end
 
         # @return [Array<JSI::Schema>]
         def request_schemas
           if requestBody && requestBody['content']
             # oamt is for Scorpio::OpenAPI::V3::MediaType
-            requestBody['content'].values.map { |oamt| oamt['schema'] }.compact.map(&:deref)
+            oamts = requestBody['content'].values.select { |oamt| oamt.key?('schema') }
+            oamts.map { |oamt| JSI::Schema.from_object(oamt['schema']) }
+          else
+            []
           end
         end
 
         # @return [JSI::Schema]
         def response_schema(status: , media_type: )
-          status = status.to_s if status.is_a?(Numeric)
-          if self.responses
-            # Scorpio::OpenAPI::V3::Response
-            _, oa_response = self.responses.detect { |k, v| k.to_s == status }
-            oa_response ||= self.responses['default']
-          end
+          oa_response = self.oa_response(status: status)
           oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3::MediaTypes
           oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3::MediaType
           oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3::Schema
@@ -232,7 +245,7 @@ module Scorpio
       end
     end
     module V2
-      raise(Bug) unless const_defined?(:Operation)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Operation') unless const_defined?(:Operation)
       class Operation
         module Configurables
           attr_writer :scheme
@@ -267,7 +280,8 @@ module Scorpio
           elsif body_parameters.size == 1
             body_parameters.first
           else
-            raise(Bug, "multiple body parameters on operation #{operation.pretty_inspect.chomp}") # TODO BLAME
+            # TODO blame
+            raise(OpenAPI::SemanticError, "multiple body parameters on operation #{operation.pretty_inspect.chomp}")
           end
         end
 
@@ -290,12 +304,7 @@ module Scorpio
         # @param media_type unused
         # @return [JSI::Schema]
         def response_schema(status: , media_type: nil)
-          status = status.to_s if status.is_a?(Numeric)
-          if self.responses
-            # Scorpio::OpenAPI::V2::Response
-            _, oa_response = self.responses.detect { |k, v| k.to_s == status }
-            oa_response ||= self.responses['default']
-          end
+          oa_response = self.oa_response(status: status)
           oa_response_schema = oa_response ? oa_response['schema'] : nil # Scorpio::OpenAPI::V2::Schema
           oa_response_schema ? JSI::Schema.new(oa_response_schema) : nil
         end

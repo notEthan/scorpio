@@ -84,7 +84,7 @@ module Scorpio
     end
 
     module V3
-      raise(Bug) unless const_defined?(:Document)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Document') unless const_defined?(:Document)
 
       # A document that defines or describes an API conforming to the OpenAPI Specification v3.
       #
@@ -127,7 +127,7 @@ module Scorpio
     end
 
     module V2
-      raise(Bug) unless const_defined?(:Document)
+      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Document') unless const_defined?(:Document)
 
       # A document that defines or describes an API conforming to the OpenAPI Specification v2 (aka Swagger).
       #

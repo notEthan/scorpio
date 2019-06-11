@@ -116,10 +116,7 @@ module Scorpio
             raise(ArgumentError, "openapi_document may not be overridden on subclass #{self.inspect} after it was set on #{openapi_document_class.inspect}")
           end
         end
-        update_dynamic_methods
-
         # TODO blame validate openapi_document
-
         update_dynamic_methods
       end
 
@@ -129,9 +126,8 @@ module Scorpio
 
       def tag_name=(tag_name)
         unless tag_name.respond_to?(:to_str)
-          raise(TypeError)
+          raise(TypeError, "tag_name must be a string; got: #{tag_name.inspect}")
         end
-        set_on_class = self
         tag_name = tag_name.to_str
 
         begin
@@ -187,7 +183,9 @@ module Scorpio
         return false unless operation_for_resource_class?(operation)
 
         # define an instance method if the request schema is for this model 
-        request_resource_is_self = operation.request_schema && represented_schemas.include?(operation.request_schema)
+        request_resource_is_self = operation.request_schemas.any? do |request_schema|
+          represented_schemas.include?(request_schema)
+        end
 
         # also define an instance method depending on certain attributes the request description 
         # might have in common with the model's schema attributes
@@ -222,6 +220,7 @@ module Scorpio
             tag_name_match = tag_name &&
               operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
               operation.tags.include?(tag_name) &&
+              operation.operationId &&
               operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
 
             if tag_name_match
@@ -360,11 +359,11 @@ module Scorpio
               if schema
                 if schema['type'] == 'object'
                   # TODO code dup with response_object_to_instances
-                  if schema['properties'] && schema['properties'][key]
+                  if schema['properties'].respond_to?(:to_hash) && schema['properties'][key]
                     subschema = schema['properties'][key]
                     include_pair = true
                   else
-                    if schema['patternProperties']
+                    if schema['patternProperties'].respond_to?(:to_hash)
                       _, pattern_schema = schema['patternProperties'].detect do |pattern, _|
                         key =~ Regexp.new(pattern) # TODO map pattern to ruby syntax
                       end
@@ -375,8 +374,7 @@ module Scorpio
                     else
                       if schema['additionalProperties'] == false
                         include_pair = false
-                      elsif schema['additionalProperties'] == nil
-                        # TODO decide on this (can combine with `else` if treating nil same as schema present)
+                      elsif [nil, true].include?(schema['additionalProperties'])
                         include_pair = true
                         subschema = nil
                       else
@@ -429,10 +427,13 @@ module Scorpio
         end
 
         if object.respond_to?(:to_hash)
-          out = JSI::Typelike.modified_copy(object) do
-            object.map do |key, value|
+          out = JSI::Typelike.modified_copy(object) do |_object|
+            mod = object.map do |key, value|
               {key => response_object_to_instances(value, initialize_options)}
             end.inject({}, &:update)
+            mod = mod.instance if mod.is_a?(JSI::Base)
+            mod = mod.content if mod.is_a?(JSI::JSON::Node)
+            mod
           end
           if model
             model.new(out, initialize_options)

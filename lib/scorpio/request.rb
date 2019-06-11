@@ -62,7 +62,7 @@ module Scorpio
             if body_object.respond_to?(:to_str)
               body_object
             else
-              raise(NotImplementedError)
+              raise(NotImplementedError, "Scorpio does not know how to generate the request body with media_type = #{media_type.respond_to?(:to_str) ? media_type : media_type.inspect} for operation: #{operation.human_id}. Scorpio supports media types: #{SUPPORTED_REQUEST_MEDIA_TYPES.join(', ')}. body_object was: #{body_object.pretty_inspect.chomp}")
             end
           end
         else
@@ -128,14 +128,8 @@ module Scorpio
       end
       # then do other top-level params
       configuration.reject { |name, _| params_set.include?(name) }.each do |name, value|
-        params = operation.inferred_parameters.select { |p| p['name'] == name }
-        if params.size == 1
-          set_param_from(params.first['in'], name, value)
-        elsif params.size == 0
-          raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
-        else
-          raise(AmbiguousParameter.new("There are multiple parameters named #{name.inspect} - cannot use it as a configuration key").tap { |e| e.name = name })
-        end
+        param = param_for(name) || raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
+        set_param_from(param['in'], param['name'], value)
       end
 
       extend operation.request_accessor_module
@@ -170,12 +164,12 @@ module Scorpio
       path_params = JSI.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
-        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.operationId} requires path_params " +
+        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.human_id} requires path_params " +
           "which were missing: #{missing_variables.inspect}")
       end
       empty_variables = path_template.variables.select { |v| path_params[v].to_s.empty? }
       if empty_variables.any?
-        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.operationId} requires path_params " +
+        raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.human_id} requires path_params " +
           "which were empty: #{empty_variables.inspect}")
       end
 
@@ -248,13 +242,8 @@ module Scorpio
     # @return [Object] echoes the value param
     # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
     def set_param(name, value)
-      name = name.to_s if name.is_a?(Symbol)
-      params = operation.inferred_parameters.select { |p| p['name'] == name }
-      if params.size == 1
-        set_param_from(params.first['in'], name, value)
-      else
-        raise(AmbiguousParameter.new("There are multiple parameters named #{name}; cannot use #set_param").tap { |e| e.name = name })
-      end
+      param = param_for!(name)
+      set_param_from(param['in'], param['name'], value)
       value
     end
 
@@ -262,13 +251,30 @@ module Scorpio
     # @return [Object] the value of the named parameter on this request
     # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
     def get_param(name)
+      param = param_for!(name)
+      get_param_from(param['in'], param['name'])
+    end
+
+    # @param name [String, Symbol] the 'name' property of one applicable parameter
+    # @return [#to_hash, nil]
+    def param_for(name)
       name = name.to_s if name.is_a?(Symbol)
       params = operation.inferred_parameters.select { |p| p['name'] == name }
       if params.size == 1
-        get_param_from(params.first['in'], name)
+        params.first
+      elsif params.size == 0
+        nil
       else
-        raise(AmbiguousParameter.new("There are multiple parameters named #{name}; cannot use #get_param").tap { |e| e.name = name })
+        raise(AmbiguousParameter.new(
+          "There are multiple parameters for #{name}. matched parameters were: #{params.pretty_inspect.chomp}"
+        ).tap { |e| e.name = name })
       end
+    end
+
+    # @param name [String, Symbol] the name or {in}.{name} (e.g. "query.search") for the applicable parameter.
+    # @return [#to_hash]
+    def param_for!(name)
+      param_for(name) || raise(ParameterError, "There is no parameter named #{name} on operation #{operation.human_id}:\n#{operation.pretty_inspect.chomp}")
     end
 
     # @param in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply the named value
@@ -305,7 +311,8 @@ module Scorpio
       elsif param_in == 'query'
         query_params ? query_params[name] : nil
       elsif param_in == 'header'
-        headers[name]
+        _, value = headers.detect { |headername, _| headername.downcase == name.downcase }
+        value
       elsif param_in == 'cookie'
         raise(NotImplementedError, "cookies not implemented: #{name.inspect}")
       else

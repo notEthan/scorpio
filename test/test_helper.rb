@@ -53,7 +53,7 @@ end
 
 # wait for the server to become responsive 
 running = false
-started = Time.now # TODO should use monotonic
+started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 timeout = 30
 while !running
   require 'socket'
@@ -62,7 +62,7 @@ while !running
     running = true
     sock.close
   rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ECONNABORTED, Errno::EPIPE
-    if Time.now > started + timeout
+    if Process.clock_gettime(Process::CLOCK_MONOTONIC) > started + timeout
       raise $!.class, "Failed to connect to the server on port #{$blog_port} after #{timeout} seconds.\n\n#{$!.message}", $!.backtrace
     end
     sleep 2**-2
