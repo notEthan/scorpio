@@ -25,9 +25,14 @@ module Scorpio
 
       # @param operationId
       # @return [Scorpio::OpenAPI::Operation] the operation with the given operationId
+      # @raise [::KeyError] if the given operationId does not exist
       def [](operationId)
         memoize(:[], operationId) do |operationId_|
-          detect { |operation| operation.operationId == operationId_ }
+          detect { |operation| operation.operationId == operationId_ }.tap do |op|
+            unless op
+              raise(::KeyError, "operationId not found: #{operationId_.inspect}")
+            end
+          end
         end
       end
     end
