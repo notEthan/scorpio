@@ -11,13 +11,13 @@ class BlogModel < Scorpio::ResourceBase
   FileUtils.mkdir_p(logpath.dirname)
   self.logger = ::Logger.new(logpath)
 
-  if ENV['SCORPIO_API_SPECIFIER'] == 'rest_description'
+  if ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'rest_description'
     self.openapi_document = Scorpio::Google::RestDescription.new(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
     self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
-  elsif ENV['SCORPIO_API_SPECIFIER'] == 'openapi2'
+  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi2'
     self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
     self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
-  elsif ENV['SCORPIO_API_SPECIFIER'] == 'openapi3' || ENV['SCORPIO_API_SPECIFIER'].nil?
+  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3' || ENV['SCORPIO_API_DESCRIPTION_FORMAT'].nil?
     self.openapi_document = YAML.load_file('test/blog.openapi3.yml')
     self.server_variables = {
       'scheme' => 'http',
@@ -25,7 +25,7 @@ class BlogModel < Scorpio::ResourceBase
       'port' => $blog_port || raise(Bug, '$blog_port is nil'),
     }
   else
-    abort("bad SCORPIO_API_SPECIFIER")
+    abort("bad SCORPIO_API_DESCRIPTION_FORMAT")
   end
   self.faraday_builder = -> (conn) {
     conn.request(:api_hammer_request_logger, logger)

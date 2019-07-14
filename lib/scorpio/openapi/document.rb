@@ -1,7 +1,7 @@
 module Scorpio
   module OpenAPI
     # A document that defines or describes an API.
-    # An OpenAPI definition uses and conforms to the OpenAPI Specification.
+    # An OpenAPI description document uses and conforms to the OpenAPI Specification.
     #
     # Scorpio::OpenAPI::Document is a module common to V2 and V3 documents.
     module Document
