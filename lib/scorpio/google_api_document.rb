@@ -1,6 +1,6 @@
 module Scorpio
   module Google
-    discovery_rest_description_doc = JSI::JSON::Node.new_by_type(::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read), [])
+    discovery_rest_description_doc = JSI::JSON::Node.new_doc(::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read))
 
     discovery_metaschema = discovery_rest_description_doc['schemas']['JsonSchema']
     rest_description_schema = JSI.class_for_schema(discovery_metaschema).new(discovery_rest_description_doc['schemas']['RestDescription'])
