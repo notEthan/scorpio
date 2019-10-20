@@ -4,13 +4,13 @@ module Scorpio
     discovery_rest_description = JSI::MetaschemaNode.new(discovery_rest_description_doc, metaschema_root_ptr: JSI::JSON::Pointer['schemas']['JsonSchema'], root_schema_ptr: JSI::JSON::Pointer['schemas']['RestDescription'])
 
     # naming these is not strictly necessary, but is nice to have.
-    DirectoryList      = JSI.class_for_schema(discovery_rest_description['schemas']['DirectoryList'])
-    JsonSchema         = JSI.class_for_schema(discovery_rest_description['schemas']['JsonSchema'])
-    RestDescription    = JSI.class_for_schema(discovery_rest_description['schemas']['RestDescription'])
-    RestMethod         = JSI.class_for_schema(discovery_rest_description['schemas']['RestMethod'])
-    RestResource       = JSI.class_for_schema(discovery_rest_description['schemas']['RestResource'])
-    RestMethodRequest  = JSI.class_for_schema(discovery_rest_description['schemas']['RestMethod']['properties']['request'])
-    RestMethodResponse = JSI.class_for_schema(discovery_rest_description['schemas']['RestMethod']['properties']['response'])
+    DirectoryList = discovery_rest_description.schemas['DirectoryList'].jsi_schema_module
+    JsonSchema     = discovery_rest_description.schemas['JsonSchema'].jsi_schema_module
+    RestDescription = discovery_rest_description.schemas['RestDescription'].jsi_schema_module
+    RestMethod      = discovery_rest_description.schemas['RestMethod'].jsi_schema_module
+    RestResource     = discovery_rest_description.schemas['RestResource'].jsi_schema_module
+    RestMethodRequest = discovery_rest_description.schemas['RestMethod'].properties['request'].jsi_schema_module
+    RestMethodResponse = discovery_rest_description.schemas['RestMethod'].properties['response'].jsi_schema_module
 
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
     module SchemaLike
@@ -33,9 +33,9 @@ module Scorpio
         dup_doc
       end
     end
-    [JsonSchema, RestMethodRequest, RestMethodResponse].each { |klass| klass.send(:include, SchemaLike) }
+    [JsonSchema, RestMethodRequest, RestMethodResponse].each { |m| m.send(:include, SchemaLike) }
 
-    class RestDescription
+    module RestDescription
       def to_openapi_document(options = {})
         Scorpio::OpenAPI::Document.from_instance(to_openapi_hash(options))
       end
