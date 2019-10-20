@@ -6,7 +6,7 @@ module Scorpio
       # An object representing a Server.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#serverObject
-      class Server
+      module Server
         # expands this server's #url using the given_server_variables. any variables
         # that are in the url but not in the given server variables are filled in
         # using the default value for the variable.

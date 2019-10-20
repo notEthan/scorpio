@@ -18,9 +18,9 @@ module Scorpio
             raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
           elsif instance.respond_to?(:to_hash)
             if instance['swagger'] =~ /\A2(\.|\z)/
-              instance = Scorpio::OpenAPI::V2::Document.new(instance)
+              instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance)
             elsif instance['openapi'] =~ /\A3(\.|\z)/
-              instance = Scorpio::OpenAPI::V3::Document.new(instance)
+              instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance)
             else
               raise(ArgumentError, "instance does not look like a recognized openapi document")
             end
@@ -83,7 +83,7 @@ module Scorpio
       # A document that defines or describes an API conforming to the OpenAPI Specification v3.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
-      class Document
+      module Document
         module Configurables
           def scheme
             nil
@@ -126,7 +126,7 @@ module Scorpio
       # A document that defines or describes an API conforming to the OpenAPI Specification v2 (aka Swagger).
       #
       # The root document is known as the Swagger Object.
-      class Document
+      module Document
         module Configurables
           attr_writer :scheme
           def scheme
