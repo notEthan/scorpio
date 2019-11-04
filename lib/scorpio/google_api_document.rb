@@ -200,23 +200,7 @@ module Scorpio
             end.call(openapi)
           end
         end
-        # check we haven't got anything that shouldn't go in a openapi document
-        openapi = JSI::Util.ycomb do |rec|
-          proc do |object|
-            object = object.to_openapi if object.respond_to?(:to_openapi)
-            if object.respond_to?(:to_hash)
-              object.map { |k, v| {rec.call(k) => rec.call(v)} }.inject({}, &:update)
-            elsif object.respond_to?(:to_ary)
-              object.map(&rec)
-            elsif object.is_a?(Symbol)
-              object.to_s
-            elsif [String, TrueClass, FalseClass, NilClass, Numeric].any? { |c| object.is_a?(c) }
-              object
-            else
-              raise(TypeError, "bad (not jsonifiable) object: #{object.pretty_inspect}")
-            end
-          end
-        end.call(openapi)
+        JSI::Typelike.as_json(openapi)
       end
     end
   end
