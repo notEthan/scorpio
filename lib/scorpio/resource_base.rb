@@ -349,10 +349,8 @@ module Scorpio
         if object.is_a?(Scorpio::ResourceBase)
           # TODO request_schema_fail unless schema is for given model type 
           request_body_for_schema(object.attributes, schema)
-        elsif object.is_a?(JSI::Base)
-          request_body_for_schema(object.instance, schema)
-        elsif object.is_a?(JSI::JSON::Node)
-          request_body_for_schema(object.content, schema)
+        elsif object.is_a?(JSI::PathedNode)
+          request_body_for_schema(object.node_content, schema)
         else
           if object.respond_to?(:to_hash)
             object.map do |key, value|
@@ -431,8 +429,7 @@ module Scorpio
             mod = object.map do |key, value|
               {key => response_object_to_instances(value, initialize_options)}
             end.inject({}, &:update)
-            mod = mod.instance if mod.is_a?(JSI::Base)
-            mod = mod.content if mod.is_a?(JSI::JSON::Node)
+            mod = mod.node_content if mod.is_a?(JSI::PathedNode)
             mod
           end
           if model
