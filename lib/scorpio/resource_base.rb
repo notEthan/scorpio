@@ -359,7 +359,7 @@ module Scorpio
               if schema
                 if schema['type'] == 'object'
                   # TODO code dup with response_object_to_instances
-                  if schema['properties'].respond_to?(:to_hash) && schema['properties'][key]
+                  if schema['properties'].respond_to?(:to_hash) && schema['properties'].key?(key)
                     subschema = schema['properties'][key]
                     include_pair = true
                   else
