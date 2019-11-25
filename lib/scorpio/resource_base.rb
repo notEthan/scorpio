@@ -10,6 +10,13 @@ module Scorpio
       # to default getter methods (UnboundMethod), used to determine what accessors have been
       # overridden from their defaults.
       (-> (x) { define_method(:inheritable_accessor_defaults) { x } }).({})
+
+      # @param accessor [String, Symbol] the name of the accessor
+      # @param options[:default_getter] [#to_proc] a proc to provide a default value when
+      #   no value has been explicitly set
+      # @param options[:default_value] [Object] a default value to return when
+      #   no value has been explicitly set. do not pass both :default_getter and :default_value.
+      # @param options[:on_set] [#to_proc] callback proc, invoked when a value is assigned
       def define_inheritable_accessor(accessor, options = {})
         if options[:default_getter]
           # the value before the field is set (overwritten) is the result of the default_getter proc
