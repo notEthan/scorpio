@@ -1,3 +1,6 @@
+# v0.4.3
+- misc
+
 # v0.4.2
 - improve documentation
 - misc bugfixes
