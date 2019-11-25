@@ -6,8 +6,9 @@ module Scorpio
 
   class ResourceBase
     class << self
-      # a hash of accessor names (Symbol) to default getter methods (UnboundMethod), used to determine
-      # what accessors have been overridden from their defaults.
+      # ResourceBase.inheritable_accessor_defaults is a hash of accessor names (Symbol) mapped 
+      # to default getter methods (UnboundMethod), used to determine what accessors have been
+      # overridden from their defaults.
       (-> (x) { define_method(:inheritable_accessor_defaults) { x } }).({})
       def define_inheritable_accessor(accessor, options = {})
         if options[:default_getter]
