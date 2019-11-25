@@ -7,6 +7,8 @@ require 'simplecov'
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'scorpio'
 
+require 'bundler/setup'
+
 # NO EXPECTATIONS 
 ENV["MT_NO_EXPECTATIONS"] = ''
 
