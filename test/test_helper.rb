@@ -19,6 +19,12 @@ Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 require 'byebug'
 
 class ScorpioSpec < Minitest::Spec
+  if ENV['SCORPIO_TEST_ALPHA']
+    # :nocov:
+    define_singleton_method(:test_order) { :alpha }
+    # :nocov:
+  end
+
   around do |test|
     test.call
     BlogClean.clean
