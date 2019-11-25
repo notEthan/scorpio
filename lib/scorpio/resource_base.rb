@@ -12,20 +12,14 @@ module Scorpio
       (-> (x) { define_method(:inheritable_accessor_defaults) { x } }).({})
 
       # @param accessor [String, Symbol] the name of the accessor
-      # @param options[:default_getter] [#to_proc] a proc to provide a default value when
-      #   no value has been explicitly set
-      # @param options[:default_value] [Object] a default value to return when
-      #   no value has been explicitly set. do not pass both :default_getter and :default_value.
-      # @param options[:on_set] [#to_proc] callback proc, invoked when a value is assigned
-      def define_inheritable_accessor(accessor, options = {})
-        if options[:default_getter]
-          # the value before the field is set (overwritten) is the result of the default_getter proc
-          define_singleton_method(accessor, &options[:default_getter])
-        else
-          # the value before the field is set (overwritten) is the default_value (which is nil if not specified)
-          default_value = options[:default_value]
-          define_singleton_method(accessor) { default_value }
-        end
+      # @param default_getter [#to_proc] a proc to provide a default value when no value
+      #   has been explicitly set
+      # @param default_value [Object] a default value to return when no value has been
+      #   explicitly set. do not pass both :default_getter and :default_value.
+      # @param on_set [#to_proc] callback proc, invoked when a value is assigned
+      def define_inheritable_accessor(accessor, default_value: nil, default_getter: -> { default_value }, on_set: nil)
+        # the value before the field is set (overwritten) is the result of the default_getter proc
+        define_singleton_method(accessor, &default_getter)
         inheritable_accessor_defaults[accessor] = self.singleton_class.instance_method(accessor)
         # field setter method. redefines the getter, replacing the method with one that returns the
         # setter's argument (that being inherited to the scope of the define_method(accessor) block
@@ -41,8 +35,8 @@ module Scorpio
             # getter method
             define_method(accessor) { value_ }
             # invoke on_set callback defined on the class
-            if options[:on_set]
-              klass.instance_exec(&options[:on_set])
+            if on_set
+              klass.instance_exec(&on_set)
             end
           end
         end
