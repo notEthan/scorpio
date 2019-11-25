@@ -7,4 +7,4 @@ Rake::TestTask.new(:test) do |t|
 end
 
 require 'wwtd/tasks'
-task 'default' => 'wwtd'
+task 'default' => 'wwtd:local'
