@@ -3,13 +3,13 @@
 [![Build Status](https://travis-ci.org/notEthan/scorpio.svg?branch=master)](https://travis-ci.org/notEthan/scorpio)
 [![Coverage Status](https://coveralls.io/repos/github/notEthan/scorpio/badge.svg)](https://coveralls.io/github/notEthan/scorpio)
 
-Scorpio is a library that helps you, as a client, consume an HTTP service described by an OpenAPI document. You provide the OpenAPI specification, a little bit of configuration, and Scorpio will take that and dynamically generate an interface for you to call the service's operations and interact with its resources as an ORM.
+Scorpio is a library that helps you, as a client, consume an HTTP service described by an OpenAPI document. You provide the OpenAPI description document, a little bit of configuration, and Scorpio will take that and dynamically generate an interface for you to call the service's operations and interact with its resources as an ORM.
 
 Note: The canonical location of this README is on [RubyDoc](http://rubydoc.info/gems/scorpio/). When viewed on [Github](https://github.com/notEthan/scorpio/), it may be inconsistent with the latest released gem, and Yardoc links will not work.
 
 ## Background
 
-To start with, you need an OpenAPI (formerly known as Swagger) document describing a service you will be consuming. v2 and v3 are both supported.[^1] This document can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document specifying your service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+To start with, you need an OpenAPI (formerly known as Swagger) document describing a service you will be consuming. v2 and v3 are both supported.[^1] This document can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing your service is outside the scope of Scorpio. Here are several resources on OpenAPI:
 
 - [OpenAPI Specification at Wikipedia](https://en.wikipedia.org/wiki/OpenAPI_Specification)
 - [OpenAPI Initiative](https://www.openapis.org/) is the official web site for OpenAPI
@@ -26,7 +26,7 @@ Once you have the OpenAPI document describing the service you will consume, you 
 
 Let's dive into some code, shall we? If you have learned about OpenAPI, you likely learned using the example of the Pet Store service. This README will use the same service. Its documentation is at http://petstore.swagger.io/.
 
-Using the specification, we can start interacting with the pet store with very little code. Here is that code, with explanations of each part in the comments.
+Using the OpenAPI document, we can start interacting with the pet store with very little code. Here is that code, with explanations of each part in the comments.
 
 ```ruby
 require 'scorpio'
@@ -195,13 +195,13 @@ Its API is described in `test/blog.openapi.yml`, defining the Article resource, 
 
 ## Scorpio::ResourceBase
 
-Scorpio::ResourceBase is the main class used in abstracting on OpenAPI document. Scorpio::ResourceBase aims to represent RESTful resources in ruby classes with as little code as possible, given a service with a properly constructed OpenAPI specification.
+Scorpio::ResourceBase is the main class used in abstracting on OpenAPI document. Scorpio::ResourceBase aims to represent RESTful resources in ruby classes with as little code as possible, given a service with a properly constructed OpenAPI document.
 
 A class which subclasses Scorpio::ResourceBase directly (such as PetStore::Resource above) should generally represent the whole API - you set the openapi_document and other configuration on this class. As such, it is generally not instantiated. Its subclasses, representing resources with a tag or with schema definitions in the OpenAPI document, are what you mostly instantiate and interact with.
 
 A model representing a resource needs to be configured, minimally, with:
 
-- the OpenAPI specification for the REST API
+- the OpenAPI document for the REST API
 - the schemas that represent instances of the model, if any
 
 If the resource has HTTP operations associated with it (most, but not all resources will):
@@ -210,7 +210,7 @@ If the resource has HTTP operations associated with it (most, but not all resour
 
 When these are set, Scorpio::ResourceBase looks through the API description and dynamically sets up methods for the model:
 
-- accessors for properties of the model defined as properties of schemas representing the resource in the specification
+- accessors for properties of the model defined as properties of schemas representing the resource in the description document
 - API method calls on the model class and, where appropriate, on the model instance
 
 ## Scorpio::Ur
@@ -250,7 +250,7 @@ end
 
 ## Other
 
-The detailed, machine-interpretable description of an API provided by a properly-constructed OpenAPI specification opens up numerous possibilities to automate aspects of clients and services to an API. These are planned to be implemented in Scorpio:
+The detailed, machine-interpretable description of an API provided by a properly-constructed OpenAPI document opens up numerous possibilities to automate aspects of clients and services to an API. These are planned to be implemented in Scorpio:
 
 - constructing test objects in a manner similar to FactoryBot, allowing you to write tests that depend on a service without having to interact with an actual running instance of that service to run your tests
 - rack middleware to test that outgoing HTTP responses are conformant to their response schemas

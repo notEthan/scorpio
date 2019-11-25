@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "scorpio"
   spec.version       = Scorpio::VERSION
   spec.authors       = ["Ethan"]
-  spec.email         = ["ethan@unth"]
+  spec.email         = ["ethan@unth.net"]
 
   spec.summary       = 'Scorpio REST client'
   spec.description   = 'ORM style REST client'

@@ -257,7 +257,7 @@ module Scorpio
       end
 
       def call_operation(operation, call_params: nil, model_attributes: nil)
-        call_params = JSI.stringify_symbol_keys(call_params) if call_params.is_a?(Hash)
+        call_params = JSI.stringify_symbol_keys(call_params) if call_params.respond_to?(:to_hash)
         model_attributes = JSI.stringify_symbol_keys(model_attributes || {})
 
         request = Scorpio::Request.new(operation)
@@ -312,7 +312,7 @@ module Scorpio
           # TODO deal with model_attributes / call_params better in nested whatever
           if call_params.nil?
             request.body_object = request_body_for_schema(model_attributes, operation.request_schema)
-          elsif call_params.is_a?(Hash)
+          elsif call_params.respond_to?(:to_hash)
             body = request_body_for_schema(model_attributes.merge(call_params), operation.request_schema)
             request.body_object = body.merge(call_params) # TODO
           else
@@ -323,7 +323,7 @@ module Scorpio
             if METHODS_WITH_BODIES.any? { |m| m.to_s == operation.http_method.downcase.to_s }
               request.body_object = other_params
             else
-              if other_params.is_a?(Hash)
+              if other_params.respond_to?(:to_hash)
                 # TODO pay more attention to 'parameters' api method attribute
                 request.query_params = other_params
               else
@@ -354,12 +354,12 @@ module Scorpio
         elsif object.is_a?(JSI::JSON::Node)
           request_body_for_schema(object.content, schema)
         else
-          if object.is_a?(Hash)
+          if object.respond_to?(:to_hash)
             object.map do |key, value|
               if schema
                 if schema['type'] == 'object'
                   # TODO code dup with response_object_to_instances
-                  if schema['properties'].respond_to?(:to_hash) && schema['properties'][key]
+                  if schema['properties'].respond_to?(:to_hash) && schema['properties'].key?(key)
                     subschema = schema['properties'][key]
                     include_pair = true
                   else
@@ -397,7 +397,7 @@ module Scorpio
                 {}
               end
             end.inject({}, &:update)
-          elsif object.is_a?(Array) || object.is_a?(Set)
+          elsif object.respond_to?(:to_ary) || object.is_a?(Set)
             object.map do |el|
               if schema
                 if schema['type'] == 'array'

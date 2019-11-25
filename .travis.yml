@@ -4,7 +4,7 @@ rvm:
   - 2.1.10
   - 2.6.3
 env:
-  - SCORPIO_API_SPECIFIER=rest_description
-  - SCORPIO_API_SPECIFIER=openapi2
-  - SCORPIO_API_SPECIFIER=openapi3
+  - SCORPIO_API_DESCRIPTION_FORMAT=rest_description
+  - SCORPIO_API_DESCRIPTION_FORMAT=openapi2
+  - SCORPIO_API_DESCRIPTION_FORMAT=openapi3
 script: rake test

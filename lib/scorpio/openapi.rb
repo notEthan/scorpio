@@ -1,7 +1,9 @@
 module Scorpio
   module OpenAPI
-    # an error in the semantics of this openapi document. for example, an Operation with
-    # two body parameters (in v2, not possible in v3) is a semantic error.
+    # an error in the semantics of an openapi document. for example, an Operation with
+    # two body parameters (in v2, not possible in v3) is a SemanticError. an Operation
+    # with more than one parameter with the same 'name' and 'in' properties would also be
+    # a SemanticError.
     #
     # an instance of a SemanticError may or may not correspond to a validation error of
     # an OpenAPI document against the OpenAPI schema.
