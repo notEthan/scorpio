@@ -272,7 +272,8 @@ module Scorpio
         end
         include Configurables
 
-        # there should only be one body parameter; this returns it
+        # @return [#to_hash] the body parameter
+        # @raise [Scorpio::OpenAPI::SemanticError] if there's more than one body param
         def body_parameter
           body_parameters = (parameters || []).select { |parameter| parameter['in'] == 'body' }
           if body_parameters.size == 0
