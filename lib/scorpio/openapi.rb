@@ -85,6 +85,11 @@ module Scorpio
       LinkWithOperationId     = openapi_class.call('definitions', 'LinkWithOperationId')
       Callback               = openapi_class.call('definitions', 'Callback')
       Encoding              = openapi_class.call('definitions', 'Encoding')
+
+      # the schema of Scorpio::OpenAPI::V3::Schema describes a schema itself, so we extend it
+      # with the module indicating that.
+      Schema.schema.extend(JSI::Schema::DescribesSchema)
+      SchemaReference.schema.extend(JSI::Schema::DescribesSchema)
     end
     module V2
       openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
@@ -150,6 +155,10 @@ module Scorpio
       UniqueItems = openapi_class.call('definitions', 'uniqueItems')
       Enum         = openapi_class.call('definitions', 'enum')
       JsonReference = openapi_class.call('definitions', 'jsonReference')
+
+      # the schema of Scorpio::OpenAPI::V2::Schema describes a schema itself, so we extend it
+      # with the module indicating that.
+      Schema.schema.extend(JSI::Schema::DescribesSchema)
     end
 
     begin
