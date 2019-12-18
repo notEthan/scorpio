@@ -50,10 +50,9 @@ module Scorpio
       def body
         return @body if instance_variable_defined?(:@body)
         if instance_variable_defined?(:@body_object)
-          # TODO handle media types like `application/schema-instance+json`
-          if media_type == 'application/json'
+          if content_type && content_type.json?
             JSON.pretty_generate(JSI::Typelike.as_json(body_object))
-          elsif media_type == "application/x-www-form-urlencoded"
+          elsif content_type && content_type.form_urlencoded?
             URI.encode_www_form(body_object)
 
           # NOTE: the supported media types above should correspond to Request::SUPPORTED_REQUEST_MEDIA_TYPES
@@ -62,7 +61,7 @@ module Scorpio
             if body_object.respond_to?(:to_str)
               body_object
             else
-              raise(NotImplementedError, "Scorpio does not know how to generate the request body with media_type = #{media_type.respond_to?(:to_str) ? media_type : media_type.inspect} for operation: #{operation.human_id}. Scorpio supports media types: #{SUPPORTED_REQUEST_MEDIA_TYPES.join(', ')}. body_object was: #{body_object.pretty_inspect.chomp}")
+              raise(NotImplementedError, "Scorpio does not know how to generate the request body with content_type = #{content_type.respond_to?(:to_str) ? content_type : content_type.inspect} for operation: #{operation.human_id}. Scorpio supports media types: #{SUPPORTED_REQUEST_MEDIA_TYPES.join(', ')}. body_object was: #{body_object.pretty_inspect.chomp}")
             end
           end
         else
@@ -81,7 +80,7 @@ module Scorpio
       attr_writer :media_type
       def media_type
         return @media_type if instance_variable_defined?(:@media_type)
-        content_type_header ? content_type_attrs.media_type : operation.request_media_type
+        content_type_header ? content_type_header.media_type : operation.request_media_type
       end
 
       attr_writer :user_agent
@@ -190,23 +189,18 @@ module Scorpio
       Addressable::URI.parse(File.join(base_url, path))
     end
 
-    # @return [::Ur::ContentTypeAttrs] content type attributes for this request's Content-Type
-    def content_type_attrs
-      Ur::ContentTypeAttrs.new(content_type)
-    end
-
-    # @return [String] the value of the request Content-Type header
+    # @return [::Ur::ContentType] the value of the request Content-Type header
     def content_type_header
       headers.each do |k, v|
-        return v if k =~ /\Acontent[-_]type\z/i
+        return ::Ur::ContentType.new(v) if k =~ /\Acontent[-_]type\z/i
       end
       nil
     end
 
-    # @return [String] Content-Type for this request, taken from request headers if
+    # @return [::Ur::ContentType] Content-Type for this request, taken from request headers if
     #   present, or the request media_type.
     def content_type
-      content_type_header || media_type
+      content_type_header || ::Ur::ContentType.new(media_type)
     end
 
     # @return [::JSI::Schema]
