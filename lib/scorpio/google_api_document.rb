@@ -98,7 +98,7 @@ module Scorpio
                     unused_path_params.delete(name) if op_param['in'] == 'path'
                     op_param['required'] = parameter.key?('required') ? parameter['required'] : op_param['in'] == 'path' ? true : false
                     op_param['type'] = parameter.type || 'string'
-                    op_param['format'] = parameter.format if parameter.format
+                    op_param['format'] = parameter['format'] if parameter['format']
                   end
                 end
               end
