@@ -12,6 +12,7 @@ module Scorpio
 
     autoload :Operation, 'scorpio/openapi/operation'
     autoload :Document, 'scorpio/openapi/document'
+    autoload :Reference, 'scorpio/openapi/reference'
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
@@ -173,6 +174,9 @@ module Scorpio
       class Document
         include OpenAPI::Document
       end
+      class Reference
+        include OpenAPI::Reference
+      end
       require 'scorpio/openapi/v3/server'
     end
 
@@ -182,6 +186,9 @@ module Scorpio
       end
       class Document
         include OpenAPI::Document
+      end
+      class JsonReference
+        include OpenAPI::Reference
       end
     end
   end
