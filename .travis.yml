@@ -2,7 +2,7 @@ sudo: false
 language: ruby
 cache: bundler
 rvm:
-  - 2.1.10
+  - 2.4.5
   - 2.6.3
 env:
   - SCORPIO_API_DESCRIPTION_FORMAT=rest_description
