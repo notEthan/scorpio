@@ -24,9 +24,10 @@ module Scorpio
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = openapi_class.call('definitions', '#{k}')" }`
-      Reference  = openapi_class.call('definitions', 'Reference')
-      Info        = openapi_class.call('definitions', 'Info')
-      Contact      = openapi_class.call('definitions', 'Contact')
+      Reference      = openapi_class.call('definitions', 'Reference')
+      SchemaReference = openapi_class.call('definitions', 'SchemaReference')
+      Info           = openapi_class.call('definitions', 'Info')
+      Contact       = openapi_class.call('definitions', 'Contact')
       License       = openapi_class.call('definitions', 'License')
       Server         = openapi_class.call('definitions', 'Server')
       ServerVariable  = openapi_class.call('definitions', 'ServerVariable')

@@ -40,6 +40,14 @@ definitions:
       '^\$ref$':
         type: string
         format: uri-reference
+  SchemaReference:
+    type: object
+    required:
+      - $ref
+    patternProperties:
+      '^\$ref$':
+        type: string
+        format: uri-reference
   Info:
     type: object
     required:
@@ -135,7 +143,7 @@ definitions:
         patternProperties:
           '^[a-zA-Z0-9\.\-_]+$':
             oneOf:
-              - $ref: '#/definitions/Reference'
+              - $ref: '#/definitions/SchemaReference'
               - $ref: '#/definitions/Schema'
       responses:
         type: object
@@ -266,39 +274,39 @@ definitions:
       not:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       allOf:
         type: array
         items:
           oneOf:
             - $ref: '#/definitions/Schema'
-            - $ref: '#/definitions/Reference'
+            - $ref: '#/definitions/SchemaReference'
       oneOf:
         type: array
         items:
           oneOf:
             - $ref: '#/definitions/Schema'
-            - $ref: '#/definitions/Reference'
+            - $ref: '#/definitions/SchemaReference'
       anyOf:
         type: array
         items:
           oneOf:
             - $ref: '#/definitions/Schema'
-            - $ref: '#/definitions/Reference'
+            - $ref: '#/definitions/SchemaReference'
       items:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       properties:
         type: object
         additionalProperties:
           oneOf:
             - $ref: '#/definitions/Schema'
-            - $ref: '#/definitions/Reference'
+            - $ref: '#/definitions/SchemaReference'
       additionalProperties:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
           - type: boolean
         default: true
       description:
@@ -399,7 +407,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       example: {}
       encoding:
         type: object
@@ -417,7 +425,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       examples:
         type: object
         additionalProperties:
@@ -486,7 +494,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       example: {}
     patternProperties:
       '^x-': {}
@@ -522,7 +530,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       examples:
         type: object
         additionalProperties:
@@ -769,7 +777,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       example: {}
     patternProperties:
       '^x-': {}
@@ -815,7 +823,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       example: {}
     patternProperties:
       '^x-': {}
@@ -858,7 +866,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       example: {}
     patternProperties:
       '^x-': {}
@@ -901,7 +909,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       example: {}
     patternProperties:
       '^x-': {}
@@ -956,13 +964,13 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       examples:
         type: object
         additionalProperties:
           oneOf:
             - $ref: '#/definitions/Example'
-            - $ref: '#/definitions/Reference'
+            - $ref: '#/definitions/SchemaReference'
     patternProperties:
       '^x-': {}
     additionalProperties: false
@@ -1008,13 +1016,13 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       examples:
         type: object
         additionalProperties:
           oneOf:
             - $ref: '#/definitions/Example'
-            - $ref: '#/definitions/Reference'
+            - $ref: '#/definitions/SchemaReference'
     patternProperties:
       '^x-': {}
     additionalProperties: false    
@@ -1057,7 +1065,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       examples:
         type: object
         additionalProperties:
@@ -1106,7 +1114,7 @@ definitions:
       schema:
         oneOf:
           - $ref: '#/definitions/Schema'
-          - $ref: '#/definitions/Reference'
+          - $ref: '#/definitions/SchemaReference'
       examples:
         type: object
         additionalProperties:
