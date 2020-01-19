@@ -208,11 +208,6 @@ module Scorpio
       operation.request_schema(media_type: media_type)
     end
 
-    # @return [Class subclassing JSI::Base]
-    def request_schema_class(media_type: self.media_type)
-      JSI.class_for_schema(request_schema(media_type: media_type))
-    end
-
     # builds a Faraday connection with this Request's faraday_builder and faraday_adapter.
     # passes a given proc yield_ur to middleware to yield an Ur for requests made with the connection.
     #
