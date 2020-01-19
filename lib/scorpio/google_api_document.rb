@@ -7,10 +7,17 @@ module Scorpio
     DirectoryList = discovery_rest_description.schemas['DirectoryList'].jsi_schema_module
     JsonSchema     = discovery_rest_description.schemas['JsonSchema'].jsi_schema_module
     RestDescription = discovery_rest_description.schemas['RestDescription'].jsi_schema_module
-    RestMethod      = discovery_rest_description.schemas['RestMethod'].jsi_schema_module
-    RestResource     = discovery_rest_description.schemas['RestResource'].jsi_schema_module
-    RestMethodRequest = discovery_rest_description.schemas['RestMethod'].properties['request'].jsi_schema_module
-    RestMethodResponse = discovery_rest_description.schemas['RestMethod'].properties['response'].jsi_schema_module
+    RestMethod     = discovery_rest_description.schemas['RestMethod'].jsi_schema_module
+    RestResource  = discovery_rest_description.schemas['RestResource'].jsi_schema_module
+
+    module RestDescription
+      Resources = properties['resources']
+    end
+
+    module RestMethod
+      Request = properties['request']
+      Response = properties['response']
+    end
 
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
     module SchemaLike
@@ -33,7 +40,7 @@ module Scorpio
         dup_doc
       end
     end
-    [JsonSchema, RestMethodRequest, RestMethodResponse].each { |m| m.send(:include, SchemaLike) }
+    [JsonSchema, RestMethod::Request, RestMethod::Response].each { |m| m.send(:include, SchemaLike) }
 
     module RestDescription
       def to_openapi_document(options = {})
