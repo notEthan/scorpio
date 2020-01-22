@@ -200,7 +200,7 @@ module Scorpio
     # @return [::Ur::ContentType] Content-Type for this request, taken from request headers if
     #   present, or the request media_type.
     def content_type
-      content_type_header || ::Ur::ContentType.new(media_type)
+      content_type_header || (media_type ? ::Ur::ContentType.new(media_type) : nil)
     end
 
     # @return [::JSI::Schema]
