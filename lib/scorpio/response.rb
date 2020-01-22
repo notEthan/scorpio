@@ -1,5 +1,7 @@
 module Scorpio
-  class Response < ::Ur::Response
+  Response = Scorpio::Ur.properties['response']
+
+  module Response
     # @return [::JSI::Schema] the schema for this response according to its OpenAPI doc
     def response_schema
       ur.scorpio_request.operation.response_schema(status: status, media_type: media_type)

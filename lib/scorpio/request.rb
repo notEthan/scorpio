@@ -223,7 +223,8 @@ module Scorpio
         faraday_builder.call(faraday_connection)
         if yield_ur
           ::Ur::Faraday # autoload trigger
-          faraday_connection.response(:yield_ur, ur_class: Scorpio::Ur, logger: self.logger, &yield_ur)
+
+          faraday_connection.response(:yield_ur, schemas: Set[Scorpio::Ur.schema], logger: self.logger, &yield_ur)
         end
         faraday_connection.adapter(*faraday_adapter)
       end
