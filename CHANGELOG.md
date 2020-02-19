@@ -1,3 +1,8 @@
+# v0.4.6
+- JSI v0.3.0
+- Scorpio::OpenAPI::SchemaReference represents a schema reference
+- Scorpio::OpenAPI::Reference implicitly derefs
+
 # v0.4.5
 - Ur v0.1.0
 - misc
