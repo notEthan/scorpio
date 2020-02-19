@@ -519,7 +519,7 @@ module Scorpio
       end
     end
 
-    def fingerprint
+    def jsi_fingerprint
       {class: self.class, attributes: JSI::Typelike.as_json(@attributes)}
     end
     include JSI::FingerprintHash
