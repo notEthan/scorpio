@@ -1,3 +1,6 @@
+# v0.5.0
+- JSI schema classes change to schema modules, JSI instances may have multiple schemas (JSI v0.4, Ur v0.2)
+
 # v0.4.6
 - JSI v0.3.0
 - Scorpio::OpenAPI::SchemaReference represents a schema reference
