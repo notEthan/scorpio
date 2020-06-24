@@ -20,6 +20,14 @@ module Scorpio
     module V3
       openapi_document_schema = JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))
 
+      # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself, so we set it
+      # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
+      openapi_v3_schema_instance_modules = Set[
+        JSI::Schema,
+      ]
+      openapi_document_schema.definitions['Schema'].jsi_schema_instance_modules         = openapi_v3_schema_instance_modules
+      openapi_document_schema.definitions['SchemaReference'].jsi_schema_instance_modules = openapi_v3_schema_instance_modules
+
       Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
@@ -86,13 +94,17 @@ module Scorpio
       Callback               = Document.definitions['Callback']
       Encoding              = Document.definitions['Encoding']
 
-      # the schema of Scorpio::OpenAPI::V3::Schema describes a schema itself, so we extend it
-      # with the module indicating that.
-      Schema.schema.extend(JSI::Schema::DescribesSchema)
-      SchemaReference.schema.extend(JSI::Schema::DescribesSchema)
+      raise(Bug) unless Schema < JSI::Schema
+      raise(Bug) unless SchemaReference < JSI::Schema
     end
     module V2
       openapi_document_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
+
+      # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself, so we set it to
+      # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
+      openapi_document_schema.definitions['schema'].jsi_schema_instance_modules = Set[
+        JSI::Schema,
+      ]
 
       Document = openapi_document_schema.jsi_schema_module
 
@@ -153,9 +165,7 @@ module Scorpio
       Enum         = Document.definitions['enum']
       JsonReference = Document.definitions['jsonReference']
 
-      # the schema of Scorpio::OpenAPI::V2::Schema describes a schema itself, so we extend it
-      # with the module indicating that.
-      Schema.schema.extend(JSI::Schema::DescribesSchema)
+      raise(Bug) unless Schema < JSI::Schema
     end
 
     begin
