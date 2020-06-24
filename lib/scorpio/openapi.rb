@@ -18,9 +18,9 @@ module Scorpio
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
-      openapi_schema = JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))
+      openapi_document_schema = JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))
 
-      Document = openapi_schema.jsi_schema_module
+      Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
@@ -92,9 +92,9 @@ module Scorpio
       SchemaReference.schema.extend(JSI::Schema::DescribesSchema)
     end
     module V2
-      openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
+      openapi_document_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
 
-      Document = openapi_schema.jsi_schema_module
+      Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
