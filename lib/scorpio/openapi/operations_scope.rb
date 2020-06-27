@@ -3,7 +3,7 @@ module Scorpio
     # OperationsScope acts as an Enumerable of the Operations for an openapi_document,
     # and offers subscripting by operationId.
     class OperationsScope
-      include JSI::Memoize
+      include JSI::Util::Memoize
 
       # @param openapi_document [Scorpio::OpenAPI::Document]
       def initialize(openapi_document)
