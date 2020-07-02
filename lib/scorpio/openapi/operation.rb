@@ -174,7 +174,7 @@ module Scorpio
       # Describes a single API operation on a path.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#operationObject
-      class Operation
+      module Operation
         module Configurables
           def scheme
             # not applicable; for OpenAPI v3, scheme is specified by servers.
@@ -238,7 +238,7 @@ module Scorpio
     end
     module V2
       raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Operation') unless const_defined?(:Operation)
-      class Operation
+      module Operation
         module Configurables
           attr_writer :scheme
           def scheme

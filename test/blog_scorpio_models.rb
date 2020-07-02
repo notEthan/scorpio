@@ -12,7 +12,7 @@ class BlogModel < Scorpio::ResourceBase
   self.logger = ::Logger.new(logpath)
 
   if ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'rest_description'
-    self.openapi_document = Scorpio::Google::RestDescription.new(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
+    self.openapi_document = Scorpio::Google::RestDescription.new_jsi(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
     self.base_url = File.join("http://localhost:#{$blog_port || raise(Bug)}/", openapi_document.basePath)
   elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi2'
     self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
