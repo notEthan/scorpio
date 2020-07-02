@@ -1,5 +1,16 @@
 module Scorpio
-  class Ur < ::Ur
+  # Scorpio::Ur is a JSI Schema module with which scorpio extends the ::Ur schema module
+  Ur = JSI::Schema.new({
+    '$id' => 'https://schemas.jsi.unth.net/ur',
+    'properties' => {
+      'request' => {},
+      'response' => {},
+    }
+  }).jsi_schema_module
+
+  -> { Scorpio::Response }.() # invoke autoload
+
+  module Ur
     attr_accessor :scorpio_request
 
     # raises a subclass of Scorpio::HTTPError if the response has an error status.
@@ -27,20 +38,6 @@ module Scorpio
         end)
       end
       nil
-    end
-
-    private
-    # overrides JSI::Base#class_for_schema to use Scorpio::Response instead of ::Ur::Response.
-    # maybe a Scorpio::Ur::Request in the future if I need to extend that ... or Scorpio::Request
-    # if I decide to make that subclass ::Ur::Request. not sure if that's a good idea or a terrible
-    # idea.
-    def class_for_schema(schema)
-      jsi_class_for_schema = super
-      if jsi_class_for_schema == ::Ur::Response
-        Scorpio::Response
-      else
-        jsi_class_for_schema
-      end
     end
   end
 end
