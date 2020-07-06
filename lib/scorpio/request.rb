@@ -1,6 +1,8 @@
 module Scorpio
   class Request
     SUPPORTED_REQUEST_MEDIA_TYPES = ['application/json', 'application/x-www-form-urlencoded']
+    FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'
+
     def self.best_media_type(media_types)
       if media_types.size == 1
         media_types.first
@@ -323,8 +325,14 @@ module Scorpio
       if user_agent
         headers['User-Agent'] = user_agent
       end
-      if media_type && !content_type_header
-        headers['Content-Type'] = media_type
+      if !content_type_header
+        if media_type
+          headers['Content-Type'] = media_type
+        else
+          # I'd rather not have a default content-type, but if none is set then the HTTP adapter sets this to 
+          # application/x-www-form-urlencoded and issues a warning about it.
+          headers['Content-Type'] = FALLBACK_CONTENT_TYPE
+        end
       end
       if self.headers
         headers.update(self.headers)
