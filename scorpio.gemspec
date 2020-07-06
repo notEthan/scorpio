@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   ignore_files = %w(.gitignore .travis.yml Gemfile test)
   ignore_files_re = %r{\A(#{ignore_files.map { |f| Regexp.escape(f) }.join('|')})(/|\z)}
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(ignore_files_re) }
+  spec.test_files    = `git ls-files -z test`.split("\x0")
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
@@ -23,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jsi", "~> 0.4.0"
   spec.add_dependency "ur", "~> 0.2.0"
   spec.add_dependency "faraday"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "minitest-around"
   spec.add_development_dependency "minitest-reporters"
