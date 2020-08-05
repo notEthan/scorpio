@@ -1,7 +1,11 @@
 module Scorpio
   module Google
     discovery_rest_description_doc = ::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read)
-    discovery_rest_description = JSI::MetaschemaNode.new(discovery_rest_description_doc, metaschema_root_ptr: JSI::JSON::Pointer['schemas']['JsonSchema'], root_schema_ptr: JSI::JSON::Pointer['schemas']['RestDescription'])
+    discovery_rest_description = JSI::MetaschemaNode.new(
+      discovery_rest_description_doc,
+      metaschema_root_ptr: JSI::JSON::Pointer['schemas']['JsonSchema'],
+      root_schema_ptr: JSI::JSON::Pointer['schemas']['RestDescription'],
+    )
 
     # naming these is not strictly necessary, but is nice to have.
     DirectoryList = discovery_rest_description.schemas['DirectoryList'].jsi_schema_module
