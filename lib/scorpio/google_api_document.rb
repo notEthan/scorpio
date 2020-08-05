@@ -5,6 +5,9 @@ module Scorpio
       discovery_rest_description_doc,
       metaschema_root_ptr: JSI::JSON::Pointer['schemas']['JsonSchema'],
       root_schema_ptr: JSI::JSON::Pointer['schemas']['RestDescription'],
+      metaschema_instance_modules: Set[
+        JSI::Schema,
+      ],
     )
 
     # naming these is not strictly necessary, but is nice to have.
