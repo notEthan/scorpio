@@ -18,9 +18,19 @@ module Scorpio
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
-      openapi_schema = JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))
+      openapi_document_schema = JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))
 
-      Document = openapi_schema.jsi_schema_module
+      # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself, so we set it
+      # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
+      openapi_v3_schema_instance_modules = Set[
+        JSI::Schema,
+        JSI::Schema::Application::InplaceApplication,
+        JSI::Schema::Application::ChildApplication,
+      ]
+      openapi_document_schema.definitions['Schema'].jsi_schema_instance_modules         = openapi_v3_schema_instance_modules
+      openapi_document_schema.definitions['SchemaReference'].jsi_schema_instance_modules = openapi_v3_schema_instance_modules
+
+      Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
@@ -86,15 +96,21 @@ module Scorpio
       Callback               = Document.definitions['Callback']
       Encoding              = Document.definitions['Encoding']
 
-      # the schema of Scorpio::OpenAPI::V3::Schema describes a schema itself, so we extend it
-      # with the module indicating that.
-      Schema.schema.extend(JSI::Schema::DescribesSchema)
-      SchemaReference.schema.extend(JSI::Schema::DescribesSchema)
+      raise(Bug) unless Schema < JSI::Schema
+      raise(Bug) unless SchemaReference < JSI::Schema
     end
     module V2
-      openapi_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
+      openapi_document_schema = JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
 
-      Document = openapi_schema.jsi_schema_module
+      # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself, so we set it to
+      # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
+      openapi_document_schema.definitions['schema'].jsi_schema_instance_modules = Set[
+        JSI::Schema,
+        JSI::Schema::Application::InplaceApplication,
+        JSI::Schema::Application::ChildApplication,
+      ]
+
+      Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
@@ -153,9 +169,7 @@ module Scorpio
       Enum         = Document.definitions['enum']
       JsonReference = Document.definitions['jsonReference']
 
-      # the schema of Scorpio::OpenAPI::V2::Schema describes a schema itself, so we extend it
-      # with the module indicating that.
-      Schema.schema.extend(JSI::Schema::DescribesSchema)
+      raise(Bug) unless Schema < JSI::Schema
     end
 
     begin
