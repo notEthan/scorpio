@@ -55,14 +55,14 @@ module Scorpio
 
       # @return [Scorpio::OpenAPI::Document] the document whence this operation came
       def openapi_document
-        parent_jsis.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
+        jsi_parent_nodes.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
 
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        raise(Bug) unless parent_jsi.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent_jsi.is_a?(Scorpio::OpenAPI::V3::PathItem)
-        raise(Bug) unless parent_jsi.parent_jsi.is_a?(Scorpio::OpenAPI::V2::Paths) || parent_jsi.parent_jsi.is_a?(Scorpio::OpenAPI::V3::Paths)
-        @path_template_str = parent_jsi.jsi_ptr.reference_tokens.last
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
+        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::Paths)
+        @path_template_str = jsi_parent_node.jsi_ptr.reference_tokens.last
       end
 
       # @return [Addressable::Template] the path as an Addressable::Template
@@ -87,7 +87,7 @@ module Scorpio
       #   for this operation from the parent PathItem
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        raise(Bug) unless parent_jsi.is_a?(Scorpio::OpenAPI::V2::PathItem) || parent_jsi.is_a?(Scorpio::OpenAPI::V3::PathItem)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
         @http_method = jsi_ptr.reference_tokens.last
       end
 
