@@ -24,6 +24,8 @@ module Scorpio
       # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
       openapi_v3_schema_instance_modules = Set[
         JSI::Schema,
+        JSI::Schema::Application::InplaceApplication,
+        JSI::Schema::Application::ChildApplication,
       ]
       openapi_document_schema.definitions['Schema'].jsi_schema_instance_modules         = openapi_v3_schema_instance_modules
       openapi_document_schema.definitions['SchemaReference'].jsi_schema_instance_modules = openapi_v3_schema_instance_modules
@@ -104,6 +106,8 @@ module Scorpio
       # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
       openapi_document_schema.definitions['schema'].jsi_schema_instance_modules = Set[
         JSI::Schema,
+        JSI::Schema::Application::InplaceApplication,
+        JSI::Schema::Application::ChildApplication,
       ]
 
       Document = openapi_document_schema.jsi_schema_module

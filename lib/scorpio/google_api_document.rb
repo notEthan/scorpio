@@ -7,6 +7,8 @@ module Scorpio
       root_schema_ptr: JSI::JSON::Pointer['schemas']['RestDescription'],
       metaschema_instance_modules: Set[
         JSI::Schema,
+        JSI::Schema::Application::InplaceApplication,
+        JSI::Schema::Application::ChildApplication,
       ],
     )
 
