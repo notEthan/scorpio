@@ -3,11 +3,16 @@ module Scorpio
     # OperationsScope acts as an Enumerable of the Operations for an openapi_document,
     # and offers subscripting by operationId.
     class OperationsScope
-      include JSI::Util::Memoize
-
       # @param openapi_document [Scorpio::OpenAPI::Document]
       def initialize(openapi_document)
         @openapi_document = openapi_document
+        @operations_by_id = Hash.new do |h, operationId|
+          detect { |operation| operation.operationId == operationId }.tap do |op|
+            unless op
+              raise(::KeyError, "operationId not found: #{operationId.inspect}")
+            end
+          end
+        end
       end
       attr_reader :openapi_document
 
@@ -27,13 +32,7 @@ module Scorpio
       # @return [Scorpio::OpenAPI::Operation] the operation with the given operationId
       # @raise [::KeyError] if the given operationId does not exist
       def [](operationId)
-        jsi_memoize(:[], operationId) do |operationId_|
-          detect { |operation| operation.operationId == operationId_ }.tap do |op|
-            unless op
-              raise(::KeyError, "operationId not found: #{operationId_.inspect}")
-            end
-          end
-        end
+        @operations_by_id[operationId]
       end
     end
   end
