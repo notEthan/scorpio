@@ -7,6 +7,7 @@ module Scorpio
 
       # @param openapi_document [Scorpio::OpenAPI::Document]
       def initialize(openapi_document)
+        jsi_initialize_memos
         @openapi_document = openapi_document
       end
       attr_reader :openapi_document
