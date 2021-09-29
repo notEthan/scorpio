@@ -27,6 +27,7 @@ module Scorpio
       describe_schema = [
         openapi_document_schema.definitions['Schema'],
         openapi_document_schema.definitions['SchemaReference'],
+        openapi_document_schema.definitions['Schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.jsi_schema_instance_modules = [JSI::Schema::Draft04] }
 
@@ -108,6 +109,7 @@ module Scorpio
       # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
       describe_schema = [
         openapi_document_schema.definitions['schema'],
+        openapi_document_schema.definitions['schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.jsi_schema_instance_modules = [JSI::Schema::Draft04] }
 
