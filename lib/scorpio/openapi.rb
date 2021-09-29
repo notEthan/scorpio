@@ -18,7 +18,9 @@ module Scorpio
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
-      openapi_document_schema = JSI.new_schema(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))
+      openapi_document_schema = JSI::JSONSchemaOrgDraft04.new_schema(::YAML.load_file(Scorpio.root.join(
+        'documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml'
+      )))
 
       # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself, so we set it
       # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
@@ -96,7 +98,9 @@ module Scorpio
       raise(Bug) unless SchemaReference < JSI::Schema
     end
     module V2
-      openapi_document_schema = JSI.new_schema(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))
+      openapi_document_schema = JSI.new_schema(::JSON.parse(Scorpio.root.join(
+        'documents/swagger.io/v2/schema.json'
+      ).read))
 
       # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself, so we set it to
       # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
