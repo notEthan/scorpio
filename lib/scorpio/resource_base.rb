@@ -304,11 +304,30 @@ module Scorpio
         end
 
         if operation.request_schema
+          request_body_for_schema = -> (o) do
+            if o.is_a?(JSI::Base)
+              # TODO check indicated schemas
+              if o.jsi_schemas.include?(operation.request_schema)
+                jsi = o
+              else
+                # TODO maybe better way than reinstantiating another jsi as request_schema
+                jsi = operation.request_schema.new_jsi(o.jsi_node_content)
+              end
+            else
+              jsi = operation.request_schema.new_jsi(o)
+            end
+            jsi.jsi_select_children_leaf_first do |node|
+              # we want to specifically reject only nodes described (only) by a false schema.
+              # note that for OpenAPI schemas, false is only a valid schema as a value
+              # of `additionalProperties`
+              node.jsi_schemas.empty? || !node.jsi_schemas.all? { |s| s.schema_content == false }
+            end
+          end
           # TODO deal with model_attributes / call_params better in nested whatever
           if call_params.nil?
-            request.body_object = request_body_for_schema(model_attributes, operation.request_schema)
+            request.body_object = request_body_for_schema.(model_attributes)
           elsif call_params.respond_to?(:to_hash)
-            body = request_body_for_schema(model_attributes.merge(call_params), operation.request_schema)
+            body = request_body_for_schema.(model_attributes)
             request.body_object = body.merge(call_params) # TODO
           else
             request.body_object = call_params
@@ -338,80 +357,6 @@ module Scorpio
           'ur' => ur,
         }
         response_object_to_instances(ur.response.body_object, initialize_options)
-      end
-
-      def request_body_for_schema(object, schema)
-        if object.is_a?(Scorpio::ResourceBase)
-          # TODO request_schema_fail unless schema is for given model type 
-          request_body_for_schema(object.attributes, schema)
-        elsif object.is_a?(JSI::PathedNode)
-          request_body_for_schema(object.jsi_node_content, schema)
-        else
-          if object.respond_to?(:to_hash)
-            object.map do |key, value|
-              if schema
-                if schema['type'] == 'object'
-                  # TODO code dup with response_object_to_instances
-                  if schema['properties'].respond_to?(:to_hash) && schema['properties'].key?(key)
-                    subschema = schema['properties'][key]
-                    include_pair = true
-                  else
-                    if schema['patternProperties'].respond_to?(:to_hash)
-                      _, pattern_schema = schema['patternProperties'].detect do |pattern, _|
-                        key =~ Regexp.new(pattern) # TODO map pattern to ruby syntax
-                      end
-                    end
-                    if pattern_schema
-                      subschema = pattern_schema
-                      include_pair = true
-                    else
-                      if schema['additionalProperties'] == false
-                        include_pair = false
-                      elsif [nil, true].include?(schema['additionalProperties'])
-                        include_pair = true
-                        subschema = nil
-                      else
-                        include_pair = true
-                        subschema = schema['additionalProperties']
-                      end
-                    end
-                  end
-                elsif schema['type']
-                  request_schema_fail(object, schema)
-                else
-                  # TODO not sure
-                  include_pair = true
-                  subschema = nil
-                end
-              end
-              if include_pair
-                {key => request_body_for_schema(value, subschema)}
-              else
-                {}
-              end
-            end.inject({}, &:update)
-          elsif object.respond_to?(:to_ary) || object.is_a?(Set)
-            object.map do |el|
-              if schema
-                if schema['type'] == 'array'
-                  # TODO index based subschema or whatever else works for array
-                  subschema = schema['items']
-                elsif schema['type']
-                  request_schema_fail(object, schema)
-                end
-              end
-              request_body_for_schema(el, subschema)
-            end
-          else
-            # TODO maybe raise on anything not serializable 
-            # TODO check conformance to schema, request_schema_fail if not
-            object
-          end
-        end
-      end
-
-      def request_schema_fail(object, schema)
-        # TODO blame
       end
 
       def response_object_to_instances(object, initialize_options = {})
