@@ -1,5 +1,6 @@
 module Scorpio
-  # Scorpio::Ur is a JSI Schema module with which scorpio extends the ::Ur schema module
+  # Scorpio::Ur is a JSI Schema module with which scorpio extends the ::Ur (toplevel)
+  # schema module from the Ur gem
   Ur = JSI.new_schema_module({
     '$schema' => 'http://json-schema.org/draft-07/schema#',
     '$id' => 'https://schemas.jsi.unth.net/ur',
