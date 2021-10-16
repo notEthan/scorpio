@@ -424,26 +424,11 @@ module Scorpio
           else
             raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; object: #{object.pretty_inspect.chomp}")
           end
-        end
 
-        if object.respond_to?(:to_hash)
-          out = JSI::Typelike.modified_copy(object) do |_object|
-            mod = object.map do |key, value|
-              {key => response_object_to_instances(value, initialize_options)}
-            end.inject({}, &:update)
-            mod = mod.jsi_node_content if mod.is_a?(JSI::PathedNode)
-            mod
-          end
-          if model
-            model.new(out, initialize_options)
+          if model && object.respond_to?(:to_hash)
+            model.new(object, initialize_options)
           else
-            out
-          end
-        elsif object.respond_to?(:to_ary)
-          JSI::Typelike.modified_copy(object) do
-            object.map do |element|
-              response_object_to_instances(element, initialize_options)
-            end
+            Container.new_container(object, openapi_document_class, initialize_options)
           end
         else
           object
@@ -453,25 +438,72 @@ module Scorpio
   end
 
   class ResourceBase
+    module Containment
+      def [](key)
+        sub = contained_object[key]
+        if sub.is_a?(JSI::Base)
+          @openapi_document_class.response_object_to_instances(sub, options)
+        else
+          sub
+        end
+      end
+
+      def []=(key, value)
+        if value.is_a?(Containment)
+          contained_object[key] = value.contained_object
+        else
+          contained_object[key] = value
+        end
+      end
+
+      def as_json(*opt)
+        JSI::Typelike.as_json(contained_object, *opt)
+      end
+
+      def inspect
+        "\#<#{self.class.inspect} #{contained_object.inspect}>"
+      end
+
+      def pretty_print(q)
+        q.instance_exec(self) do |obj|
+          text "\#<#{obj.class.inspect}"
+          group_sub {
+            nest(2) {
+              breakable ' '
+              pp obj.contained_object
+            }
+          }
+          breakable ''
+          text '>'
+        end
+      end
+
+      include JSI::Util::FingerprintHash
+
+      def jsi_fingerprint
+        {class: self.class, contained_object: as_json}
+      end
+    end
+  end
+
+  class ResourceBase
+    include Containment
+
     def initialize(attributes = {}, options = {})
       @attributes = JSI::Util.stringify_symbol_keys(attributes)
       @options = JSI::Util.stringify_symbol_keys(options)
       @persisted = !!@options['persisted']
+
+      @openapi_document_class = self.class.openapi_document_class
     end
 
     attr_reader :attributes
     attr_reader :options
 
+    alias_method :contained_object, :attributes
+
     def persisted?
       @persisted
-    end
-
-    def [](key)
-      @attributes[key]
-    end
-
-    def []=(key, value)
-      @attributes[key] = value
     end
 
     def call_api_method(method_name, call_params: nil)
@@ -499,31 +531,72 @@ module Scorpio
 
       response
     end
+  end
 
-    def as_json(*opt)
-      JSI::Typelike.as_json(@attributes, *opt)
-    end
+  class ResourceBase
+    class Container
+      @container_classes = Hash.new do |h, modules|
+        container_class = Class.new(Container)
+        modules.each do |mod|
+          container_class.include(mod)
+        end
+        h[modules] = container_class
+      end
 
-    def inspect
-      "\#<#{self.class.inspect} #{attributes.inspect}>"
-    end
-    def pretty_print(q)
-      q.instance_exec(self) do |obj|
-        text "\#<#{obj.class.inspect}"
-        group_sub {
-          nest(2) {
-            breakable ' '
-            pp obj.attributes
-          }
-        }
-        breakable ''
-        text '>'
+      class << self
+        def new_container(object, openapi_document_class, options = {})
+          container_modules = Set[]
+
+          # TODO this is JSI internals that scorpio shouldn't really be using
+          if object.respond_to?(:to_hash)
+            container_modules << Enumerable # TODO change next JSI when PathedHashNode includes Enumerable
+            container_modules << JSI::PathedHashNode
+          end
+          if object.respond_to?(:to_ary)
+            container_modules << Enumerable # TODO change next JSI when PathedArrayNode includes Enumerable
+            container_modules << JSI::PathedArrayNode
+          end
+
+          container_modules += object.jsi_schemas.map do |schema|
+            JSI::SchemaClasses.accessor_module_for_schema(schema,
+              conflicting_modules: container_modules + [Container],
+            )
+          end
+
+          container_class = @container_classes[container_modules.freeze]
+
+          container_class.new(object, openapi_document_class, options)
+        end
       end
     end
 
-    def jsi_fingerprint
-      {class: self.class, attributes: JSI::Typelike.as_json(@attributes)}
+    class Container
+      include Containment
+
+      def initialize(contained_object, openapi_document_class, options = {})
+        @contained_object = contained_object
+        @openapi_document_class = openapi_document_class
+        @options = options
+      end
+
+      attr_reader :contained_object
+
+      attr_reader :options
+
+      # @private
+      alias_method :jsi_node_content, :contained_object
+      private :jsi_node_content
+
+      # @private
+      # @return [Array<String>]
+      def jsi_object_group_text
+        schema_names = contained_object.jsi_schemas.map { |schema| schema.jsi_schema_module.name_from_ancestor || schema.schema_uri }.compact
+        if schema_names.empty?
+          [Container.to_s]
+        else
+          ["#{Container} (#{schema_names.join(', ')})"]
+        end
+      end
     end
-    include JSI::Util::FingerprintHash
   end
 end
