@@ -1,4 +1,10 @@
-require 'simplecov'
+if ENV['CI'] || ENV['COV']
+  require 'simplecov'
+  SimpleCov.start do
+    coverage_dir '{coverage}'
+  end
+end
+
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'scorpio'
 
