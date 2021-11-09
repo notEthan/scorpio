@@ -56,6 +56,7 @@ Minitest::Spec.register_spec_type(//, ScorpioSpec)
 # boot the blog application in a different process
 
 # find a free port
+require 'socket'
 server = TCPServer.new(0)
 $blog_port = server.addr[1]
 server.close
