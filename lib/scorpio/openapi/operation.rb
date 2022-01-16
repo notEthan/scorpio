@@ -212,7 +212,7 @@ module Scorpio
             requestBody['content'] &&
             requestBody['content'][media_type] &&
             requestBody['content'][media_type]['schema']
-          schema_object ? JSI::Schema.from_object(schema_object) : nil
+          schema_object ? JSI::Schema.ensure_schema(schema_object) : nil
         end
 
         # @return [Array<JSI::Schema>]
@@ -220,7 +220,7 @@ module Scorpio
           if requestBody && requestBody['content']
             # oamt is for Scorpio::OpenAPI::V3::MediaType
             oamts = requestBody['content'].values.select { |oamt| oamt.key?('schema') }
-            oamts.map { |oamt| JSI::Schema.from_object(oamt['schema']) }
+            oamts.map { |oamt| JSI::Schema.ensure_schema(oamt['schema']) }
           else
             []
           end
@@ -232,7 +232,7 @@ module Scorpio
           oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3::MediaTypes
           oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3::MediaType
           oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3::Schema
-          oa_schema ? JSI::Schema.new(oa_schema) : nil
+          oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
         end
       end
     end
@@ -282,7 +282,7 @@ module Scorpio
         # @return [JSI::Schema] request schema for the given media_type
         def request_schema(media_type: nil)
           if body_parameter && body_parameter['schema']
-            JSI::Schema.new(body_parameter['schema'])
+            JSI::Schema.ensure_schema(body_parameter['schema'])
           else
             nil
           end
@@ -299,7 +299,7 @@ module Scorpio
         def response_schema(status: , media_type: nil)
           oa_response = self.oa_response(status: status)
           oa_response_schema = oa_response ? oa_response['schema'] : nil # Scorpio::OpenAPI::V2::Schema
-          oa_response_schema ? JSI::Schema.new(oa_response_schema) : nil
+          oa_response_schema ? JSI::Schema.ensure_schema(oa_response_schema) : nil
         end
       end
     end
