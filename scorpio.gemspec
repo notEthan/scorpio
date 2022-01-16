@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "jsi", "~> 0.4.0"
   spec.add_dependency "ur", "~> 0.2.0"
-  spec.add_dependency "faraday"
+  spec.add_dependency "faraday", "~> 1.0"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "minitest-around"
