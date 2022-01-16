@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'ORM style REST client'
   spec.homepage      = "https://github.com/notEthan/scorpio"
   spec.license       = "AGPL-3.0"
-  ignore_files = %w(.gitignore .travis.yml Gemfile test)
+  ignore_files = %w(.gitignore .github Gemfile test)
   ignore_files_re = %r{\A(#{ignore_files.map { |f| Regexp.escape(f) }.join('|')})(/|\z)}
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(ignore_files_re) }
   spec.test_files    = `git ls-files -z test`.split("\x0")
@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "jsi", "~> 0.4.0"
   spec.add_dependency "ur", "~> 0.2.0"
-  spec.add_dependency "faraday"
+  spec.add_dependency "faraday", "~> 1.0"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "minitest-around"
