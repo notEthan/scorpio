@@ -173,8 +173,8 @@ module Scorpio
     end
 
     begin
-      # the autoloads for OpenAPI::Operation and OpenAPI::Document
-      # should not be triggered until all the classes their files reference are defined (above)
+      # the autoloads for OpenAPI::Operation and OpenAPI::Document are triggered below. these
+      # should not be triggered until all the classes their files reference are defined (above).
     end # (this block is here just so the above informative comment is not interpreted as module doc)
 
     module V3
