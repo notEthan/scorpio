@@ -62,7 +62,7 @@ module Scorpio
         return @path_template_str if instance_variable_defined?(:@path_template_str)
         raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
         raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::Paths)
-        @path_template_str = jsi_parent_node.jsi_ptr.reference_tokens.last
+        @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
       end
 
       # @return [Addressable::Template] the path as an Addressable::Template
@@ -88,7 +88,7 @@ module Scorpio
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
-        @http_method = jsi_ptr.reference_tokens.last
+        @http_method = jsi_ptr.tokens.last
       end
 
       # @return [String] a short identifier for this operation appropriate for an error message

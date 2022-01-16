@@ -27,7 +27,7 @@ module Scorpio
           )
         end
 
-        ptr = JSI::JSON::Pointer.from_fragment(ref_uri.fragment)
+        ptr = JSI::Ptr.from_fragment(ref_uri.fragment)
         deref_jsi = ptr.evaluate(jsi_root_node)
 
         # TODO type check deref_jsi
