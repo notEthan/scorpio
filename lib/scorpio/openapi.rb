@@ -27,6 +27,14 @@ module Scorpio
       describe_schema = [
         openapi_document_schema.definitions['Schema'],
         openapi_document_schema.definitions['SchemaReference'],
+        # instead of the Schema definition allowing boolean, properties['additionalProperties']
+        # is a oneOf which allows a Schema, SchemaReference, or boolean.
+        # instances of the former two already include the schema implementation (per the previous
+        # describes_schema entries), but the boolean does not.
+        # including in properties['additionalProperties'] applies to any additionalProperties.
+        # (including in properties['additionalProperties'].anyOf[2] would extend booleans too, without
+        # the redundant inclusion that results for Schema and SchemaRef, but redundant inclusion is not
+        # a problem, and this way also applies when none of the anyOf match due to schema errors.)
         openapi_document_schema.definitions['Schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.jsi_schema_instance_modules = [JSI::Schema::Draft04] }
@@ -109,6 +117,7 @@ module Scorpio
       # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
       describe_schema = [
         openapi_document_schema.definitions['schema'],
+        # comments above on v3's definitions['Schema'].properties['additionalProperties'] apply here too
         openapi_document_schema.definitions['schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.jsi_schema_instance_modules = [JSI::Schema::Draft04] }
