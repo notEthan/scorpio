@@ -108,6 +108,7 @@ module Scorpio
 
       # this method is not intended to be API-stable at the moment.
       #
+      # @api private
       # @return [#to_ary<#to_h>] the parameters specified for this operation, plus any others
       #   scorpio considers to be parameters
       def inferred_parameters
