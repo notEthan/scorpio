@@ -31,7 +31,7 @@ module Scorpio
       Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: `puts JSI::Schema.new(::YAML.load_file(Scorpio.root.join('documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml')))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+      # generated: `puts Scorpio::OpenAPI::V3::Document.schema.definitions.select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
       Reference      = Document.definitions['Reference']
       SchemaReference = Document.definitions['SchemaReference']
       Info           = Document.definitions['Info']
@@ -109,7 +109,7 @@ module Scorpio
       Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: `puts JSI::Schema.new(::JSON.parse(Scorpio.root.join('documents/swagger.io/v2/schema.json').read))['definitions'].select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+      # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
       Info            = Document.definitions['info']
       Contact          = Document.definitions['contact']
       License           = Document.definitions['license']
