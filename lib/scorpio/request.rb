@@ -118,7 +118,7 @@ module Scorpio
     def initialize(operation, configuration = {}, &b)
       @operation = operation
 
-      configuration = JSI.stringify_symbol_keys(configuration)
+      configuration = JSI::Util.stringify_symbol_keys(configuration)
       params_set = Set.new # the set of params that have been set
       # do the Configurables first
       configuration.each do |name, value|
@@ -162,7 +162,7 @@ module Scorpio
     # @return [Addressable::URI] an Addressable::URI containing only the path to append to
     #   the base_url for this request
     def path
-      path_params = JSI.stringify_symbol_keys(self.path_params)
+      path_params = JSI::Util.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
         raise(ArgumentError, "path #{operation.path_template_str} for operation #{operation.human_id} requires path_params " +

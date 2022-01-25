@@ -259,8 +259,8 @@ module Scorpio
       end
 
       def call_operation(operation, call_params: nil, model_attributes: nil)
-        call_params = JSI.stringify_symbol_keys(call_params) if call_params.respond_to?(:to_hash)
-        model_attributes = JSI.stringify_symbol_keys(model_attributes || {})
+        call_params = JSI::Util.stringify_symbol_keys(call_params) if call_params.respond_to?(:to_hash)
+        model_attributes = JSI::Util.stringify_symbol_keys(model_attributes || {})
 
         request = Scorpio::Request.new(operation)
 
@@ -459,8 +459,8 @@ module Scorpio
     end
 
     def initialize(attributes = {}, options = {})
-      @attributes = JSI.stringify_symbol_keys(attributes)
-      @options = JSI.stringify_symbol_keys(options)
+      @attributes = JSI::Util.stringify_symbol_keys(attributes)
+      @options = JSI::Util.stringify_symbol_keys(options)
       @persisted = !!@options['persisted']
     end
 
