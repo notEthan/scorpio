@@ -123,7 +123,7 @@ module Scorpio
       # do the Configurables first
       configuration.each do |name, value|
         if Configurables.public_method_defined?("#{name}=")
-          Configurables.instance_method("#{name}=").bind(self).call(value)
+          Configurables.instance_method("#{name}=").bind_call(self, value)
           params_set << name
         end
       end
