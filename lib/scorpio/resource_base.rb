@@ -42,17 +42,18 @@ module Scorpio
         end
       end
     end
-    define_inheritable_accessor(:represented_schemas, default_value: [], on_set: proc do
+    define_inheritable_accessor(:represented_schemas, default_value: Set[].freeze, on_set: proc do
       if represented_schemas.is_a?(JSI::SchemaSet)
         represented_schemas.each do |schema|
-          openapi_document_class.models_by_schema = openapi_document_class.models_by_schema.merge(schema => self)
+          new_mbs = openapi_document_class.models_by_schema.merge(schema => self).freeze
+          openapi_document_class.models_by_schema = new_mbs
         end
         update_dynamic_methods
       else
         self.represented_schemas = JSI::SchemaSet.ensure_schema_set(represented_schemas)
       end
     end)
-    define_inheritable_accessor(:models_by_schema, default_value: {})
+    define_inheritable_accessor(:models_by_schema, default_value: {}.freeze)
     # a model overriding this MUST include the openapi document's basePath if defined, e.g.
     # class MyModel
     #   self.base_url = File.join('https://example.com/', openapi_document.basePath)
@@ -61,7 +62,7 @@ module Scorpio
       openapi_document.base_url(server: server, server_variables: server_variables)
     })
 
-    define_inheritable_accessor(:server_variables, default_value: {}, on_set: -> {
+    define_inheritable_accessor(:server_variables, default_value: {}.freeze, on_set: -> {
       if openapi_document && openapi_document.v2?
         raise(ArgumentError, "server variables are not supported for OpenAPI V2")
       end
