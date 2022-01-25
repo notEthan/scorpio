@@ -43,21 +43,13 @@ module Scorpio
       end
     end
     define_inheritable_accessor(:represented_schemas, default_value: [], on_set: proc do
-      unless represented_schemas.respond_to?(:to_ary)
-        raise(TypeError, "represented_schemas must be an array. received: #{represented_schemas.pretty_inspect.chomp}")
-      end
-      if represented_schemas.all? { |s| s.is_a?(JSI::Schema) }
+      if represented_schemas.is_a?(JSI::SchemaSet)
         represented_schemas.each do |schema|
           openapi_document_class.models_by_schema = openapi_document_class.models_by_schema.merge(schema => self)
         end
         update_dynamic_methods
       else
-        self.represented_schemas = self.represented_schemas.map do |schema|
-          unless schema.is_a?(JSI::Schema)
-            schema = JSI::Schema.new(schema)
-          end
-          schema
-        end
+        self.represented_schemas = JSI::SchemaSet.ensure_schema_set(represented_schemas)
       end
     end)
     define_inheritable_accessor(:models_by_schema, default_value: {})
