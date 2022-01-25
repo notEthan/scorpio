@@ -136,7 +136,7 @@ module Scorpio
             instance_method_modules = [Request, Request::Configurables]
             instance_method_names = instance_method_modules.map do |mod|
               (mod.instance_methods + mod.private_instance_methods).map(&:to_s)
-            end.inject(Set.new, &:|)
+            end.inject(Set.new, &:merge)
             params_by_name.each do |name, params|
               next if instance_method_names.include?(name)
               if params.size == 1
