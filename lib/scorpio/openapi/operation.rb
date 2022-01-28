@@ -221,9 +221,9 @@ module Scorpio
           if requestBody && requestBody['content']
             # oamt is for Scorpio::OpenAPI::V3::MediaType
             oamts = requestBody['content'].values.select { |oamt| oamt.key?('schema') }
-            oamts.map { |oamt| JSI::Schema.ensure_schema(oamt['schema']) }
+            oamts.map { |oamt| JSI::Schema.ensure_schema(oamt['schema']) }.freeze
           else
-            []
+            [].freeze
           end
         end
 
@@ -291,7 +291,7 @@ module Scorpio
 
         # @return [Array<JSI::Schema>]
         def request_schemas
-          request_schema ? [request_schema] : []
+          request_schema ? [request_schema].freeze : [].freeze
         end
 
         # @param status [Integer, String] response status

@@ -34,7 +34,7 @@ module Scorpio
             server_variables = given_server_variables
           end
           template = Addressable::Template.new(url)
-          template.expand(server_variables)
+          template.expand(server_variables).freeze
         end
       end
     end
