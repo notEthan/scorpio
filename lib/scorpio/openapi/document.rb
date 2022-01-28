@@ -157,7 +157,7 @@ module Scorpio
                 scheme: scheme,
                 host: host,
                 path: basePath,
-              ).to_s
+              )
             end
           end
 
