@@ -174,11 +174,11 @@ module Scorpio
           "which were empty: #{empty_variables.inspect}")
       end
 
-      path_template.expand(path_params).tap do |path|
-        if query_params
-          path.query_values = query_params
-        end
+      path = path_template.expand(path_params)
+      if query_params
+        path.query_values = query_params
       end
+      path
     end
 
     # @return [Addressable::URI] the full URL for this request

@@ -7,11 +7,11 @@ module Scorpio
       def initialize(openapi_document)
         @openapi_document = openapi_document
         @operations_by_id = Hash.new do |h, operationId|
-          detect { |operation| operation.operationId == operationId }.tap do |op|
-            unless op
-              raise(::KeyError, "operationId not found: #{operationId.inspect}")
-            end
+          op = detect { |operation| operation.operationId == operationId }
+          unless op
+            raise(::KeyError, "operationId not found: #{operationId.inspect}")
           end
+          op
         end
       end
       attr_reader :openapi_document
