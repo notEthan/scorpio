@@ -22,7 +22,7 @@ class BlogModel < Scorpio::ResourceBase
     self.server_variables = {
       'scheme' => 'http',
       'host' => 'localhost',
-      'port' => $blog_port || raise(Bug, '$blog_port is nil'),
+      'port' => $blog_port || raise('$blog_port is nil'),
     }
   else
     abort("bad SCORPIO_API_DESCRIPTION_FORMAT")
