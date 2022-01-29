@@ -346,8 +346,15 @@ module Scorpio
               request.body_object = other_params
             else
               if other_params.respond_to?(:to_hash)
-                # TODO pay more attention to 'parameters' api method attribute
-                request.query_params = other_params
+                other_params.to_hash.each_pair do |name, value|
+                  param = request.param_for(name)
+                  if param
+                    request.set_param_from(param['in'], param['name'], value)
+                  else
+                    # set any params not described by operation params in the query
+                    request.set_param_from('query', name, value)
+                  end
+                end
               else
                 raise
               end
