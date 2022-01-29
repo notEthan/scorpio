@@ -4,7 +4,7 @@ require 'api_hammer'
 # this is a virtual model to parent models representing resources of the blog. it sets
 # up connection information including base url, custom middleware or adapter for faraday.
 # it describes the API by setting the API document, but this class itself represents no
-# resources - it sets no resource_name and defines no schema_keys.
+# resources - it sets no tag_name and defines no represented_schemas.
 class BlogModel < Scorpio::ResourceBase
   define_inheritable_accessor(:logger)
   logpath = Pathname.new('log/test.log')
@@ -22,7 +22,7 @@ class BlogModel < Scorpio::ResourceBase
     self.server_variables = {
       'scheme' => 'http',
       'host' => 'localhost',
-      'port' => $blog_port || raise(Bug, '$blog_port is nil'),
+      'port' => $blog_port || raise('$blog_port is nil'),
     }
   else
     abort("bad SCORPIO_API_DESCRIPTION_FORMAT")
@@ -32,9 +32,7 @@ class BlogModel < Scorpio::ResourceBase
   }
 end
 
-# this is a model of Article, a resource of the blog API. it sets the resource_name
-# to the key of the 'resources' section of the API (described by the api document
-# specified to BlogModel) 
+# this model, Article, is a resource of the blog API.
 class Article < BlogModel
   self.tag_name = 'articles'
   if openapi_document.v2?

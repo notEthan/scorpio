@@ -143,7 +143,7 @@ module Scorpio
       end
 
       def all_schema_properties
-        represented_schemas.map(&:described_object_property_names).inject(Set.new, &:|)
+        represented_schemas.map(&:described_object_property_names).inject(Set.new, &:merge)
       end
 
       def update_instance_accessors
@@ -195,7 +195,7 @@ module Scorpio
         # should we define an instance method?
         #request_attributes |= method_desc['parameters'] ? method_desc['parameters'].keys : []
 
-        schema_attributes = represented_schemas.map(&:described_object_property_names).inject(Set.new, &:|)
+        schema_attributes = represented_schemas.map(&:described_object_property_names).inject(Set.new, &:merge)
 
         return request_resource_is_self || (request_attributes & schema_attributes.to_a).any?
       end

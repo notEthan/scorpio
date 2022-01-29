@@ -123,7 +123,7 @@ module Scorpio
       # do the Configurables first
       configuration.each do |name, value|
         if Configurables.public_method_defined?("#{name}=")
-          Configurables.instance_method("#{name}=").bind(self).call(value)
+          Configurables.instance_method("#{name}=").bind_call(self, value)
           params_set << name
         end
       end
@@ -174,11 +174,11 @@ module Scorpio
           "which were empty: #{empty_variables.inspect}")
       end
 
-      path_template.expand(path_params).tap do |path|
-        if query_params
-          path.query_values = query_params
-        end
+      path = path_template.expand(path_params)
+      if query_params
+        path.query_values = query_params
       end
+      path
     end
 
     # @return [Addressable::URI] the full URL for this request
