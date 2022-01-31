@@ -5,7 +5,6 @@ module Scorpio
     class OperationsScope
       # @param openapi_document [Scorpio::OpenAPI::Document]
       def initialize(openapi_document)
-        jsi_initialize_memos
         @openapi_document = openapi_document
         @operations_by_id = Hash.new do |h, operationId|
           op = detect { |operation| operation.operationId == operationId }
