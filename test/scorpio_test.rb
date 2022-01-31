@@ -103,3 +103,28 @@ describe 'blog' do
     assert_equal(0, hash[Article.read(id: blog_article.id)])
   end
 end
+
+describe 'openapi boolean schema' do
+  it 'is a schema, v3' do
+    document = Scorpio::OpenAPI::V3::Document.new_jsi({
+      'components' => {
+        'schemas' => {
+          'a' => {
+            'additionalProperties' => true
+          }
+        }
+      }
+    })
+    assert_kind_of(JSI::Schema, document.components.schemas['a'].additionalProperties)
+  end
+  it 'is a schema, v2' do
+    document = Scorpio::OpenAPI::V2::Document.new_jsi({
+      'definitions' => {
+        'a' => {
+          'additionalProperties' => true
+        }
+      }
+    })
+    assert_kind_of(JSI::Schema, document.definitions['a'].additionalProperties)
+  end
+end
