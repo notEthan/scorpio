@@ -16,8 +16,7 @@ Gem::Specification.new do |spec|
   ignore_files = %w(.gitignore .github Gemfile test)
   ignore_files_re = %r{\A(#{ignore_files.map { |f| Regexp.escape(f) }.join('|')})(/|\z)}
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(ignore_files_re) }
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+
   spec.require_paths = ["lib"]
 
   spec.add_dependency "jsi", "~> 0.6.0"
