@@ -13,9 +13,15 @@ Gem::Specification.new do |spec|
   spec.description   = 'ORM style REST client'
   spec.homepage      = "https://github.com/notEthan/scorpio"
   spec.license       = "AGPL-3.0"
-  ignore_files = %w(.gitignore .github Gemfile test)
-  ignore_files_re = %r{\A(#{ignore_files.map { |f| Regexp.escape(f) }.join('|')})(/|\z)}
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(ignore_files_re) }
+
+  spec.files = [
+    'LICENSE.md',
+    'CHANGELOG.md',
+    'README.md',
+    '.yardopts',
+    *Dir['lib/**/*'],
+    *Dir['documents/**/*'],
+  ].reject { |f| File.lstat(f).ftype == 'directory' }
 
   spec.require_paths = ["lib"]
 
