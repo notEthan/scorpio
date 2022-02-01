@@ -178,7 +178,7 @@ module Scorpio
       if query_params
         path.query_values = query_params
       end
-      path
+      path.freeze
     end
 
     # @return [Addressable::URI] the full URL for this request
@@ -188,7 +188,7 @@ module Scorpio
       end
       # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
       # we use File.join just to deal with consecutive slashes.
-      Addressable::URI.parse(File.join(base_url, path))
+      Addressable::URI.parse(File.join(base_url, path)).freeze
     end
 
     # @return [::Ur::ContentType] the value of the request Content-Type header
