@@ -416,13 +416,13 @@ module Scorpio
 
       def response_object_to_instances(object, initialize_options = {})
         if object.is_a?(JSI::Base)
-          models = object.jsi_schemas.map { |schema| models_by_schema[schema] }
+          models = object.jsi_schemas.map { |schema| models_by_schema[schema] }.compact
           if models.size == 0
             model = nil
           elsif models.size == 1
             model = models.first
           else
-            raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; jsi: #{jsi.pretty_inspect.chomp}")
+            raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; object: #{object.pretty_inspect.chomp}")
           end
         end
 
