@@ -24,18 +24,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jsi", "~> 0.6.0"
   spec.add_dependency "ur", "~> 0.2.1"
   spec.add_dependency "faraday", "~> 1.0"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "minitest", "~> 5.0"
-  spec.add_development_dependency "minitest-around"
-  spec.add_development_dependency "minitest-reporters"
-  spec.add_development_dependency "sinatra", "~> 1.0"
-  spec.add_development_dependency "rack", "~> 1.0"
-  spec.add_development_dependency "rack-accept"
-  spec.add_development_dependency "rack-test"
-  spec.add_development_dependency "api_hammer"
-  spec.add_development_dependency "activerecord"
-  spec.add_development_dependency "sqlite3", "~> 1.4" # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
-  spec.add_development_dependency "database_cleaner"
-  spec.add_development_dependency "simplecov"
-  spec.add_development_dependency "yard"
 end
