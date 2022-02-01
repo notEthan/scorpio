@@ -35,3 +35,17 @@ task 'test:each_format' do
 end
 
 task 'default' => 'test:each_format'
+
+require 'gig'
+
+ignore_files = %w(
+  .github/**/*
+  .gitignore
+  scorpio.gemspec
+  Gemfile
+  Rakefile
+  test/**/*
+  bin/documents_to_yml.rb
+  resources/icons/**/*
+).map { |glob| Dir.glob(glob, File::FNM_DOTMATCH) }.inject([], &:|)
+Gig.make_task(gemspec_filename: 'scorpio.gemspec', ignore_files: ignore_files)

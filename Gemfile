@@ -4,6 +4,7 @@ gemspec
 
 gem 'byebug'
 gem 'rake'
+gem 'gig'
 gem 'minitest', '~> 5.0'
 gem 'minitest-around'
 gem 'minitest-reporters'
