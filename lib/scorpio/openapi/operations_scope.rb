@@ -11,7 +11,7 @@ module Scorpio
           unless op
             raise(::KeyError, "operationId not found: #{operationId.inspect}")
           end
-          op
+          h[operationId] = op
         end
       end
       attr_reader :openapi_document
