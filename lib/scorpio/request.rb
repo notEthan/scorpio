@@ -357,7 +357,9 @@ module Scorpio
         else
           # I'd rather not have a default content-type, but if none is set then the HTTP adapter sets this to 
           # application/x-www-form-urlencoded and issues a warning about it.
-          headers['Content-Type'] = FALLBACK_CONTENT_TYPE
+          if METHODS_WITH_BODIES.include?(http_method.to_s)
+            headers['Content-Type'] = FALLBACK_CONTENT_TYPE
+          end
         end
       end
       headers.update(self.headers)
