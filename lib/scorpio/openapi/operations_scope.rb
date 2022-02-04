@@ -28,8 +28,9 @@ module Scorpio
       end
       include Enumerable
 
-      # @param operationId
-      # @return [Scorpio::OpenAPI::Operation] the operation with the given operationId
+      # finds an operation with the given `operationId`
+      # @param operationId [String] the operationId of the operation to find
+      # @return [Scorpio::OpenAPI::Operation]
       # @raise [::KeyError] if the given operationId does not exist
       def [](operationId)
         @operations_by_id[operationId]

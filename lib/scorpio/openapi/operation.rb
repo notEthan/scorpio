@@ -43,21 +43,25 @@ module Scorpio
       end
       include Configurables
 
-      # @return [Boolean] v3?
+      # openapi v3?
+      # @return [Boolean]
       def v3?
         is_a?(V3::Operation)
       end
 
-      # @return [Boolean] v2?
+      # openapi v2?
+      # @return [Boolean]
       def v2?
         is_a?(V2::Operation)
       end
 
-      # @return [Scorpio::OpenAPI::Document] the document whence this operation came
+      # the document whence this operation came
+      # @return [Scorpio::OpenAPI::Document]
       def openapi_document
         jsi_parent_nodes.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
 
+      # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
         raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
@@ -65,15 +69,16 @@ module Scorpio
         @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
       end
 
-      # @return [Addressable::Template] the path as an Addressable::Template
+      # the path as an Addressable::Template
+      # @return [Addressable::Template]
       def path_template
         return @path_template if instance_variable_defined?(:@path_template)
         @path_template = Addressable::Template.new(path_template_str)
       end
 
+      # the URI template, consisting of the base_url concatenated with the path template
       # @param base_url [#to_str] the base URL to which the path template is appended
-      # @return [Addressable::Template] the URI template, consisting of the base_url
-      #   concatenated with the path template
+      # @return [Addressable::Template]
       def uri_template(base_url: self.base_url)
         unless base_url
           raise(ArgumentError, "no base_url has been specified for operation #{self}")
@@ -83,19 +88,22 @@ module Scorpio
         Addressable::Template.new(File.join(base_url, path_template_str))
       end
 
-      # @return the HTTP method of this operation as indicated by the attribute name
-      #   for this operation from the parent PathItem
+      # the HTTP method of this operation as indicated by the attribute name for this operation
+      # from the parent PathItem
+      # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
         raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 
-      # @return [String] a short identifier for this operation appropriate for an error message
+      # a short identifier for this operation appropriate for an error message
+      # @return [String]
       def human_id
         operationId || "path: #{path_template_str}, method: #{http_method}"
       end
 
+      # @param status [String, Integer]
       # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
       def oa_response(status: )
         status = status.to_s if status.is_a?(Numeric)
@@ -106,11 +114,12 @@ module Scorpio
         oa_response
       end
 
+      # the parameters specified for this operation, plus any others scorpio considers to be parameters.
+      #
       # this method is not intended to be API-stable at the moment.
       #
       # @api private
-      # @return [#to_ary<#to_h>] the parameters specified for this operation, plus any others
-      #   scorpio considers to be parameters
+      # @return [#to_ary<#to_h>]
       def inferred_parameters
         parameters = self.parameters ? self.parameters.to_a.dup : []
         path_template.variables.each do |var|
@@ -128,7 +137,8 @@ module Scorpio
         parameters
       end
 
-      # @return [Module] a module with accessor methods for unambiguously named parameters of this operation.
+      # a module with accessor methods for unambiguously named parameters of this operation.
+      # @return [Module]
       def request_accessor_module
         return @request_accessor_module if instance_variable_defined?(:@request_accessor_module)
         @request_accessor_module = begin
@@ -150,19 +160,22 @@ module Scorpio
         end
       end
 
-      # @param a, b are passed to Scorpio::Request#initialize
+      # instantiates a {Scorpio::Request} for this operation.
+      # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
       def build_request(*a, &b)
         Scorpio::Request.new(self, *a, &b)
       end
 
-      # @param a, b are passed to Scorpio::Request#initialize
+      # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
+      # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Ur] response ur
       def run_ur(*a, &b)
         build_request(*a, &b).run_ur
       end
 
-      # @param a, b are passed to Scorpio::Request#initialize
+      # runs a {Scorpio::Request} for this operation - see {Scorpio::Request#run}.
+      # parameters are all passed to {Scorpio::Request#initialize}.
       # @return response body object
       def run(*a, &b)
         build_request(*a, &b).run
@@ -265,7 +278,8 @@ module Scorpio
         end
         include Configurables
 
-        # @return [#to_hash] the body parameter
+        # the body parameter
+        # @return [#to_hash]
         # @raise [Scorpio::OpenAPI::SemanticError] if there's more than one body param
         def body_parameter
           body_parameters = (parameters || []).select { |parameter| parameter['in'] == 'body' }
@@ -279,8 +293,9 @@ module Scorpio
           end
         end
 
+        # request schema for the given media_type
         # @param media_type unused
-        # @return [JSI::Schema] request schema for the given media_type
+        # @return [JSI::Schema]
         def request_schema(media_type: nil)
           if body_parameter && body_parameter['schema']
             JSI::Schema.ensure_schema(body_parameter['schema'])

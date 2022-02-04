@@ -148,19 +148,21 @@ module Scorpio
       operation.openapi_document
     end
 
-    # @return [Symbol] the http method for this request - :get, :post, etc.
+    # the http method for this request as a lowercase symbol (`:get`, `:post`, etc.)
+    # @return [Symbol]
     def http_method
       operation.http_method.downcase.to_sym
     end
 
-    # @return [Addressable::Template] the template for the request's path, to be expanded
-    #   with path_params and appended to the request's base_url
+    # the template for the request's path, to be expanded with {Configurables#path_params} and appended to
+    # the request's {Configurables#base_url}
+    # @return [Addressable::Template]
     def path_template
       operation.path_template
     end
 
-    # @return [Addressable::URI] an Addressable::URI containing only the path to append to
-    #   the base_url for this request
+    # an Addressable::URI containing only the path to append to the {Configurables#base_url} for this request
+    # @return [Addressable::URI]
     def path
       path_params = JSI::Util.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
@@ -181,7 +183,8 @@ module Scorpio
       path.freeze
     end
 
-    # @return [Addressable::URI] the full URL for this request
+    # the full URL for this request
+    # @return [Addressable::URI]
     def url
       unless base_url
         raise(ArgumentError, "no base_url has been specified for request")
@@ -191,7 +194,8 @@ module Scorpio
       Addressable::URI.parse(File.join(base_url, path)).freeze
     end
 
-    # @return [::Ur::ContentType] the value of the request Content-Type header
+    # the value of the request Content-Type header
+    # @return [::Ur::ContentType]
     def content_type_header
       headers.each do |k, v|
         return ::Ur::ContentType.new(v) if k =~ /\Acontent[-_]type\z/i
@@ -199,8 +203,9 @@ module Scorpio
       nil
     end
 
-    # @return [::Ur::ContentType] Content-Type for this request, taken from request headers if
-    #   present, or the request media_type.
+    # Content-Type for this request, taken from request headers if present, or the
+    # request {Configurables#media_type}.
+    # @return [::Ur::ContentType]
     def content_type
       content_type_header || (media_type ? ::Ur::ContentType.new(media_type) : nil)
     end
@@ -232,16 +237,17 @@ module Scorpio
     # @param name [String, Symbol] the 'name' property of one applicable parameter
     # @param value [Object] the applicable parameter will be applied to the request with the given value.
     # @return [Object] echoes the value param
-    # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
+    # @raise (see #param_for!)
     def set_param(name, value)
       param = param_for!(name)
       set_param_from(param['in'], param['name'], value)
       value
     end
 
+    # returns the value of the named parameter on this request
     # @param name [String, Symbol] the 'name' property of one applicable parameter
-    # @return [Object] the value of the named parameter on this request
-    # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
+    # @return [Object]
+    # @raise (see #param_for!)
     def get_param(name)
       param = param_for!(name)
       get_param_from(param['in'], param['name'])
@@ -249,6 +255,7 @@ module Scorpio
 
     # @param name [String, Symbol] the 'name' property of one applicable parameter
     # @return [#to_hash, nil]
+    # @raise [Scorpio::AmbiguousParameter] if more than one parameter has the given name
     def param_for(name)
       name = name.to_s if name.is_a?(Symbol)
       params = operation.inferred_parameters.select { |p| p['name'] == name }
@@ -263,17 +270,21 @@ module Scorpio
       end
     end
 
-    # @param name [String, Symbol] the name or {in}.{name} (e.g. "query.search") for the applicable parameter.
+    # @param name [String, Symbol] the 'name' property of one applicable parameter
     # @return [#to_hash]
+    # @raise [Scorpio::ParameterError] if no parameter has the given name
+    # @raise (see #param_for)
     def param_for!(name)
       param_for(name) || raise(ParameterError, "There is no parameter named #{name} on operation #{operation.human_id}:\n#{operation.pretty_inspect.chomp}")
     end
 
-    # @param in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply the named value
+    # applies the named value to the appropriate parameter of the request
+    # @param param_in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply
+    #   the named value
     # @param name [String, Symbol] the parameter name to apply the value to
     # @param value [Object] the value
     # @return [Object] echoes the value param
-    # @raise [ArgumentError] invalid 'in' parameter
+    # @raise [ArgumentError] invalid `param_in` parameter
     # @raise [NotImplementedError] cookies aren't implemented
     def set_param_from(param_in, name, value)
       param_in = param_in.to_s if param_in.is_a?(Symbol)
@@ -292,10 +303,12 @@ module Scorpio
       value
     end
 
-    # @param in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply the named value
+    # returns the value of the named parameter from the specified `param_in` on this request
+    # @param param_in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to retrieve
+    #   the named value
     # @param name [String, Symbol] the parameter name
-    # @return [Object] the value of the named parameter on this request
-    # @raise [ArgumentError] invalid 'in' parameter
+    # @return [Object]
+    # @raise [ArgumentError] invalid `param_in` parameter
     # @raise [NotImplementedError] cookies aren't implemented
     def get_param_from(param_in, name)
       if param_in == 'path'
@@ -340,10 +353,10 @@ module Scorpio
 
     # runs this request. returns the response body object - that is, the response body
     # parsed according to an understood media type, and instantiated with the applicable
-    # response schema if one is specified. see Scorpio::Response#body_object for more detail.
+    # response schema if one is specified. see {Scorpio::Response#body_object} for more detail.
     #
     # @raise [Scorpio::HTTPError] if the request returns a 4xx or 5xx status, the appropriate
-    #   error is raised - see Scorpio::HTTPErrors
+    #   error is raised - see {Scorpio::HTTPErrors}
     def run
       ur = run_ur
       ur.raise_on_http_error
