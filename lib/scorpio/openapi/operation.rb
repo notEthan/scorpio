@@ -252,6 +252,23 @@ module Scorpio
           oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3::Schema
           oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
         end
+
+        # @return [JSI::SchemaSet]
+        def response_schemas
+          JSI::SchemaSet.build do |schemas|
+            if responses
+              responses.each_value do |oa_response|
+                if oa_response['content']
+                  oa_response['content'].each_value do |oa_media_type|
+                    if oa_media_type['schema']
+                      schemas << oa_media_type['schema']
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
       end
     end
     module V2
@@ -320,6 +337,19 @@ module Scorpio
           oa_response = self.oa_response(status: status)
           oa_response_schema = oa_response ? oa_response['schema'] : nil # Scorpio::OpenAPI::V2::Schema
           oa_response_schema ? JSI::Schema.ensure_schema(oa_response_schema) : nil
+        end
+
+        # @return [JSI::SchemaSet]
+        def response_schemas
+          JSI::SchemaSet.build do |schemas|
+            if responses
+              responses.each_value do |oa_response|
+                if oa_response['schema']
+                  schemas << oa_response['schema']
+                end
+              end
+            end
+          end
         end
       end
     end
