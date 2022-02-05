@@ -165,9 +165,7 @@ module Scorpio
       end
 
       def operation_for_resource_class?(operation)
-        return false unless tag_name
-
-        return true if operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
+        return true if tag_name && operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
 
         if (operation.request_schemas || []).any? { |s| represented_schemas.include?(s) }
           return true
