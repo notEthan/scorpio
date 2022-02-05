@@ -167,9 +167,11 @@ module Scorpio
       def operation_for_resource_class?(operation)
         return true if tag_name && operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
 
-        if (operation.request_schemas || []).any? { |s| represented_schemas.include?(s) }
-          return true
-        end
+        request_response_schemas = operation.request_schemas | operation.response_schemas
+        # TODO/FIX nil instance is wrong. works for $ref and allOf, not for others.
+        # use all inplace applicators, not conditional on instance
+        all_request_response_schemas = request_response_schemas.each_inplace_applicator_schema(nil)
+        return true if all_request_response_schemas.any? { |s| represented_schemas.include?(s) }
 
         return false
       end
