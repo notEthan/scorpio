@@ -231,14 +231,16 @@ module Scorpio
           schema_object ? JSI::Schema.ensure_schema(schema_object) : nil
         end
 
-        # @return [Array<JSI::Schema>]
+        # @return [JSI::SchemaSet]
         def request_schemas
-          if requestBody && requestBody['content']
-            # oamt is for Scorpio::OpenAPI::V3::MediaType
-            oamts = requestBody['content'].values.select { |oamt| oamt.key?('schema') }
-            oamts.map { |oamt| JSI::Schema.ensure_schema(oamt['schema']) }.freeze
-          else
-            [].freeze
+          JSI::SchemaSet.build do |schemas|
+            if requestBody && requestBody['content']
+              requestBody['content'].each_value do |oa_media_type|
+                if oa_media_type['schema']
+                  schemas << oa_media_type['schema']
+                end
+              end
+            end
           end
         end
 
@@ -306,9 +308,9 @@ module Scorpio
           end
         end
 
-        # @return [Array<JSI::Schema>]
+        # @return [JSI::SchemaSet]
         def request_schemas
-          request_schema ? [request_schema].freeze : [].freeze
+          request_schema ? JSI::SchemaSet[request_schema] : JSI::SchemaSet[]
         end
 
         # @param status [Integer, String] response status
