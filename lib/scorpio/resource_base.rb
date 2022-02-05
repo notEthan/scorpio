@@ -2,7 +2,7 @@
 
 module Scorpio
   # see also Faraday::Env::MethodsWithBodies
-  METHODS_WITH_BODIES = %w(post put patch options)
+  METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
   class RequestSchemaFailure < Error
   end
 

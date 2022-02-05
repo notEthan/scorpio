@@ -2,8 +2,8 @@
 
 module Scorpio
   class Request
-    SUPPORTED_REQUEST_MEDIA_TYPES = ['application/json', 'application/x-www-form-urlencoded']
-    FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'
+    SUPPORTED_REQUEST_MEDIA_TYPES = ['application/json'.freeze, 'application/x-www-form-urlencoded'.freeze].freeze
+    FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'.freeze
 
     def self.best_media_type(media_types)
       if media_types.size == 1
