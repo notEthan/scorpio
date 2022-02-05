@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   class Request
     SUPPORTED_REQUEST_MEDIA_TYPES = ['application/json', 'application/x-www-form-urlencoded']

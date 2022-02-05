@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   module Google
     discovery_rest_description_doc = ::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read)

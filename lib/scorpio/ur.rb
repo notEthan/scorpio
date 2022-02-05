@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   # Scorpio::Ur is a JSI Schema module with which scorpio extends the ::Ur (toplevel)
   # schema module from the Ur gem

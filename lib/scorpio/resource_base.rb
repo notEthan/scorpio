@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   # see also Faraday::Env::MethodsWithBodies
   METHODS_WITH_BODIES = %w(post put patch options)

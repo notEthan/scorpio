@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   module OpenAPI
     # OperationsScope acts as an Enumerable of the Operations for an openapi_document,

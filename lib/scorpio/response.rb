@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   Response = Scorpio::Ur.properties['response']
 
