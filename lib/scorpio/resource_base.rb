@@ -450,7 +450,9 @@ module Scorpio
         end
       end
     end
+  end
 
+  class ResourceBase
     def initialize(attributes = {}, options = {})
       @attributes = JSI::Util.stringify_symbol_keys(attributes)
       @options = JSI::Util.stringify_symbol_keys(options)
