@@ -442,13 +442,21 @@ module Scorpio
       def [](key)
         sub = contained_object[key]
         if sub.is_a?(JSI::Base)
-          @openapi_document_class.response_object_to_instances(sub, options)
+          # TODO avoid reinstantiating the container only to throw it away if it matches the memo
+          sub_container = @openapi_document_class.response_object_to_instances(sub, options)
+
+          if @subscript_memos.key?(key) && @subscript_memos[key].class == sub_container.class
+            @subscript_memos[key]
+          else
+            @subscript_memos[key] = sub_container
+          end
         else
           sub
         end
       end
 
       def []=(key, value)
+        @subscript_memos.delete(key)
         if value.is_a?(Containment)
           contained_object[key] = value.contained_object
         else
@@ -495,6 +503,7 @@ module Scorpio
       @persisted = !!@options['persisted']
 
       @openapi_document_class = self.class.openapi_document_class
+      @subscript_memos = {}
     end
 
     attr_reader :attributes
@@ -577,6 +586,7 @@ module Scorpio
         @contained_object = contained_object
         @openapi_document_class = openapi_document_class
         @options = options
+        @subscript_memos = {}
       end
 
       attr_reader :contained_object
