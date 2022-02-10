@@ -101,9 +101,9 @@ module Scorpio
       # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
       def oa_response(status: )
         status = status.to_s if status.is_a?(Numeric)
-        if self.responses
-          _, oa_response = self.responses.detect { |k, v| k.to_s == status }
-          oa_response ||= self.responses['default']
+        if responses
+          _, oa_response = responses.detect { |k, v| k.to_s == status }
+          oa_response ||= responses['default']
         end
         oa_response
       end
