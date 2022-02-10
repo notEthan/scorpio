@@ -12,7 +12,7 @@ class Blog < Sinatra::Base
   self.supported_media_types = ['application/json']
   set :static, false
   disable :protection
-  logpath = Pathname.new('log/test.log')
+  logpath = Pathname.new('log/blog_app.log')
   FileUtils.mkdir_p(logpath.dirname)
   set :logger, ::Logger.new(logpath)
   logger.level = ::Logger::INFO
