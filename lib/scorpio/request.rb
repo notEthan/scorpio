@@ -316,7 +316,7 @@ module Scorpio
     #   the named value
     # @param name [String, Symbol] the parameter name
     # @return [Object]
-    # @raise [ArgumentError] invalid `param_in` parameter
+    # @raise [OpenAPI::SemanticError] invalid `param_in` parameter
     # @raise [NotImplementedError] cookies aren't implemented
     def get_param_from(param_in, name)
       if param_in == 'path'
@@ -329,7 +329,7 @@ module Scorpio
       elsif param_in == 'cookie'
         raise(NotImplementedError, "cookies not implemented: #{name.inspect}")
       else
-        raise(ArgumentError, "cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
+        raise(OpenAPI::SemanticError, "cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
       end
     end
 
