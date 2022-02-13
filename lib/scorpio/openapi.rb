@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   module OpenAPI
     class Error < StandardError
@@ -43,6 +45,8 @@ module Scorpio
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V3::Document.schema.definitions.select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+
+
       Reference      = Document.definitions['Reference']
       SchemaReference = Document.definitions['SchemaReference']
       Info           = Document.definitions['Info']
@@ -126,6 +130,8 @@ module Scorpio
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+
+
       Info            = Document.definitions['info']
       Contact          = Document.definitions['contact']
       License           = Document.definitions['license']
@@ -184,10 +190,9 @@ module Scorpio
       raise(Bug) unless Schema < JSI::Schema
     end
 
-    begin
-      # the autoloads for OpenAPI::Operation and OpenAPI::Document are triggered below. these
-      # should not be triggered until all the classes their files reference are defined (above).
-    end # (this block is here just so the above informative comment is not interpreted as module doc)
+    # the autoloads for OpenAPI::Operation and OpenAPI::Document are triggered below. these
+    # should not be triggered until all the classes their files reference are defined (above).
+
 
     module V3
       module Operation

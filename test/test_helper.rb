@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if ENV['CI'] || ENV['COV']
   require 'simplecov'
   SimpleCov.start do
@@ -77,11 +79,11 @@ running = false
 started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 timeout = 30
 while !running
-  require 'socket'
   begin
-    sock=TCPSocket.new('localhost', $blog_port)
+    sock = TCPSocket.new('localhost', $blog_port)
     running = true
     sock.close
+    STDOUT.puts("web server running on port #{$blog_port}")
   rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ECONNABORTED, Errno::EPIPE
     if Process.clock_gettime(Process::CLOCK_MONOTONIC) > started + timeout
       raise $!.class, "Failed to connect to the server on port #{$blog_port} after #{timeout} seconds.\n\n#{$!.message}", $!.backtrace

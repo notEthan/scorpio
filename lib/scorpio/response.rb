@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 module Scorpio
   Response = Scorpio::Ur.properties['response']
 
   module Response
-    # @return [::JSI::Schema] the schema for this response according to its OpenAPI doc
+    # the schema for this response according to its OpenAPI doc
+    # @return [::JSI::Schema]
     def response_schema
       ur.scorpio_request.operation.response_schema(status: status, media_type: media_type)
     end
 
-    # @return [Object] the body (String) is parsed according to the response media type and
-    #   if supported (only application/json is currently supported) instantiated according to
-    #   #response_schema
+    # the body (String) is parsed according to the response media type, if supported (only JSON is
+    # currently supported), and instantiated as a JSI instance of {#response_schema} if that is defined.
     def body_object
       if json?
         if body.empty?

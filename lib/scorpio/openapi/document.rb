@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scorpio
   module OpenAPI
     # A document that defines or describes an API.

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Scorpio
   # see also Faraday::Env::MethodsWithBodies
-  METHODS_WITH_BODIES = %w(post put patch options)
+  METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
   class RequestSchemaFailure < Error
   end
 
@@ -20,7 +22,7 @@ module Scorpio
       def define_inheritable_accessor(accessor, default_value: nil, default_getter: -> { default_value }, on_set: nil)
         # the value before the field is set (overwritten) is the result of the default_getter proc
         define_singleton_method(accessor, &default_getter)
-        inheritable_accessor_defaults[accessor] = self.singleton_class.instance_method(accessor)
+        inheritable_accessor_defaults[accessor] = singleton_class.instance_method(accessor)
         # field setter method. redefines the getter, replacing the method with one that returns the
         # setter's argument (that being inherited to the scope of the define_method(accessor) block
         define_singleton_method(:"#{accessor}=") do |value|
@@ -106,9 +108,9 @@ module Scorpio
         define_singleton_method(:openapi_document_class) { openapi_document_class }
         define_singleton_method(:openapi_document=) do |_|
           if self == openapi_document_class
-            raise(ArgumentError, "openapi_document may only be set once on #{self.inspect}")
+            raise(ArgumentError, "openapi_document may only be set once on #{inspect}")
           else
-            raise(ArgumentError, "openapi_document may not be overridden on subclass #{self.inspect} after it was set on #{openapi_document_class.inspect}")
+            raise(ArgumentError, "openapi_document may not be overridden on subclass #{inspect} after it was set on #{openapi_document_class.inspect}")
           end
         end
         # TODO blame validate openapi_document
@@ -163,9 +165,7 @@ module Scorpio
       end
 
       def operation_for_resource_class?(operation)
-        return false unless tag_name
-
-        return true if operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
+        return true if tag_name && operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
 
         if (operation.request_schemas || []).any? { |s| represented_schemas.include?(s) }
           return true
@@ -269,7 +269,7 @@ module Scorpio
           #    Scorpio::ResourceBase.instance_method(:server_variables)
           #    => #<UnboundMethod: #<Class:Scorpio::ResourceBase>#server_variables>
           # even though they are really the same method (the #owner for both is Scorpio::ResourceBase)
-          inheritable_accessor_defaults[accessor] != self.singleton_class.instance_method(accessor).owner.instance_method(accessor)
+          inheritable_accessor_defaults[accessor] != singleton_class.instance_method(accessor).owner.instance_method(accessor)
         end
 
         # pretty ugly... may find a better way to do this.
@@ -416,13 +416,13 @@ module Scorpio
 
       def response_object_to_instances(object, initialize_options = {})
         if object.is_a?(JSI::Base)
-          models = object.jsi_schemas.map { |schema| models_by_schema[schema] }
+          models = object.jsi_schemas.map { |schema| models_by_schema[schema] }.compact
           if models.size == 0
             model = nil
           elsif models.size == 1
             model = models.first
           else
-            raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; jsi: #{jsi.pretty_inspect.chomp}")
+            raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; object: #{object.pretty_inspect.chomp}")
           end
         end
 
@@ -450,7 +450,9 @@ module Scorpio
         end
       end
     end
+  end
 
+  class ResourceBase
     def initialize(attributes = {}, options = {})
       @attributes = JSI::Util.stringify_symbol_keys(attributes)
       @options = JSI::Util.stringify_symbol_keys(options)
