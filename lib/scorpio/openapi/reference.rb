@@ -15,6 +15,9 @@ module Scorpio
         return super
       end
 
+      # yields or returns the target of this reference
+      # @yield [JSI::Base] if a block is given
+      # @return [JSI::Base]
       def deref
         return unless respond_to?(:to_hash) && self['$ref'].respond_to?(:to_str)
 
