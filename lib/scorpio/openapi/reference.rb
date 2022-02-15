@@ -32,9 +32,9 @@ module Scorpio
 
         # TODO type check deref_jsi
 
-        yield deref_jsi
+        yield deref_jsi if block_given?
 
-        nil
+        deref_jsi
       end
     end
   end
