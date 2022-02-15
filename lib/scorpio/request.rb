@@ -382,6 +382,12 @@ module Scorpio
       return to_enum(__method__, next_page: next_page, raise_on_http_error: raise_on_http_error) unless block_given?
       page_ur = run_ur
       while page_ur
+        unless page_ur.is_a?(Scorpio::Ur)
+          raise(TypeError, [
+            "next_page must result in a #{Scorpio::Ur}",
+            "this should be the result of #run_ur from a #{OpenAPI::Operation} or #{Request}",
+          ].join("\n"))
+        end
         page_ur.raise_on_http_error if raise_on_http_error
         yield page_ur
         page_ur = next_page.call(page_ur)
