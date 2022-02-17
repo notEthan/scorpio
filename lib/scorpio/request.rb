@@ -11,6 +11,9 @@ module Scorpio
 
     FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'.freeze
 
+    # see also Faraday::Env::MethodsWithBodies
+    METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
+
     def self.best_media_type(media_types)
       if media_types.size == 1
         media_types.first
