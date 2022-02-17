@@ -130,3 +130,19 @@ describe 'openapi boolean schema' do
     assert_kind_of(JSI::Schema, document.definitions['a'].additionalProperties)
   end
 end
+
+describe 'openapi tags' do
+  it 'associates operations with a tag' do
+    tag = BlogModel.openapi_document.tags.detect { |t| t.name == 'articles' }
+    exp_opIds = %w(
+      articles.index
+      articles.post
+      articles.index_with_root
+      articles.read
+      articles.patch
+    )
+    exp_ops = exp_opIds.map { |id| BlogModel.openapi_document.operations[id] }
+    act_ops = tag.operations
+    assert_equal(exp_ops, act_ops)
+  end
+end
