@@ -172,6 +172,7 @@ module Scorpio
           'schemes' => ad.rootUrl ? [Addressable::URI.parse(ad.rootUrl).scheme] : ad.baseUrl ? [Addressable::URI.parse(ad.rootUrl).scheme] : [], #/definitions/schemesList
           'consumes' => ['application/json'], # we'll just make this assumption
           'produces' => ['application/json'],
+          'tags' => paths.flat_map { |_, p| p.flat_map { |_, op| (op['tags'] || []).map { |n| {'name' => n} } } }.uniq,
           'paths' => paths, #/definitions/paths
         }
         if ad.schemas
