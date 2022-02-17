@@ -17,6 +17,9 @@ info:
   description: REST service for the Scorpio Blog
   version: ''
   contact: {}
+tags:
+- name: articles
+  description: articles
 paths:
   /articles:
     get:

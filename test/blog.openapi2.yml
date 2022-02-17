@@ -12,6 +12,9 @@ consumes:
 - application/json
 produces:
 - application/json
+tags:
+- name: articles
+  description: articles
 paths:
   "/articles":
     get:
