@@ -315,18 +315,19 @@ module Scorpio
           other_params = call_params
         end
 
-        if operation.request_schema
+        request_schema = request.request_schema
+        if request_schema
           request_body_for_schema = -> (o) do
             if o.is_a?(JSI::Base)
               # TODO check indicated schemas
-              if o.jsi_schemas.include?(operation.request_schema)
+              if o.jsi_schemas.include?(request_schema)
                 jsi = o
               else
                 # TODO maybe better way than reinstantiating another jsi as request_schema
-                jsi = operation.request_schema.new_jsi(o.jsi_node_content)
+                jsi = request_schema.new_jsi(o.jsi_node_content)
               end
             else
-              jsi = operation.request_schema.new_jsi(o)
+              jsi = request_schema.new_jsi(o)
             end
             jsi.jsi_select_descendents_leaf_first do |node|
               # we want to specifically reject only nodes described (only) by a false schema.
@@ -489,7 +490,8 @@ module Scorpio
 
       # if we're making a POST or PUT and the request schema is this resource, we'll assume that
       # the request is persisting this resource
-      request_resource_is_self = operation.request_schema && self.class.represented_schemas.include?(operation.request_schema)
+      request_schema = operation.request_schema
+      request_resource_is_self = request_schema && self.class.represented_schemas.include?(request_schema)
       if @options['ur'].is_a?(Scorpio::Ur)
         response_schema = @options['ur'].response.response_schema
       end
