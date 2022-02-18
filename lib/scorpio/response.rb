@@ -17,8 +17,9 @@ module Scorpio
       application/json
     ).map(&:freeze).freeze
 
-    # the body (String) is parsed according to the response media type, if supported (only JSON is
-    # currently supported), and instantiated as a JSI instance of {#response_schema} if that is defined.
+    # the body (String) is parsed according to the response media type, if
+    # supported (see {Response::SUPPORTED_MEDIA_TYPES}), and instantiated
+    # as a JSI instance of {#response_schema} if that is defined.
     #
     # @param mutable [Boolean] instantiate the response body object as mutable?
     def body_object(mutable: false)
