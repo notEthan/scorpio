@@ -265,7 +265,7 @@ module Scorpio
         call_params = JSI::Util.stringify_symbol_keys(call_params) if call_params.respond_to?(:to_hash)
         model_attributes = JSI::Util.stringify_symbol_keys(model_attributes || {})
 
-        request = Scorpio::Request.new(operation)
+        request = operation.build_request
 
         accessor_overridden = -> (accessor) do
           # an accessor is overridden if the default accessor getter (UnboundMethod) is the same
