@@ -28,18 +28,18 @@ module Scorpio
             # TODO
           end
         end
-
-        if response_schema && (body_object.respond_to?(:to_hash) || body_object.respond_to?(:to_ary))
-          body_object = response_schema.new_jsi(body_object, mutable: mutable)
-        end
-
-        body_object
       elsif content_type && content_type.type_text? && content_type.subtype?('plain')
-        body
+        body_object = body
       else
         # we will return the body if we do not have a supported parsing. for now.
-        body
+        body_object = body
       end
+
+      if response_schema && (body_object.respond_to?(:to_hash) || body_object.respond_to?(:to_ary))
+        body_object = response_schema.new_jsi(body_object, mutable: mutable)
+      end
+
+      body_object
     end
   end
 end
