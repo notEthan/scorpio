@@ -1,3 +1,8 @@
+# v0.6.0
+- ResourceBase resources in responses may be contained anywhere in the response object contained in ResourceBase::Container
+- ResourceBase defines class methods for operations whose request or response schemas are represented by the resource
+- JSI v0.6.0
+
 # v0.5.0
 - JSI schema classes change to schema modules, JSI instances may have multiple schemas (JSI v0.4, Ur v0.2)
 
