@@ -2,7 +2,13 @@
 
 module Scorpio
   class Request
-    SUPPORTED_REQUEST_MEDIA_TYPES = ['application/json'.freeze, 'application/x-www-form-urlencoded'.freeze].freeze
+    # media types for which Scorpio has implemented generating / parsing between body
+    # and body_object (see {Request#body} and {Response#body_object})
+    SUPPORTED_REQUEST_MEDIA_TYPES = %w(
+      application/json
+      application/x-www-form-urlencoded
+    ).map(&:freeze).freeze
+
     FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'.freeze
 
     def self.best_media_type(media_types)
