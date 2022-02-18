@@ -350,11 +350,12 @@ module Scorpio
           headers['Content-Type'] = FALLBACK_CONTENT_TYPE
         end
       end
-      if self.headers
-        headers.update(self.headers)
-      end
+      headers.update(self.headers)
+      body = self.body
+
       ur = nil
-      faraday_connection(-> (yur) { ur = yur }).run_request(http_method.downcase.to_sym, url, body, headers)
+      conn = faraday_connection(-> (yur) { ur = yur })
+      conn.run_request(http_method.downcase.to_sym, url, body, headers)
       ur.scorpio_request = self
       ur
     end
