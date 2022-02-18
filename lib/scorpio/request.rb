@@ -22,6 +22,13 @@ module Scorpio
       end
     end
 
+    # @param http_method [String]
+    # @return [Boolean]
+    def self.method_with_body?(http_method)
+      raise(ArgumentError) unless http_method.is_a?(String)
+      METHODS_WITH_BODIES.include?(http_method.downcase)
+    end
+
     module Configurables
       attr_writer :path_params
       def path_params
