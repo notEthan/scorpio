@@ -208,7 +208,7 @@ module Scorpio
 
             # if Pet is the Scorpio resource class
             # and Pet.tag_name is "pet"
-            # and operation's operationId is "pet.add"
+            # and operation's operationId is "pet.add" or "pet/add" or "pet:add"
             # then the operation's method name on Pet will be "add".
             # if the operationId is just "addPet"
             # then the operation's method name on Pet will be "addPet".
@@ -216,7 +216,7 @@ module Scorpio
               operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
               operation.tags.include?(tag_name) &&
               operation.operationId &&
-              operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
+              operation.operationId.match(/\A#{Regexp.escape(tag_name)}[\.\/\:](\w+)\z/)
 
             if tag_name_match
               method_name = tag_name_match[1]
