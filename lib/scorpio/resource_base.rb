@@ -179,28 +179,28 @@ module Scorpio
       def operation_for_resource_instance?(operation)
         return false unless operation_for_resource_class?(operation)
 
-        # define an instance method if the request schema is for this model 
-        request_resource_is_self = operation.request_schemas.any? do |request_schema|
-          represented_schemas.include?(request_schema)
+        # define an instance method if the operation's request schemas include any of our represented_schemas
+        #
+        # TODO/FIX nil instance is wrong. works for $ref and allOf, not for others.
+        # use all inplace applicators, not conditional on instance
+        all_request_schemas = operation.request_schemas.each_inplace_applicator_schema(nil)
+        return true if all_request_schemas.any? { |s| represented_schemas.include?(s) }
+
+        # the below only apply if the operation has this resource's tag
+        return false unless tag_name && operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
+
+        # define an instance method if path or query params can be filled in from
+        # property names described by represented_schemas
+        schema_attributes = represented_schemas.map(&:described_object_property_names).inject(Set.new, &:merge)
+        operation.inferred_parameters.each do |param|
+          if param['in'] == 'path' || param['in'] == 'query'
+            if schema_attributes.include?(param['name'])
+              return true
+            end
+          end
         end
 
-        # also define an instance method depending on certain attributes the request description 
-        # might have in common with the model's schema attributes
-        request_attributes = []
-        # if the path has attributes in common with model schema attributes, we'll define on 
-        # instance method
-        request_attributes |= operation.path_template.variables
-        # TODO if the method request schema has attributes in common with the model schema attributes,
-        # should we define an instance method?
-        #request_attributes |= request_schema && request_schema['type'] == 'object' && request_schema['properties'] ?
-        #  request_schema['properties'].keys : []
-        # TODO if the method parameters have attributes in common with the model schema attributes,
-        # should we define an instance method?
-        #request_attributes |= method_desc['parameters'] ? method_desc['parameters'].keys : []
-
-        schema_attributes = represented_schemas.map(&:described_object_property_names).inject(Set.new, &:merge)
-
-        return request_resource_is_self || (request_attributes & schema_attributes.to_a).any?
+        return false
       end
 
       def method_names_by_operation
