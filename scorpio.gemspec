@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
     'CHANGELOG.md',
     'README.md',
     '.yardopts',
+    'scorpio.gemspec',
     *Dir['lib/**/*'],
     *Dir['documents/**/*'],
   ].reject { |f| File.lstat(f).ftype == 'directory' }

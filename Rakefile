@@ -41,7 +41,6 @@ require 'gig'
 ignore_files = %w(
   .github/**/*
   .gitignore
-  scorpio.gemspec
   Gemfile
   Rakefile
   test/**/*
