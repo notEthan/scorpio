@@ -131,6 +131,12 @@ module Scorpio
         'trace'.casecmp?(http_method)
       end
 
+      # @param tag_name [String]
+      # @return [Boolean]
+      def tagged?(tag_name)
+        tags.respond_to?(:to_ary) && tags.include?(tag_name)
+      end
+
       # a short identifier for this operation appropriate for an error message
       # @return [String]
       def human_id
