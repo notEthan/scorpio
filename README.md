@@ -79,7 +79,7 @@ module PetStore
 end
 ```
 
-That should be all you need to start calling operations:
+That is all you need to start calling operations:
 
 ```ruby
 # call the operation findPetsByStatus
