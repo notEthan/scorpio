@@ -70,4 +70,88 @@ describe(Scorpio::ResourceBase) do
       assert_match(/multiple models indicated by response JSI/, err.message)
     end
   end
+
+  describe("resource class operation methods") do
+    describe("when the operation has the resource's tag") do
+      let(:openapi_document_content) do
+        YAML.load(<<~YAML
+          openapi: "3.0"
+          paths:
+            /tagged_a:
+              get:
+                operationId: a
+                tags:
+                - a
+            /tagged_b:
+              get:
+                operationId: b
+                tags:
+                - b
+          YAML
+        )
+      end
+
+      it("defines class method") do
+        assert_equal({"☺" => true}, resource(tag_name: 'a').a)
+        refute(resource(tag_name: 'a').respond_to?(:b))
+      end
+    end
+
+    describe("when the operation request schema is the resource represented schema") do
+      let(:openapi_document_content) do
+        YAML.load(<<~YAML
+          openapi: "3.0"
+          paths:
+            /:
+              post:
+                operationId: go
+                requestBody:
+                  $ref: "#/components/requestBodies/a"
+          components:
+            requestBodies:
+              a:
+                content:
+                  application/json:
+                    schema:
+                      title: a
+          YAML
+        )
+      end
+
+      it("defines class method") do
+        res = resource(represented_schemas: [components.requestBodies['a'].content['application/json'].schema])
+        assert_equal({"☺" => true}, res.go)
+      end
+    end
+
+    describe("when the operation response schema is resource represented schema") do
+      let(:openapi_document_content) do
+        YAML.load(<<~YAML
+          openapi: "3.0"
+          paths:
+            /:
+              get:
+                operationId: go
+                responses:
+                  default:
+                    description: default
+                    content:
+                      application/json:
+                        schema:
+                          $ref: "#/components/schemas/a"
+          components:
+            schemas:
+              a:
+                title: a
+          YAML
+        )
+      end
+
+      it("defines class method") do
+        res = resource(represented_schemas: [components.schemas['a']])
+        response_schema = openapi_class.openapi_document['paths']['/']['get']['responses']['default']['content']['application/json']['schema']
+        assert_equal(res.new(response_schema.new_jsi({"☺" => true})), res.go)
+      end
+    end
+  end
 end
