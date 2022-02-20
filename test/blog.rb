@@ -34,6 +34,7 @@ ActiveRecord::Base.logger = Blog.logger
 dbpath = Pathname.new('tmp/blog.sqlite3')
 FileUtils.mkdir_p(dbpath.dirname)
 dbpath.unlink if dbpath.exist?
+at_exit { dbpath.unlink }
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
   :database  => dbpath
