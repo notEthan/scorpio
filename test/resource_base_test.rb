@@ -109,7 +109,9 @@ describe(Scorpio::ResourceBase) do
 
       it("defines instance method when a param is a property of a represented schema") do
         res = resource(tag_name: 'a', represented_schemas: [components.schemas['a']])
-        assert_equal({"☺" => true}, res.new({id: 0}).a_id)
+        i = res.new({id: 0})
+        assert_equal({"☺" => true}, i.a_id)
+        assert_equal(i.call_api_method('a_id'), i.a_id)
       end
     end
 
@@ -141,7 +143,9 @@ describe(Scorpio::ResourceBase) do
 
       it("defines instance method") do
         res = resource(represented_schemas: [components.requestBodies['a'].content['application/json'].schema])
-        assert_equal({"☺" => true}, res.new({}).go)
+        i = res.new({})
+        assert_equal({"☺" => true}, i.go)
+        assert_equal(i.call_api_method('go'), i.go)
       end
     end
 
@@ -168,15 +172,20 @@ describe(Scorpio::ResourceBase) do
         )
       end
 
+      let(:response_schema) do
+        openapi_class.openapi_document['paths']['/']['get']['responses']['default']['content']['application/json']['schema']
+      end
+
       it("defines class method") do
         res = resource(represented_schemas: [components.schemas['a']])
-        response_schema = openapi_class.openapi_document['paths']['/']['get']['responses']['default']['content']['application/json']['schema']
         assert_equal(res.new(response_schema.new_jsi({"☺" => true})), res.go)
       end
 
       it("defines no instance method") do
         res = resource(represented_schemas: [components.schemas['a']])
-        refute(res.new({}).respond_to?(:go))
+        i = res.new({})
+        refute(i.respond_to?(:go))
+        assert_equal(res.new(response_schema.new_jsi({"☺" => true})), i.call_api_method('go'))
       end
     end
   end
