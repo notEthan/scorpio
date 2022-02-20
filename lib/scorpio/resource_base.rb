@@ -201,9 +201,19 @@ module Scorpio
         return request_resource_is_self || (request_attributes & schema_attributes.to_a).any?
       end
 
-      def method_names_by_operation
-        @method_names_by_operation ||= Hash.new do |h, operation|
-          h[operation] = begin
+      # @private
+      # @param name [String]
+      # @return [Scorpio::OpenAPI::Operation, nil]
+      def operation_for_api_method_name(name)
+        openapi_document.operations.detect do |op|
+          operation_for_resource_class?(op) && api_method_name_by_operation(op) == name
+        end
+      end
+
+      # @private
+      # @param name [Scorpio::OpenAPI::Operation]
+      # @return [String, nil]
+      def api_method_name_by_operation(operation)
             raise(ArgumentError, operation.pretty_inspect) unless operation.is_a?(Scorpio::OpenAPI::Operation)
 
             # if Pet is the Scorpio resource class
@@ -219,19 +229,17 @@ module Scorpio
               operation.operationId.match(/\A#{Regexp.escape(tag_name)}[\.\/\:](\w+)\z/)
 
             if tag_name_match
-              method_name = tag_name_match[1]
+              tag_name_match[1]
             else
-              method_name = operation.operationId
+              operation.operationId
             end
-          end
-        end
       end
 
       def update_class_and_instance_api_methods
         openapi_document.paths.each do |path, path_item|
           path_item.each do |http_method, operation|
             next unless operation.is_a?(Scorpio::OpenAPI::Operation)
-            method_name = method_names_by_operation[operation]
+            method_name = api_method_name_by_operation(operation)
             if method_name
               # class method
               if operation_for_resource_class?(operation) && !respond_to?(method_name)
@@ -475,7 +483,7 @@ module Scorpio
     end
 
     def call_api_method(method_name, call_params: nil)
-      operation = self.class.method_names_by_operation.invert[method_name] || raise(ArgumentError)
+      operation = self.class.operation_for_api_method_name(method_name) || raise(ArgumentError)
       call_operation(operation, call_params: call_params)
     end
 
