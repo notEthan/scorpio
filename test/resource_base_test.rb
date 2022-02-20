@@ -71,7 +71,7 @@ describe(Scorpio::ResourceBase) do
     end
   end
 
-  describe("resource class operation methods") do
+  describe("resource class and instance operation methods") do
     describe("when the operation has the resource's tag") do
       let(:openapi_document_content) do
         YAML.load(<<~YAML
@@ -82,18 +82,34 @@ describe(Scorpio::ResourceBase) do
                 operationId: a
                 tags:
                 - a
+            /tagged_a_with_represented_param/{id}:
+              get:
+                operationId: a.a_id # also tests where the tag name is part of the operationId
+                tags:
+                - a
             /tagged_b:
               get:
                 operationId: b
                 tags:
                 - b
+          components:
+            schemas:
+              a:
+                properties:
+                  id: {}
           YAML
         )
       end
 
       it("defines class method") do
         assert_equal({"☺" => true}, resource(tag_name: 'a').a)
+        assert_equal({"☺" => true}, resource(tag_name: 'a').a_id(id: 0))
         refute(resource(tag_name: 'a').respond_to?(:b))
+      end
+
+      it("defines instance method when a param is a property of a represented schema") do
+        res = resource(tag_name: 'a', represented_schemas: [components.schemas['a']])
+        assert_equal({"☺" => true}, res.new({id: 0}).a_id)
       end
     end
 
@@ -121,6 +137,11 @@ describe(Scorpio::ResourceBase) do
       it("defines class method") do
         res = resource(represented_schemas: [components.requestBodies['a'].content['application/json'].schema])
         assert_equal({"☺" => true}, res.go)
+      end
+
+      it("defines instance method") do
+        res = resource(represented_schemas: [components.requestBodies['a'].content['application/json'].schema])
+        assert_equal({"☺" => true}, res.new({}).go)
       end
     end
 
@@ -151,6 +172,11 @@ describe(Scorpio::ResourceBase) do
         res = resource(represented_schemas: [components.schemas['a']])
         response_schema = openapi_class.openapi_document['paths']['/']['get']['responses']['default']['content']['application/json']['schema']
         assert_equal(res.new(response_schema.new_jsi({"☺" => true})), res.go)
+      end
+
+      it("defines no instance method") do
+        res = resource(represented_schemas: [components.schemas['a']])
+        refute(res.new({}).respond_to?(:go))
       end
     end
   end
