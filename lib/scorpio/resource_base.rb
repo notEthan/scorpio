@@ -259,6 +259,11 @@ module Scorpio
       end
 
       def call_operation(operation, call_params: nil, model_attributes: nil)
+        result, _ur = call_operation_ur(operation, call_params: call_params, model_attributes: model_attributes)
+        result
+      end
+
+      def call_operation_ur(operation, call_params: nil, model_attributes: nil)
         call_params = JSI::Util.stringify_symbol_keys(call_params) if call_params.respond_to?(:to_hash)
         model_attributes = JSI::Util.stringify_symbol_keys(model_attributes || {})
 
@@ -370,7 +375,7 @@ module Scorpio
           'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => ur.request.uri.to_s},
           'ur' => ur,
         }
-        response_object_to_instances(ur.response.body_object(mutable: true), initialize_options)
+        [response_object_to_instances(ur.response.body_object(mutable: true), initialize_options), ur]
       end
 
       def response_object_to_instances(object, initialize_options = {})
