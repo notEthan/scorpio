@@ -486,16 +486,14 @@ module Scorpio
     end
 
     def call_operation(operation, call_params: nil)
-      response = self.class.call_operation(operation, call_params: call_params, model_attributes: self.attributes)
+      response, ur = self.class.call_operation_ur(operation, call_params: call_params, model_attributes: self.attributes)
 
       # if we're making a POST or PUT and the request schema is this resource, we'll assume that
       # the request is persisting this resource
-      request_schema = operation.request_schema
-      request_resource_is_self = request_schema && self.class.represented_schemas.include?(request_schema)
-      if @options['ur'].is_a?(Scorpio::Ur)
-        response_schema = @options['ur'].response.response_schema
-      end
-      response_resource_is_self = response_schema && self.class.represented_schemas.include?(response_schema)
+      request_body_object = ur.scorpio_request.body_object
+      request_resource_is_self = request_body_object.is_a?(JSI::Base) &&
+        request_body_object.jsi_schemas.any? { |s| self.class.represented_schemas.include?(s) }
+      response_resource_is_self = response.is_a?(self.class)
       if request_resource_is_self && %w(put post).include?(operation.http_method.to_s.downcase)
         @persisted = true
 
