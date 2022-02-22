@@ -224,11 +224,12 @@ module Scorpio
         # @return [JSI::Schema]
         def request_schema(media_type: self.request_media_type)
           # TODO typechecking on requestBody & children
-          schema_object = requestBody &&
-            requestBody['content'] &&
-            requestBody['content'][media_type] &&
-            requestBody['content'][media_type]['schema']
-          schema_object ? JSI::Schema.ensure_schema(schema_object) : nil
+          request_content = requestBody && requestBody['content']
+          return nil unless request_content
+          raise(ArgumentError, "please specify media_type for request_schema") unless media_type
+          schema = request_content[media_type] && request_content[media_type]['schema']
+          return nil unless schema
+          JSI::Schema.ensure_schema(schema)
         end
 
         # @return [JSI::SchemaSet]
