@@ -150,10 +150,10 @@ module Scorpio
       operation.openapi_document
     end
 
-    # the http method for this request as a lowercase symbol (`:get`, `:post`, etc.)
-    # @return [Symbol]
+    # the http method for this request
+    # @return [String]
     def http_method
-      operation.http_method.downcase.to_sym
+      operation.http_method
     end
 
     # the template for the request's path, to be expanded with {Configurables#path_params} and appended to
@@ -348,7 +348,7 @@ module Scorpio
         headers.update(self.headers)
       end
       ur = nil
-      faraday_connection(-> (yur) { ur = yur }).run_request(http_method, url, body, headers)
+      faraday_connection(-> (yur) { ur = yur }).run_request(http_method.downcase.to_sym, url, body, headers)
       ur.scorpio_request = self
       ur
     end

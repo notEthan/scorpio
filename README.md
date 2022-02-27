@@ -1,6 +1,6 @@
 # Scorpio
 
-[![Build Status](https://travis-ci.org/notEthan/scorpio.svg?branch=master)](https://travis-ci.org/notEthan/scorpio)
+![Test CI Status](https://github.com/notEthan/scorpio/actions/workflows/test.yml/badge.svg?branch=stable)
 [![Coverage Status](https://coveralls.io/repos/github/notEthan/scorpio/badge.svg)](https://coveralls.io/github/notEthan/scorpio)
 
 Scorpio is a library that helps you, as a client, consume an HTTP service described by an OpenAPI document. You provide the OpenAPI description document, a little bit of configuration, and Scorpio will take that and dynamically generate an interface for you to call the service's operations and interact with its resources as an ORM.
@@ -24,7 +24,7 @@ Once you have the OpenAPI document describing the service you will consume, you 
 
 ## Pet Store (using Scorpio::ResourceBase)
 
-Let's dive into some code, shall we? If you have learned about OpenAPI, you likely learned using the example of the Pet Store service. This README will use the same service. Its documentation is at http://petstore.swagger.io/.
+Let's dive into some code, shall we? If you have learned about OpenAPI, you likely learned using the example of the Pet Store service. This README will use the same service. Its documentation is at https://petstore.swagger.io/.
 
 Using the OpenAPI document, we can start interacting with the pet store with very little code. Here is that code, with explanations of each part in the comments.
 
@@ -42,7 +42,7 @@ module PetStore
     # (making network calls at application boot time is usually a bad idea), but for this
     # example we will do a quick-and-dirty http get.
     require 'json'
-    self.openapi_document = JSON.parse(Faraday.get('http://petstore.swagger.io/v2/swagger.json').body)
+    self.openapi_document = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
   end
 
   # a Pet is a resource of the pet store, so inherits from PetStore::Resource
@@ -67,7 +67,8 @@ end
 That should be all you need to start calling operations:
 
 ```ruby
-# call the operation findPetsByStatus: http://petstore.swagger.io/#/pet/findPetsByStatus
+# call the operation findPetsByStatus
+# doc: https://petstore.swagger.io/#/pet/findPetsByStatus
 sold_pets = PetStore::Pet.findPetsByStatus(status: 'sold')
 # sold_pets is an array-like collection of PetStore::Pet instances
 
@@ -79,7 +80,7 @@ pet.tags.map(&:name)
 # (your tag names will be different depending on what's in the pet store)
 # => ["aucune"]
 
-# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
+# compare to getPetById: https://petstore.swagger.io/#/pet/getPetById
 pet == PetStore::Pet.getPetById(petId: pet['id'])
 # pet is the same, retrieved using the getPetById operation
 
@@ -89,7 +90,7 @@ pet.name = ENV['USER']
 # store the result in the pet store. note the updatePet call from the instance - our
 # calls so far have been on the class PetStore::Pet, but scorpio defines instance
 # methods to call operations where appropriate as well.
-# updatePet: http://petstore.swagger.io/#/pet/updatePet
+# updatePet: https://petstore.swagger.io/#/pet/updatePet
 pet.updatePet
 
 # check that it was saved
@@ -107,13 +108,13 @@ Isn't that cool? You get class methods like getPetById, instance methods like up
 
 ## Pet Store (using Scorpio::OpenAPI classes)
 
-You do not have to define resource classes to use Scorpio to call OpenAPI operations - the classes Scorpio uses to represent concepts from OpenAPI can be called directly. Scorpio uses [JSI](https://github.com/notEthan/ur) classes to represent OpenAPI schemes such as the Document and its Operations.
+You do not have to define resource classes to use Scorpio to call OpenAPI operations - the classes Scorpio uses to represent concepts from OpenAPI can be called directly. Scorpio uses [JSI](https://github.com/notEthan/jsi) classes to represent OpenAPI schemes such as the Document and its Operations.
 
 We start by instantiating the OpenAPI document. `Scorpio::OpenAPI::Document.from_instance` returns a V2 or V3 OpenAPI Document class instance.
 
 ```ruby
 require 'scorpio'
-pet_store_doc = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('http://petstore.swagger.io/v2/swagger.json').body))
+pet_store_doc = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body))
 # => #{<Scorpio::OpenAPI::V2::Document fragment="#"> "swagger" => "2.0", ...}
 ```
 
@@ -122,7 +123,7 @@ The OpenAPI document holds the JSON that represents it, so to get an Operation y
 ```ruby
 # the store inventory operation will let us see what statuses there are in the store.
 inventory_op = pet_store_doc.paths['/store/inventory']['get']
-# => #{<Scorpio::OpenAPI::V2::Operation fragment="#/paths/~1store~1inventory/get">
+# => #{<JSI (Scorpio::OpenAPI::V2::Operation)>
 #      "summary" => "Returns pet inventories by status",
 #      "operationId" => "getInventory",
 #      ...
@@ -140,7 +141,7 @@ Now that we have an operation, we can run requests from it. {Scorpio::OpenAPI::O
 
 ```ruby
 inventory = inventory_op.run
-# => #{<JSI::SchemaClasses["dde3#/paths/~1store~1inventory/get/responses/200/schema"] fragment="#">
+# => #{<JSI>
 #      "unavailable" => 4,
 #      "unloved - needs a home" => 1,
 #      "available" => 2350,
@@ -152,28 +153,36 @@ inventory = inventory_op.run
 let's pick a state and find a pet. we'll go through the rest of the example in the ResourceBase section pretty much like it is up there:
 
 ```ruby
-# call the operation findPetsByStatus: http://petstore.swagger.io/#/pet/findPetsByStatus
+# call the operation findPetsByStatus
+# doc: https://petstore.swagger.io/#/pet/findPetsByStatus
 sold_pets = pet_store_doc.operations['findPetsByStatus'].run(status: 'sold')
 # sold_pets is an array-like collection of JSI instances
 
 pet = sold_pets.detect { |pet| pet.tags.any? }
 
 pet.tags.map(&:name)
-# note that you have accessors on PetStore::Pet like #tags, and also that
+# note that you have accessors on the returned JSI like #tags, and also that
 # tags have accessors for properties 'name' and 'id' from the tags schema
 # (your tag names will be different depending on what's in the pet store)
 # => ["aucune"]
 
-# compare to getPetById: http://petstore.swagger.io/#/pet/getPetById
-pet == pet_store_doc.operations['getPetById'].run(petId: pet['id'])
+# compare the pet from findPetsByStatus to one returned from getPetById
+# doc: https://petstore.swagger.io/#/pet/getPetById
+pet_by_id = pet_store_doc.operations['getPetById'].run(petId: pet['id'])
+
+# unlike ResourceBase instances above, JSI instances have stricter
+# equality and the pets returned from different operations are not
+# equal, though the underlying JSON instance is.
+pet_by_id == pet
 # => false
-# without ResourceBase, pet is not considered to be the same compared with getPetById [TODO may change in jsi]
+pet_by_id.jsi_instance == pet.jsi_instance
+# => true
 
 # let's name the pet after ourself
 pet.name = ENV['USER']
 
 # store the result in the pet store.
-# updatePet: http://petstore.swagger.io/#/pet/updatePet
+# updatePet: https://petstore.swagger.io/#/pet/updatePet
 pet_store_doc.operations['updatePet'].run(body_object: pet)
 
 # check that it was saved
@@ -218,7 +227,7 @@ When these are set, Scorpio::ResourceBase looks through the API description and 
 If you need a more complete representation of the HTTP request and/or response, Scorpio::OpenAPI::Operation#run_ur or Scorpio::Request#run_ur will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (using Scorpio::OpenAPI classes)", this code will return an Ur:
 
 ```ruby
-inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('http://petstore.swagger.io/v2/swagger.json').body)).paths['/store/inventory']['get']
+inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)).paths['/store/inventory']['get']
 inventory_ur = inventory_op.run_ur
 # => #{<Scorpio::Ur fragment="#"> ...}
 ```

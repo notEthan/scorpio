@@ -22,12 +22,9 @@ module Scorpio
 
   proc { |v| define_singleton_method(:error_classes_by_status) { v } }.call({})
   # Scorpio::Error encompasses certain Scorpio-defined errors encountered in using Scorpio.
-  # at the moment this only includes HTTPError[^1], but will likely cover errors in schemas and
-  # other things in the future.
-  #
-  # [^1]: unless I have, since writing this, implemented other things but forgotten to update this
-  # comment, which does seem likely enough.
-  class Error < StandardError; end
+  class Error < StandardError
+  end
+
   class HTTPError < Error
     # for HTTPError subclasses representing a single status, sets and/or returns the represented status.
     #

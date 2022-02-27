@@ -2,7 +2,7 @@ Copright © [Ethan](https://github.com/notEthan/)
 
 [<img align="right" src="https://github.com/notEthan/scorpio/raw/master/resources/icons/AGPL-3.0.png">](https://www.gnu.org/licenses/agpl-3.0.html)
 
-Scorpio is Open Source Software licensed under the terms of the [GNU Affero General Public License version 3](https://www.gnu.org/licenses/agpl-3.0.html).
+Scorpio is licensed under the terms of the [GNU Affero General Public License version 3](https://www.gnu.org/licenses/agpl-3.0.html).
 
 GNU Affero General Public License
 =================================

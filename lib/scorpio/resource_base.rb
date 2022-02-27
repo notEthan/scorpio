@@ -203,29 +203,37 @@ module Scorpio
         return false
       end
 
-      def method_names_by_operation
-        @method_names_by_operation ||= Hash.new do |h, operation|
-          h[operation] = begin
-            raise(ArgumentError, operation.pretty_inspect) unless operation.is_a?(Scorpio::OpenAPI::Operation)
+      # @private
+      # @param name [String]
+      # @return [Scorpio::OpenAPI::Operation, nil]
+      def operation_for_api_method_name(name)
+        openapi_document.operations.detect do |op|
+          operation_for_resource_class?(op) && api_method_name_by_operation(op) == name
+        end
+      end
 
-            # if Pet is the Scorpio resource class
-            # and Pet.tag_name is "pet"
-            # and operation's operationId is "pet.add"
-            # then the operation's method name on Pet will be "add".
-            # if the operationId is just "addPet"
-            # then the operation's method name on Pet will be "addPet".
-            tag_name_match = tag_name &&
-              operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
-              operation.tags.include?(tag_name) &&
-              operation.operationId &&
-              operation.operationId.match(/\A#{Regexp.escape(tag_name)}\.(\w+)\z/)
+      # @private
+      # @param name [Scorpio::OpenAPI::Operation]
+      # @return [String, nil]
+      def api_method_name_by_operation(operation)
+        raise(ArgumentError, operation.pretty_inspect) unless operation.is_a?(Scorpio::OpenAPI::Operation)
 
-            if tag_name_match
-              method_name = tag_name_match[1]
-            else
-              method_name = operation.operationId
-            end
-          end
+        # if Pet is the Scorpio resource class
+        # and Pet.tag_name is "pet"
+        # and operation's operationId is "pet.add" or "pet/add" or "pet:add"
+        # then the operation's method name on Pet will be "add".
+        # if the operationId is just "addPet"
+        # then the operation's method name on Pet will be "addPet".
+        tag_name_match = tag_name &&
+          operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
+          operation.tags.include?(tag_name) &&
+          operation.operationId &&
+          operation.operationId.match(/\A#{Regexp.escape(tag_name)}[\.\/\:](\w+)\z/)
+
+        if tag_name_match
+          tag_name_match[1]
+        else
+          operation.operationId
         end
       end
 
@@ -233,7 +241,7 @@ module Scorpio
         openapi_document.paths.each do |path, path_item|
           path_item.each do |http_method, operation|
             next unless operation.is_a?(Scorpio::OpenAPI::Operation)
-            method_name = method_names_by_operation[operation]
+            method_name = api_method_name_by_operation(operation)
             if method_name
               # class method
               if operation_for_resource_class?(operation) && !respond_to?(method_name)
@@ -306,11 +314,30 @@ module Scorpio
         end
 
         if operation.request_schema
+          request_body_for_schema = -> (o) do
+            if o.is_a?(JSI::Base)
+              # TODO check indicated schemas
+              if o.jsi_schemas.include?(operation.request_schema)
+                jsi = o
+              else
+                # TODO maybe better way than reinstantiating another jsi as request_schema
+                jsi = operation.request_schema.new_jsi(o.jsi_node_content)
+              end
+            else
+              jsi = operation.request_schema.new_jsi(o)
+            end
+            jsi.jsi_select_children_leaf_first do |node|
+              # we want to specifically reject only nodes described (only) by a false schema.
+              # note that for OpenAPI schemas, false is only a valid schema as a value
+              # of `additionalProperties`
+              node.jsi_schemas.empty? || !node.jsi_schemas.all? { |s| s.schema_content == false }
+            end
+          end
           # TODO deal with model_attributes / call_params better in nested whatever
           if call_params.nil?
-            request.body_object = request_body_for_schema(model_attributes, operation.request_schema)
+            request.body_object = request_body_for_schema.(model_attributes)
           elsif call_params.respond_to?(:to_hash)
-            body = request_body_for_schema(model_attributes.merge(call_params), operation.request_schema)
+            body = request_body_for_schema.(model_attributes)
             request.body_object = body.merge(call_params) # TODO
           else
             request.body_object = call_params
@@ -342,80 +369,6 @@ module Scorpio
         response_object_to_instances(ur.response.body_object, initialize_options)
       end
 
-      def request_body_for_schema(object, schema)
-        if object.is_a?(Scorpio::ResourceBase)
-          # TODO request_schema_fail unless schema is for given model type 
-          request_body_for_schema(object.attributes, schema)
-        elsif object.is_a?(JSI::PathedNode)
-          request_body_for_schema(object.jsi_node_content, schema)
-        else
-          if object.respond_to?(:to_hash)
-            object.map do |key, value|
-              if schema
-                if schema['type'] == 'object'
-                  # TODO code dup with response_object_to_instances
-                  if schema['properties'].respond_to?(:to_hash) && schema['properties'].key?(key)
-                    subschema = schema['properties'][key]
-                    include_pair = true
-                  else
-                    if schema['patternProperties'].respond_to?(:to_hash)
-                      _, pattern_schema = schema['patternProperties'].detect do |pattern, _|
-                        key =~ Regexp.new(pattern) # TODO map pattern to ruby syntax
-                      end
-                    end
-                    if pattern_schema
-                      subschema = pattern_schema
-                      include_pair = true
-                    else
-                      if schema['additionalProperties'] == false
-                        include_pair = false
-                      elsif [nil, true].include?(schema['additionalProperties'])
-                        include_pair = true
-                        subschema = nil
-                      else
-                        include_pair = true
-                        subschema = schema['additionalProperties']
-                      end
-                    end
-                  end
-                elsif schema['type']
-                  request_schema_fail(object, schema)
-                else
-                  # TODO not sure
-                  include_pair = true
-                  subschema = nil
-                end
-              end
-              if include_pair
-                {key => request_body_for_schema(value, subschema)}
-              else
-                {}
-              end
-            end.inject({}, &:update)
-          elsif object.respond_to?(:to_ary) || object.is_a?(Set)
-            object.map do |el|
-              if schema
-                if schema['type'] == 'array'
-                  # TODO index based subschema or whatever else works for array
-                  subschema = schema['items']
-                elsif schema['type']
-                  request_schema_fail(object, schema)
-                end
-              end
-              request_body_for_schema(el, subschema)
-            end
-          else
-            # TODO maybe raise on anything not serializable 
-            # TODO check conformance to schema, request_schema_fail if not
-            object
-          end
-        end
-      end
-
-      def request_schema_fail(object, schema)
-        # TODO blame
-      end
-
       def response_object_to_instances(object, initialize_options = {})
         if object.is_a?(JSI::Base)
           models = object.jsi_schemas.map { |schema| models_by_schema[schema] }.compact
@@ -426,26 +379,11 @@ module Scorpio
           else
             raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; object: #{object.pretty_inspect.chomp}")
           end
-        end
 
-        if object.respond_to?(:to_hash)
-          out = JSI::Typelike.modified_copy(object) do |_object|
-            mod = object.map do |key, value|
-              {key => response_object_to_instances(value, initialize_options)}
-            end.inject({}, &:update)
-            mod = mod.jsi_node_content if mod.is_a?(JSI::PathedNode)
-            mod
-          end
-          if model
-            model.new(out, initialize_options)
+          if model && object.respond_to?(:to_hash)
+            model.new(object, initialize_options)
           else
-            out
-          end
-        elsif object.respond_to?(:to_ary)
-          JSI::Typelike.modified_copy(object) do
-            object.map do |element|
-              response_object_to_instances(element, initialize_options)
-            end
+            Container.new_container(object, openapi_document_class, initialize_options)
           end
         else
           object
@@ -455,29 +393,85 @@ module Scorpio
   end
 
   class ResourceBase
+    module Containment
+      def [](key)
+        sub = contained_object[key]
+        if sub.is_a?(JSI::Base)
+          # TODO avoid reinstantiating the container only to throw it away if it matches the memo
+          sub_container = @openapi_document_class.response_object_to_instances(sub, options)
+
+          if @subscript_memos.key?(key) && @subscript_memos[key].class == sub_container.class
+            @subscript_memos[key]
+          else
+            @subscript_memos[key] = sub_container
+          end
+        else
+          sub
+        end
+      end
+
+      def []=(key, value)
+        @subscript_memos.delete(key)
+        if value.is_a?(Containment)
+          contained_object[key] = value.contained_object
+        else
+          contained_object[key] = value
+        end
+      end
+
+      def as_json(*opt)
+        JSI::Typelike.as_json(contained_object, *opt)
+      end
+
+      def inspect
+        "\#<#{self.class.inspect} #{contained_object.inspect}>"
+      end
+
+      def pretty_print(q)
+        q.instance_exec(self) do |obj|
+          text "\#<#{obj.class.inspect}"
+          group_sub {
+            nest(2) {
+              breakable ' '
+              pp obj.contained_object
+            }
+          }
+          breakable ''
+          text '>'
+        end
+      end
+
+      include JSI::Util::FingerprintHash
+
+      def jsi_fingerprint
+        {class: self.class, contained_object: as_json}
+      end
+    end
+  end
+
+  class ResourceBase
+    include Containment
+
     def initialize(attributes = {}, options = {})
       @attributes = JSI::Util.stringify_symbol_keys(attributes)
       @options = JSI::Util.stringify_symbol_keys(options)
       @persisted = !!@options['persisted']
+
+      @openapi_document_class = self.class.openapi_document_class
+      @subscript_memos = {}
     end
 
     attr_reader :attributes
     attr_reader :options
 
+    alias_method :contained_object, :attributes
+
     def persisted?
       @persisted
     end
 
-    def [](key)
-      @attributes[key]
-    end
-
-    def []=(key, value)
-      @attributes[key] = value
-    end
-
     def call_api_method(method_name, call_params: nil)
-      operation = self.class.method_names_by_operation.invert[method_name] || raise(ArgumentError)
+      operation = self.class.operation_for_api_method_name(method_name) || raise(ArgumentError)
       call_operation(operation, call_params: call_params)
     end
 
@@ -501,31 +495,73 @@ module Scorpio
 
       response
     end
+  end
 
-    def as_json(*opt)
-      JSI::Typelike.as_json(@attributes, *opt)
-    end
+  class ResourceBase
+    class Container
+      @container_classes = Hash.new do |h, modules|
+        container_class = Class.new(Container)
+        modules.each do |mod|
+          container_class.include(mod)
+        end
+        h[modules] = container_class
+      end
 
-    def inspect
-      "\#<#{self.class.inspect} #{attributes.inspect}>"
-    end
-    def pretty_print(q)
-      q.instance_exec(self) do |obj|
-        text "\#<#{obj.class.inspect}"
-        group_sub {
-          nest(2) {
-            breakable ' '
-            pp obj.attributes
-          }
-        }
-        breakable ''
-        text '>'
+      class << self
+        def new_container(object, openapi_document_class, options = {})
+          container_modules = Set[]
+
+          # TODO this is JSI internals that scorpio shouldn't really be using
+          if object.respond_to?(:to_hash)
+            container_modules << Enumerable # TODO change next JSI when PathedHashNode includes Enumerable
+            container_modules << JSI::PathedHashNode
+          end
+          if object.respond_to?(:to_ary)
+            container_modules << Enumerable # TODO change next JSI when PathedArrayNode includes Enumerable
+            container_modules << JSI::PathedArrayNode
+          end
+
+          container_modules += object.jsi_schemas.map do |schema|
+            JSI::SchemaClasses.accessor_module_for_schema(schema,
+              conflicting_modules: container_modules + [Container],
+            )
+          end
+
+          container_class = @container_classes[container_modules.freeze]
+
+          container_class.new(object, openapi_document_class, options)
+        end
       end
     end
 
-    def jsi_fingerprint
-      {class: self.class, attributes: JSI::Typelike.as_json(@attributes)}
+    class Container
+      include Containment
+
+      def initialize(contained_object, openapi_document_class, options = {})
+        @contained_object = contained_object
+        @openapi_document_class = openapi_document_class
+        @options = options
+        @subscript_memos = {}
+      end
+
+      attr_reader :contained_object
+
+      attr_reader :options
+
+      # @private
+      alias_method :jsi_node_content, :contained_object
+      private :jsi_node_content
+
+      # @private
+      # @return [Array<String>]
+      def jsi_object_group_text
+        schema_names = contained_object.jsi_schemas.map { |schema| schema.jsi_schema_module.name_from_ancestor || schema.schema_uri }.compact
+        if schema_names.empty?
+          [Container.to_s]
+        else
+          ["#{Container} (#{schema_names.join(', ')})"]
+        end
+      end
     end
-    include JSI::Util::FingerprintHash
   end
 end
