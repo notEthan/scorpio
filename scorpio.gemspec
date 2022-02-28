@@ -28,6 +28,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "jsi", "~> 0.6.0"
   spec.add_dependency "ur", "~> 0.2.1"
-  spec.add_dependency "faraday", "< 2.0"
+  spec.add_dependency "faraday", "< 3.0"
   spec.add_dependency "addressable", '~> 2.3'
 end
