@@ -33,32 +33,41 @@ require 'scorpio'
 # PetStore is a module to contain our pet store related classes.
 # it is optional - your naming conventions are your own.
 module PetStore
-  # Scorpio's recommended structure is to have a base class which inherits from
-  # Scorpio::ResourceBase to represent the Pet Store and all its resources.
+  # Scorpio's recommended structure is to have a base class which
+  # inherits from Scorpio::ResourceBase to represent the Pet Store
+  # and all its resources.
   #
-  # you configure the openapi document and other shared configuration on this class.
+  # You configure the OpenAPI document and other shared configuration
+  # on this class.
   class Resource < Scorpio::ResourceBase
-    # set the openapi document. you'll usually want this to be a file in your local filesystem
-    # (making network calls at application boot time is usually a bad idea), but for this
-    # example we will do a quick-and-dirty http get.
+    # Set the OpenAPI document. You'll usually want this to be a file in
+    # your local filesystem (making network calls at application boot
+    # time is usually a bad idea), but for this example we will do a
+    # quick-and-dirty HTTP get.
     require 'json'
     self.openapi_document = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
   end
 
-  # a Pet is a resource of the pet store, so inherits from PetStore::Resource
+  # a Pet is a resource of the pet store, so inherits from
+  # PetStore::Resource
   class Pet < Resource
-    # setting the tag name tells Scorpio to associate operations tagged with 'pet' with this
-    # class and its instances. this lets you call operations such as addPet, updatePet, etc.
+    # Setting the tag name tells Scorpio to associate operations tagged
+    # with 'pet' with this class and its instances. This lets you call
+    # operations such as addPet, updatePet, etc.
     self.tag_name = 'pet'
 
-    # setting the schemas which represent a Pet will let scorpio return results from operation
-    # calls properly instantiated as Pet instances. for example, calling getPetById will return
-    # a PetStore::Pet instance since its success response refers to #/definitions/Pet.
+    # Setting the schemas which represent a Pet will let Scorpio
+    # return results from operation calls properly instantiated as
+    # Pet instances. For example, calling getPetById will return a
+    # PetStore::Pet instance since its success response refers
+    # to #/definitions/Pet.
     #
-    # this works for nested structures as well, e.g. findPetsByStatus returns an array of
-    # #/definitions/Pet and likewise Scorpio will return an array of PetStore::Pet instances.
+    # This works for nested structures as well, e.g. findPetsByStatus
+    # returns an array of #/definitions/Pet and likewise Scorpio will
+    # return an array of PetStore::Pet instances.
     #
-    # this also adds accessors for properties of the schema - in this case #id, #name, #tags, etc.
+    # This also adds accessors for properties of the schema - in this
+    # case #id, #name, #tags, etc.
     self.represented_schemas = [openapi_document.definitions['Pet']]
   end
 end
@@ -87,9 +96,10 @@ pet == PetStore::Pet.getPetById(petId: pet['id'])
 # let's name the pet after ourself
 pet.name = ENV['USER']
 
-# store the result in the pet store. note the updatePet call from the instance - our
-# calls so far have been on the class PetStore::Pet, but scorpio defines instance
-# methods to call operations where appropriate as well.
+# Store the result in the pet store. Note the updatePet call from the
+# instance - our calls so far have been on the class PetStore::Pet,
+# but Scorpio defines instance methods to call operations where
+# appropriate as well.
 # updatePet: https://petstore.swagger.io/#/pet/updatePet
 pet.updatePet
 
@@ -114,14 +124,16 @@ We start by instantiating the OpenAPI document. `Scorpio::OpenAPI::Document.from
 
 ```ruby
 require 'scorpio'
-pet_store_doc = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body))
-# => #{<Scorpio::OpenAPI::V2::Document fragment="#"> "swagger" => "2.0", ...}
+pet_store_content = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
+pet_store_doc = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
+# => #{<JSI (Scorpio::OpenAPI::V2::Document)> "swagger" => "2.0", ...}
 ```
 
 The OpenAPI document holds the JSON that represents it, so to get an Operation you go through the document's paths, just as it is represented in the JSON.
 
 ```ruby
-# the store inventory operation will let us see what statuses there are in the store.
+# The store inventory operation will let us see what statuses there are
+# in the store.
 inventory_op = pet_store_doc.paths['/store/inventory']['get']
 # => #{<JSI (Scorpio::OpenAPI::V2::Operation)>
 #      "summary" => "Returns pet inventories by status",
@@ -161,9 +173,10 @@ sold_pets = pet_store_doc.operations['findPetsByStatus'].run(status: 'sold')
 pet = sold_pets.detect { |pet| pet.tags.any? }
 
 pet.tags.map(&:name)
-# note that you have accessors on the returned JSI like #tags, and also that
-# tags have accessors for properties 'name' and 'id' from the tags schema
-# (your tag names will be different depending on what's in the pet store)
+# Note that you have accessors on the returned JSI like #tags, and also
+# that tags have accessors for properties 'name' and 'id' from the tags
+# schema (your tag names will be different depending on what's in the
+# pet store).
 # => ["aucune"]
 
 # compare the pet from findPetsByStatus to one returned from getPetById
