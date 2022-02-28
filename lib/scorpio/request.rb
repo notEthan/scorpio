@@ -5,9 +5,8 @@ module Scorpio
   # Base class, not directly instantiated; subclassed per operation, defining accessors for operation params.
   # Used by {Scorpio::OpenAPI::Operation#build_request} and related methods.
   class Request
-    # media types for which Scorpio has implemented generating / parsing between body
-    # and body_object (see {Request#body} and {Response#body_object})
-    SUPPORTED_REQUEST_MEDIA_TYPES = %w(
+    # media types for which Scorpio has implemented generating {Request#body} from {Request#body_object}
+    SUPPORTED_MEDIA_TYPES = %w(
       application/json
       application/x-www-form-urlencoded
     ).map(&:freeze).freeze
@@ -21,7 +20,7 @@ module Scorpio
       if media_types.size == 1
         media_types.first
       else
-        SUPPORTED_REQUEST_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
+        SUPPORTED_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
       end
     end
 
@@ -78,7 +77,7 @@ module Scorpio
           elsif content_type && content_type.form_urlencoded?
             URI.encode_www_form(body_object)
 
-          # NOTE: the supported media types above should correspond to Request::SUPPORTED_REQUEST_MEDIA_TYPES
+          # NOTE: the supported media types above should correspond to Request::SUPPORTED_MEDIA_TYPES
 
           else
             if body_object.respond_to?(:to_str)
