@@ -94,6 +94,8 @@ module Scorpio
         include(OpenAPI::Tag)
       end
 
+      Document.properties["tags"].include(OpenAPI::Tags)
+
       # An object representing a Server.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#serverObject

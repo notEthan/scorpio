@@ -18,6 +18,7 @@ module Scorpio
     autoload :Document, 'scorpio/openapi/document'
     autoload :Reference, 'scorpio/openapi/reference'
     autoload :Tag, 'scorpio/openapi/tag'
+    autoload(:Tags, 'scorpio/openapi/tag')
     autoload(:Server, 'scorpio/openapi/server')
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 

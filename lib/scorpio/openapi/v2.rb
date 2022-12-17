@@ -101,6 +101,8 @@ module Scorpio
         include(OpenAPI::Tag)
       end
 
+      Document.properties["tags"].include(OpenAPI::Tags)
+
       module Paths
         include(OpenAPI::Paths)
       end

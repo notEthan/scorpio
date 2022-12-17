@@ -18,5 +18,13 @@ module Scorpio
         end
       end
     end
+
+    module Tags
+      # a tag with the given name
+      # @return [Tag, nil]
+      def named(name)
+        detect { |tag| tag.name == name }
+      end
+    end
   end
 end
