@@ -75,7 +75,19 @@ module Scorpio
 
       def operations
         return @operations if instance_variable_defined?(:@operations)
-        @operations = OperationsScope.new(self)
+        @operations = OperationsScope.new(each_operation)
+      end
+
+      def each_operation(&block)
+        return(to_enum(__method__)) unless block
+
+        paths.each do |path, path_item|
+          path_item.each do |http_method, operation|
+            if operation.is_a?(Scorpio::OpenAPI::Operation)
+              yield(operation)
+            end
+          end
+        end
       end
     end
 

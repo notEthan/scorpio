@@ -142,7 +142,7 @@ describe 'openapi tags' do
       articles.patch
     )
     exp_ops = exp_opIds.map { |id| BlogModel.openapi_document.operations[id] }
-    act_ops = tag.operations
+    act_ops = tag.operations.to_a
     assert_equal(exp_ops, act_ops)
   end
 end
