@@ -394,7 +394,7 @@ module Scorpio
 
   class ResourceBase
     module Containment
-      def [](key)
+      def [](key, _: nil) # unused keyword param lets an empty keyword hash be passed in older ruby versions
         sub = contained_object[key]
         if sub.is_a?(JSI::Base)
           # TODO avoid reinstantiating the container only to throw it away if it matches the memo
