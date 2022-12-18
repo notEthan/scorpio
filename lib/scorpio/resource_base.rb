@@ -513,12 +513,10 @@ module Scorpio
 
           # TODO this is JSI internals that scorpio shouldn't really be using
           if object.respond_to?(:to_hash)
-            container_modules << Enumerable # TODO change next JSI when PathedHashNode includes Enumerable
-            container_modules << JSI::PathedHashNode
+            container_modules << JSI::Base::HashNode
           end
           if object.respond_to?(:to_ary)
-            container_modules << Enumerable # TODO change next JSI when PathedArrayNode includes Enumerable
-            container_modules << JSI::PathedArrayNode
+            container_modules << JSI::Base::ArrayNode
           end
 
           container_modules += object.jsi_schemas.map do |schema|
