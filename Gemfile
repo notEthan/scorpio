@@ -14,6 +14,7 @@ gem 'sinatra', '~> 1.0'
 gem 'rack', '~> 1.0'
 gem 'rack-accept'
 gem 'rack-test'
+gem 'webrick'
 gem 'api_hammer'
 gem 'activerecord'
 gem 'sqlite3', '~> 1.4' # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
