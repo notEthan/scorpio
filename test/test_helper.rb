@@ -32,8 +32,6 @@ require 'minitest/reporters'
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
-require 'byebug'
-
 class ScorpioSpec < Minitest::Spec
   if ENV['SCORPIO_TEST_ALPHA']
     # :nocov:
