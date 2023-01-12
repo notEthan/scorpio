@@ -1,3 +1,10 @@
+# v0.6.1
+- compatibility
+  - JSI 0.7
+  - Faraday 2
+  - Ruby 3
+  - JRuby
+
 # v0.6.0
 - ResourceBase resources in responses may be contained anywhere in the response object contained in ResourceBase::Container
 - ResourceBase defines class methods for operations whose request or response schemas are represented by the resource
