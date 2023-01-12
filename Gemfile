@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'byebug'
 gem 'rake'
 gem 'gig'
 gem 'minitest', '~> 5.0'

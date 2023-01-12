@@ -32,8 +32,6 @@ require 'minitest/reporters'
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
-require 'byebug'
-
 class ScorpioSpec < Minitest::Spec
   if ENV['SCORPIO_TEST_ALPHA']
     # :nocov:
@@ -63,16 +61,7 @@ server = TCPServer.new(0)
 $blog_port = server.addr[1]
 server.close
 
-$blog_pid = fork do
-  require_relative 'blog'
-
-  STDOUT.reopen(Scorpio.root.join('log/blog_webrick_stdout.log').open('a'))
-  STDERR.reopen(Scorpio.root.join('log/blog_webrick_stderr.log').open('a'))
-
-  trap('INT') { ::Rack::Handler::WEBrick.shutdown }
-
-  ::Rack::Handler::WEBrick.run(::Blog, Port: $blog_port)
-end
+$blog_pid = spawn(RbConfig.ruby, File.join(__dir__, "blog_server.rb"), $blog_port.to_s)
 
 # wait for the server to become responsive 
 running = false
