@@ -16,6 +16,11 @@ gem 'rack-test'
 gem 'webrick'
 gem 'api_hammer'
 gem 'activerecord'
-gem 'sqlite3', '~> 1.4' # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
+platform(:mri) do
+  gem 'sqlite3', '~> 1.4' # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
+end
+platform(:jruby) do
+  gem 'activerecord-jdbcsqlite3-adapter'
+end
 gem 'database_cleaner'
 gem 'yard'
