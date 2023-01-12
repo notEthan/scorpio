@@ -20,7 +20,7 @@ activerecord_version =
   RUBY_ENGINE == 'jruby' ? '< 7.1' : # TODO rm. some incompatibility with activerecord-jdbc-adapter at 7.1
   nil
 gem('activerecord', *activerecord_version)
-platform(:mri) do
+platform(:mri, :truffleruby) do
   gem 'sqlite3', '~> 1.4' # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
 end
 platform(:jruby) do
