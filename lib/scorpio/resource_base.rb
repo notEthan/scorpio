@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 module Scorpio
-  # see also Faraday::Env::MethodsWithBodies
-  METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
   class RequestSchemaFailure < Error
   end
 
@@ -344,7 +342,7 @@ module Scorpio
           end
         else
           if other_params
-            if METHODS_WITH_BODIES.any? { |m| m.to_s == operation.http_method.downcase.to_s }
+            if Request.method_with_body?(request.http_method)
               request.body_object = other_params
             else
               if other_params.respond_to?(:to_hash)

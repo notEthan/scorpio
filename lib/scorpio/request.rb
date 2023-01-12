@@ -11,12 +11,22 @@ module Scorpio
 
     FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'.freeze
 
+    # see also Faraday::Env::MethodsWithBodies
+    METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
+
     def self.best_media_type(media_types)
       if media_types.size == 1
         media_types.first
       else
         SUPPORTED_REQUEST_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
       end
+    end
+
+    # @param http_method [String]
+    # @return [Boolean]
+    def self.method_with_body?(http_method)
+      raise(ArgumentError) unless http_method.is_a?(String)
+      METHODS_WITH_BODIES.include?(http_method.downcase)
     end
 
     module Configurables
@@ -316,7 +326,7 @@ module Scorpio
     #   the named value
     # @param name [String, Symbol] the parameter name
     # @return [Object]
-    # @raise [ArgumentError] invalid `param_in` parameter
+    # @raise [OpenAPI::SemanticError] invalid `param_in` parameter
     # @raise [NotImplementedError] cookies aren't implemented
     def get_param_from(param_in, name)
       if param_in == 'path'
@@ -329,7 +339,7 @@ module Scorpio
       elsif param_in == 'cookie'
         raise(NotImplementedError, "cookies not implemented: #{name.inspect}")
       else
-        raise(ArgumentError, "cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
+        raise(OpenAPI::SemanticError, "cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
       end
     end
 
@@ -347,7 +357,9 @@ module Scorpio
         else
           # I'd rather not have a default content-type, but if none is set then the HTTP adapter sets this to 
           # application/x-www-form-urlencoded and issues a warning about it.
-          headers['Content-Type'] = FALLBACK_CONTENT_TYPE
+          if METHODS_WITH_BODIES.include?(http_method.to_s)
+            headers['Content-Type'] = FALLBACK_CONTENT_TYPE
+          end
         end
       end
       headers.update(self.headers)

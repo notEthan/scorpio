@@ -45,7 +45,7 @@ module Scorpio
       Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: `puts Scorpio::OpenAPI::V3::Document.schema.definitions.select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+      # generated: `puts Scorpio::OpenAPI::V3::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
 
 
       Reference      = Document.definitions['Reference']
@@ -130,7 +130,7 @@ module Scorpio
       Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.select { |k,v| ['object', nil].include?(v['type']) }.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+      # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
 
 
       Info            = Document.definitions['info']
@@ -142,7 +142,8 @@ module Scorpio
       ResponseDefinitions = Document.definitions['responseDefinitions']
       ExternalDocs       = Document.definitions['externalDocs']
       Examples          = Document.definitions['examples']
-      Operation        = Document.definitions['operation']
+      MimeType         = Document.definitions['mimeType']
+      Operation       = Document.definitions['operation']
       PathItem         = Document.definitions['pathItem']
       Responses         = Document.definitions['responses']
       ResponseValue      = Document.definitions['responseValue']
@@ -159,7 +160,8 @@ module Scorpio
       Parameter               = Document.definitions['parameter']
       Schema                 = Document.definitions['schema']
       FileSchema            = Document.definitions['fileSchema']
-      PrimitivesItems        = Document.definitions['primitivesItems']
+      PrimitivesItems       = Document.definitions['primitivesItems']
+      Security               = Document.definitions['security']
       SecurityRequirement     = Document.definitions['securityRequirement']
       Xml                      = Document.definitions['xml']
       Tag                       = Document.definitions['tag']
@@ -171,19 +173,24 @@ module Scorpio
       Oauth2ApplicationSecurity = Document.definitions['oauth2ApplicationSecurity']
       Oauth2AccessCodeSecurity = Document.definitions['oauth2AccessCodeSecurity']
       Oauth2Scopes            = Document.definitions['oauth2Scopes']
-      Title                  = Document.definitions['title']
-      Description           = Document.definitions['description']
-      Default              = Document.definitions['default']
-      MultipleOf          = Document.definitions['multipleOf']
-      Maximum            = Document.definitions['maximum']
-      ExclusiveMaximum  = Document.definitions['exclusiveMaximum']
-      Minimum          = Document.definitions['minimum']
-      ExclusiveMinimum = Document.definitions['exclusiveMinimum']
-      MaxLength       = Document.definitions['maxLength']
-      MinLength      = Document.definitions['minLength']
-      Pattern       = Document.definitions['pattern']
-      MaxItems     = Document.definitions['maxItems']
-      MinItems    = Document.definitions['minItems']
+      MediaTypeList          = Document.definitions['mediaTypeList']
+      ParametersList         = Document.definitions['parametersList']
+      SchemesList             = Document.definitions['schemesList']
+      CollectionFormat         = Document.definitions['collectionFormat']
+      CollectionFormatWithMulti = Document.definitions['collectionFormatWithMulti']
+      Title                    = Document.definitions['title']
+      Description             = Document.definitions['description']
+      Default                = Document.definitions['default']
+      MultipleOf            = Document.definitions['multipleOf']
+      Maximum              = Document.definitions['maximum']
+      ExclusiveMaximum    = Document.definitions['exclusiveMaximum']
+      Minimum            = Document.definitions['minimum']
+      ExclusiveMinimum  = Document.definitions['exclusiveMinimum']
+      MaxLength        = Document.definitions['maxLength']
+      MinLength       = Document.definitions['minLength']
+      Pattern        = Document.definitions['pattern']
+      MaxItems      = Document.definitions['maxItems']
+      MinItems     = Document.definitions['minItems']
       UniqueItems = Document.definitions['uniqueItems']
       Enum         = Document.definitions['enum']
       JsonReference = Document.definitions['jsonReference']

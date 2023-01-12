@@ -66,7 +66,7 @@ $blog_pid = spawn(RbConfig.ruby, File.join(__dir__, "blog_server.rb"), $blog_por
 # wait for the server to become responsive 
 running = false
 started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-timeout = 30
+timeout = 99 # seconds
 while !running
   begin
     sock = TCPSocket.new('localhost', $blog_port)
