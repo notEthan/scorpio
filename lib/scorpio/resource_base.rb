@@ -418,7 +418,7 @@ module Scorpio
       end
 
       def as_json(*opt)
-        JSI::Typelike.as_json(contained_object, *opt)
+        JSI::Util.as_json(contained_object, *opt)
       end
 
       def inspect

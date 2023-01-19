@@ -71,7 +71,7 @@ module Scorpio
         return @body if instance_variable_defined?(:@body)
         if instance_variable_defined?(:@body_object)
           if content_type && content_type.json?
-            JSON.pretty_generate(JSI::Typelike.as_json(body_object))
+            JSON.pretty_generate(JSI::Util.as_json(body_object))
           elsif content_type && content_type.form_urlencoded?
             URI.encode_www_form(body_object)
 

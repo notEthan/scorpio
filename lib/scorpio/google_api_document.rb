@@ -29,7 +29,7 @@ module Scorpio
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
     module SchemaLike
       def to_openapi
-        dup_doc = JSI::Typelike.as_json(self)
+        dup_doc = JSI::Util.as_json(self)
         # openapi does not want an id field on schemas
         dup_doc.delete('id')
         if dup_doc['properties'].is_a?(Hash)
@@ -56,7 +56,7 @@ module Scorpio
 
       def to_openapi_hash(options = {})
         # we will be modifying the api document (RestDescription). clone self and modify that one.
-        ad = self.class.new(JSI::Typelike.as_json(self))
+        ad = self.class.new(JSI::Util.as_json(self))
         ad_methods = []
         if ad['methods']
           ad_methods += ad['methods'].map do |mn, m|
@@ -212,7 +212,7 @@ module Scorpio
             end.call(openapi)
           end
         end
-        JSI::Typelike.as_json(openapi)
+        JSI::Util.as_json(openapi)
       end
     end
   end
