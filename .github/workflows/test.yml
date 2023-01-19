@@ -14,15 +14,8 @@ jobs:
         - head
         runs-on:
         - ubuntu-latest
-        scorpio_api_description_format:
-        - rest_description
-        - openapi2
-        - openapi3
 
     runs-on: ${{ matrix.runs-on }}
-
-    env:
-      SCORPIO_API_DESCRIPTION_FORMAT: ${{ matrix.scorpio_api_description_format }}
 
     steps:
 
@@ -35,13 +28,13 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
 
-    - run: bundle exec rake test
+    - run: bundle exec rake test:each_format
 
     - name: Report to Coveralls
       uses: coverallsapp/github-action@1.1.3
       with:
         github-token: ${{ secrets.github_token }}
-        flag-name: "test format: ${{ matrix.scorpio_api_description_format }} ruby: ${{ matrix.ruby-version }} os: ${{ matrix.runs-on }}"
+        flag-name: "ruby: ${{ matrix.ruby-version }} os: ${{ matrix.runs-on }}"
         parallel: true
 
   finish:
