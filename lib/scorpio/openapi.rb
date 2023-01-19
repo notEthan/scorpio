@@ -25,8 +25,8 @@ module Scorpio
         'documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml'
       )))
 
-      # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself, so we set it
-      # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
+      # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself.
+      # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
       describe_schema = [
         openapi_document_schema.definitions['Schema'],
         openapi_document_schema.definitions['SchemaReference'],
@@ -40,7 +40,7 @@ module Scorpio
         # a problem, and this way also applies when none of the anyOf match due to schema errors.)
         openapi_document_schema.definitions['Schema'].properties['additionalProperties'],
       ]
-      describe_schema.each { |s| s.jsi_schema_instance_modules = [JSI::Schema::Draft04] }
+      describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
 
       Document = openapi_document_schema.jsi_schema_module
 
@@ -118,14 +118,14 @@ module Scorpio
         'documents/swagger.io/v2/schema.json'
       ).read))
 
-      # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself, so we set it to
-      # include on its schema module the jsi_schema_instance_modules that implement schema functionality.
+      # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself.
+      # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
       describe_schema = [
         openapi_document_schema.definitions['schema'],
         # comments above on v3's definitions['Schema'].properties['additionalProperties'] apply here too
         openapi_document_schema.definitions['schema'].properties['additionalProperties'],
       ]
-      describe_schema.each { |s| s.jsi_schema_instance_modules = [JSI::Schema::Draft04] }
+      describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
 
       Document = openapi_document_schema.jsi_schema_module
 
