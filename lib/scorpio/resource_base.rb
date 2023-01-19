@@ -324,7 +324,7 @@ module Scorpio
             else
               jsi = operation.request_schema.new_jsi(o)
             end
-            jsi.jsi_select_children_leaf_first do |node|
+            jsi.jsi_select_descendents_leaf_first do |node|
               # we want to specifically reject only nodes described (only) by a false schema.
               # note that for OpenAPI schemas, false is only a valid schema as a value
               # of `additionalProperties`
