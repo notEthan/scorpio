@@ -1,3 +1,6 @@
+# v0.6.2
+- replace deprecated calls to JSI
+
 # v0.6.1
 - compatibility
   - JSI 0.7
