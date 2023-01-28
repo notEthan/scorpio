@@ -17,6 +17,9 @@ task 'test:each_format' do
   print_status = -> (color, status, cmd) do
     STDERR.puts "#{Term::ANSIColor.color(color, status.ljust(7))} #{cmd}"
   end
+  print_result = -> (result) do
+    print_status.(*(result[:success] ? [:green, 'SUCCESS'] : [:red, 'FAILURE']), result[:cmd])
+  end
 
   results = formats.map do |format|
     cmd = "SCORPIO_API_DESCRIPTION_FORMAT=#{format} bundle exec rake test"
@@ -26,9 +29,7 @@ task 'test:each_format' do
   end
   STDERR.puts
   STDERR.puts "#{Term::ANSIColor.cyan('SUMMARY')}:"
-  results.each do |result|
-    print_status.(*(result[:success] ? [:green, 'SUCCESS'] : [:red, 'FAILURE']), result[:cmd])
-  end
+  results.each(&print_result)
 
   results.each { |result| exit(result[:exitstatus]) unless result[:success] }
 end
