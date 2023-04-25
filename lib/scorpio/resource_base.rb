@@ -530,11 +530,39 @@ module Scorpio
     end
 
     module Container::Hash
-      include(JSI::Base::HashNode) # TODO this is JSI internals that scorpio shouldn't really be using
+      include(Enumerable)
+      include(JSI::Util::Hashlike) # TODO this is JSI internals that scorpio shouldn't really be using
+
+      def each(**kw, &block)
+        return(to_enum(__method__, **kw) { contained_object.size }) unless block
+        if block.arity > 1
+          contained_object.each_key { |k| yield(k, self[k, **kw]) }
+        else
+          contained_object.each_key { |k| yield([k, self[k, **kw]]) }
+        end
+        self
+      end
+
+      def to_hash(**kw)
+        hash = {}
+        contained_object.each_key { |k| hash[k] = self[k, **kw] }
+        hash
+      end
     end
 
     module Container::Array
-      include(JSI::Base::ArrayNode) # TODO this is JSI internals that scorpio shouldn't really be using
+      include(Enumerable)
+      include(JSI::Util::Arraylike) # TODO this is JSI internals that scorpio shouldn't really be using
+
+      def each(**kw, &block)
+        return(to_enum(__method__, **kw) { contained_object.size }) unless block
+        contained_object.each_index { |i| yield(self[i, **kw]) }
+        self
+      end
+
+      def to_ary(**kw)
+        to_a(**kw)
+      end
     end
 
     class Container
