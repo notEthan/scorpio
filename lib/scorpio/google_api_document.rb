@@ -2,7 +2,7 @@
 
 module Scorpio
   module Google
-    discovery_rest_description_doc = ::JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read)
+    discovery_rest_description_doc = JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read, freeze: true)
     discovery_rest_description = JSI::MetaSchemaNode.new(
       discovery_rest_description_doc,
       metaschema_root_ptr: JSI::Ptr['schemas']['JsonSchema'],
