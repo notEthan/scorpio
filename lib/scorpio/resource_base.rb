@@ -506,7 +506,8 @@ module Scorpio
           end
 
           schemas.each do |schema|
-            include(JSI::SchemaClasses.accessor_module_for_schema(schema, conflicting_modules: modules + [Container]))
+            include(JSI::SchemaClasses.schema_property_reader_module(schema, conflicting_modules: modules + [Container]))
+            include(JSI::SchemaClasses.schema_property_writer_module(schema, conflicting_modules: modules + [Container]))
           end
         end
         h[key] = container_class
