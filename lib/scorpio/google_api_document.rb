@@ -55,8 +55,7 @@ module Scorpio
       end
 
       def to_openapi_hash(options = {})
-        # we will be modifying the api document (RestDescription). clone self and modify that one.
-        ad = self.class.new(JSI::Util.as_json(self))
+        ad = self
         ad_methods = []
         if ad['methods']
           ad_methods += ad['methods'].map do |mn, m|
