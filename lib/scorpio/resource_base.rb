@@ -536,6 +536,16 @@ module Scorpio
 
           container_class.new(object, openapi_document_class, options)
         end
+
+        # @return [String]
+        def inspect
+          -"(#{ResourceBase::Container.name} class)"
+        end
+
+        # @return [String]
+        def to_s
+          inspect
+        end
       end
     end
 
