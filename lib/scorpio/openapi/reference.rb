@@ -6,10 +6,10 @@ module Scorpio
       # overrides JSI::Base#[] to implicitly dereference this Reference, except when
       # the given token is present in this Reference's instance (this should usually
       # only apply to the token '$ref')
-      def [](token, *a, &b)
+      def [](token, **kw)
         if respond_to?(:to_hash) && !key?(token)
           deref do |deref_jsi|
-            return deref_jsi[token]
+            return(deref_jsi[token, **kw])
           end
         end
         return super
