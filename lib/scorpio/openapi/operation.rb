@@ -165,22 +165,22 @@ module Scorpio
       # instantiates a {Scorpio::Request} for this operation.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
-      def build_request(*a, &b)
-        Scorpio::Request.new(self, *a, &b)
+      def build_request(**config, &b)
+        Scorpio::Request.new(self, **config, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Ur] response ur
-      def run_ur(*a, &b)
-        build_request(*a, &b).run_ur
+      def run_ur(**config, &b)
+        build_request(**config, &b).run_ur
       end
 
       # runs a {Scorpio::Request} for this operation - see {Scorpio::Request#run}.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return response body object
-      def run(*a, &b)
-        build_request(*a, &b).run
+      def run(**config, &b)
+        build_request(**config, &b).run
       end
     end
 
