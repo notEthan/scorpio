@@ -26,7 +26,7 @@ module Scorpio
         end
 
         if response_schema && (body_object.respond_to?(:to_hash) || body_object.respond_to?(:to_ary))
-          body_object = response_schema.new_jsi(body_object)
+          body_object = response_schema.new_jsi(body_object, mutable: true)
         end
 
         body_object
