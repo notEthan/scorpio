@@ -509,12 +509,11 @@ module Scorpio
         def new_container(object, openapi_document_class, options = {})
           container_modules = Set[]
 
-          # TODO this is JSI internals that scorpio shouldn't really be using
           if object.respond_to?(:to_hash)
-            container_modules << JSI::Base::HashNode
+            container_modules << Container::Hash
           end
           if object.respond_to?(:to_ary)
-            container_modules << JSI::Base::ArrayNode
+            container_modules << Container::Array
           end
 
           container_modules += object.jsi_schemas.map do |schema|
@@ -528,6 +527,14 @@ module Scorpio
           container_class.new(object, openapi_document_class, options)
         end
       end
+    end
+
+    module Container::Hash
+      include(JSI::Base::HashNode) # TODO this is JSI internals that scorpio shouldn't really be using
+    end
+
+    module Container::Array
+      include(JSI::Base::ArrayNode) # TODO this is JSI internals that scorpio shouldn't really be using
     end
 
     class Container
