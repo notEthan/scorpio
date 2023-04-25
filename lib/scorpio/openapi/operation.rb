@@ -166,7 +166,8 @@ module Scorpio
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
       def build_request(**config, &b)
-        Scorpio::Request.new(self, **config, &b)
+        @request_class ||= Scorpio::Request.request_class_by_operation(self)
+        @request_class.new(**config, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
