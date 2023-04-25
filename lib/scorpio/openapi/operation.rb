@@ -182,6 +182,12 @@ module Scorpio
       def run(**config, &b)
         build_request(**config, &b).run
       end
+
+      private
+
+      def jsi_object_group_text
+        [*super, http_method, path_template_str].freeze
+      end
     end
 
     module V3
