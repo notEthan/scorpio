@@ -21,15 +21,15 @@ module Scorpio
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
-      openapi_document_schema = JSI::JSONSchemaDraft04.new_schema(::YAML.load_file(Scorpio.root.join(
+      Document = JSI::JSONSchemaDraft04.new_schema_module(YAML.safe_load(Scorpio.root.join(
         'documents/spec.openapis.org/oas/3.0/schema.yaml'
-      )))
+      ).read))
 
       # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself.
       # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
       describe_schema = [
-        openapi_document_schema.definitions['Schema'],
-        openapi_document_schema.definitions['SchemaReference'],
+        Document.schema.definitions['Schema'],
+        Document.schema.definitions['SchemaReference'],
         # instead of the Schema definition allowing boolean, properties['additionalProperties']
         # is a oneOf which allows a Schema, SchemaReference, or boolean.
         # instances of the former two already include the schema implementation (per the previous
@@ -38,11 +38,9 @@ module Scorpio
         # (including in properties['additionalProperties'].anyOf[2] would extend booleans too, without
         # the redundant inclusion that results for Schema and SchemaRef, but redundant inclusion is not
         # a problem, and this way also applies when none of the anyOf match due to schema errors.)
-        openapi_document_schema.definitions['Schema'].properties['additionalProperties'],
+        Document.schema.definitions['Schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
-
-      Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V3::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
@@ -96,20 +94,18 @@ module Scorpio
       raise(Bug) unless SchemaReference < JSI::Schema
     end
     module V2
-      openapi_document_schema = JSI.new_schema(::JSON.parse(Scorpio.root.join(
+      Document = JSI.new_schema_module(JSON.parse(Scorpio.root.join(
         'documents/swagger.io/v2/schema.json'
       ).read))
 
       # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself.
       # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
       describe_schema = [
-        openapi_document_schema.definitions['schema'],
+        Document.schema.definitions['schema'],
         # comments above on v3's definitions['Schema'].properties['additionalProperties'] apply here too
-        openapi_document_schema.definitions['schema'].properties['additionalProperties'],
+        Document.schema.definitions['schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
-
-      Document = openapi_document_schema.jsi_schema_module
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
