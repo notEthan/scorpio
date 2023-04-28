@@ -21,7 +21,9 @@ end
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'scorpio'
 
-require 'bundler/setup'
+require('bundler')
+bundler_groups = [:default]
+Bundler.setup(*bundler_groups)
 
 # NO EXPECTATIONS 
 ENV["MT_NO_EXPECTATIONS"] = ''
