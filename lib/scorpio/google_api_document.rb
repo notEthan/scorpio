@@ -3,7 +3,7 @@
 module Scorpio
   module Google
     discovery_rest_description_doc = JSON.parse(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest').read, freeze: true)
-    discovery_rest_description = JSI::MetaSchemaNode.new(
+    DISCOVERY_REST_DESCRIPTION = JSI::MetaSchemaNode.new(
       discovery_rest_description_doc,
       metaschema_root_ptr: JSI::Ptr['schemas']['JsonSchema'],
       root_schema_ptr: JSI::Ptr['schemas']['RestDescription'],
@@ -11,11 +11,11 @@ module Scorpio
     )
 
     # naming these is not strictly necessary, but is nice to have.
-    DirectoryList = discovery_rest_description.schemas['DirectoryList'].jsi_schema_module
-    JsonSchema     = discovery_rest_description.schemas['JsonSchema'].jsi_schema_module
-    RestDescription = discovery_rest_description.schemas['RestDescription'].jsi_schema_module
-    RestMethod     = discovery_rest_description.schemas['RestMethod'].jsi_schema_module
-    RestResource  = discovery_rest_description.schemas['RestResource'].jsi_schema_module
+    DirectoryList = DISCOVERY_REST_DESCRIPTION.schemas['DirectoryList'].jsi_schema_module
+    JsonSchema     = DISCOVERY_REST_DESCRIPTION.schemas['JsonSchema'].jsi_schema_module
+    RestDescription = DISCOVERY_REST_DESCRIPTION.schemas['RestDescription'].jsi_schema_module
+    RestMethod     = DISCOVERY_REST_DESCRIPTION.schemas['RestMethod'].jsi_schema_module
+    RestResource  = DISCOVERY_REST_DESCRIPTION.schemas['RestResource'].jsi_schema_module
 
     module RestDescription
       Resources = properties['resources']
