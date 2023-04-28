@@ -38,4 +38,7 @@ platform(:jruby) do
   gem 'activerecord-jdbcsqlite3-adapter'
 end
 gem 'database_cleaner'
-gem 'yard'
+
+group(:doc) do
+  gem('yard')
+end
