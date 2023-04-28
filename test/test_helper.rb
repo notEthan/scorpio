@@ -22,7 +22,7 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'scorpio'
 
 require('bundler')
-bundler_groups = [:default]
+bundler_groups = [:default, :test]
 bundler_groups << :dev unless ENV['CI']
 Bundler.setup(*bundler_groups)
 
