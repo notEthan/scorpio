@@ -2,6 +2,10 @@ source 'https://rubygems.org'
 
 gemspec
 
+group(:dev) do
+  platform(:mri) { gem('debug') }
+end
+
 gem 'rake'
 gem 'gig'
 gem 'minitest', '~> 5.0'

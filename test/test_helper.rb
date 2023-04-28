@@ -23,7 +23,13 @@ require 'scorpio'
 
 require('bundler')
 bundler_groups = [:default]
+bundler_groups << :dev unless ENV['CI']
 Bundler.setup(*bundler_groups)
+
+if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'debug' }
+  require('debug')
+  Object.send(:alias_method, :dbg, :debugger)
+end
 
 # NO EXPECTATIONS 
 ENV["MT_NO_EXPECTATIONS"] = ''
