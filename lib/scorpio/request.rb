@@ -133,10 +133,22 @@ module Scorpio
     include Configurables
 
     @request_class_by_operation = Hash.new do |h, op|
-      h[op] = Class.new(Request) do
+      request_class = Class.new(Request) do
+        define_singleton_method(:inspect) { -"#{Request} (for operation: #{op.human_id})" }
         define_method(:operation) { op }
         include(op.request_accessor_module)
       end
+
+      # naming the class helps with debugging and some built-in ruby error messages
+      const_name = JSI::Util::Private.const_name_from_parts([
+        op.openapi_document && (op.openapi_document.jsi_schema_base_uri || op.openapi_document.title),
+        *(op.operationId || [op.http_method, op.path_template_str]),
+      ].compact)
+      if const_name && !Request.const_defined?(const_name)
+        Request.const_set(const_name, request_class)
+      end
+
+      h[op] = request_class
     end
 
     def self.request_class_by_operation(operation)
