@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module Scorpio
+  # a Request from a {Scorpio::OpenAPI::Operation}.
+  # Base class, not directly instantiated; subclassed per operation, defining accessors for operation params.
+  # Used by {Scorpio::OpenAPI::Operation#build_request} and related methods.
   class Request
     # media types for which Scorpio has implemented generating / parsing between body
     # and body_object (see {Request#body} and {Response#body_object})
