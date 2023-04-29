@@ -146,7 +146,7 @@ module Scorpio
         @request_accessor_module = begin
           params_by_name = inferred_parameters.group_by { |p| p['name'] }
           Module.new do
-            instance_method_modules = [Request, Request::Configurables]
+            instance_method_modules = [Request]
             instance_method_names = instance_method_modules.map do |mod|
               (mod.instance_methods + mod.private_instance_methods).map(&:to_s)
             end.inject(Set.new, &:merge)
