@@ -548,6 +548,18 @@ module Scorpio
         contained_object.each_key { |k| hash[k] = self[k, **kw] }
         hash
       end
+
+      def as_json(options = {})
+        hash = {}
+        each_key do |k|
+          ks = k.is_a?(String) ? k :
+            k.is_a?(Symbol) ? k.to_s :
+            k.respond_to?(:to_str) && (kstr = k.to_str).is_a?(String) ? kstr :
+            raise(TypeError, "JSON object (Hash) cannot be keyed with: #{k.pretty_inspect.chomp}")
+          hash[ks] = JSI::Util.as_json(self[k], **options)
+        end
+        hash
+      end
     end
 
     module Container::Array
@@ -562,6 +574,10 @@ module Scorpio
 
       def to_ary(**kw)
         to_a(**kw)
+      end
+
+      def as_json(options = {})
+        each_index.map { |i| JSI::Util.as_json(self[i], **options) }
       end
     end
 
