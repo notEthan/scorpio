@@ -497,12 +497,19 @@ module Scorpio
 
   class ResourceBase
     class Container
-      @container_classes = Hash.new do |h, modules|
-        container_class = Class.new(Container)
-        modules.each do |mod|
-          container_class.include(mod)
+      @container_classes = Hash.new do |h, key|
+        modules, schemas = key[:modules], key[:schemas]
+
+        container_class = Class.new(Container) do
+          modules.each do |mod|
+            include(mod)
+          end
+
+          schemas.each do |schema|
+            include(JSI::SchemaClasses.accessor_module_for_schema(schema, conflicting_modules: modules + [Container]))
+          end
         end
-        h[modules] = container_class
+        h[key] = container_class
       end
 
       class << self
@@ -516,13 +523,7 @@ module Scorpio
             container_modules << Container::Array
           end
 
-          container_modules += object.jsi_schemas.map do |schema|
-            JSI::SchemaClasses.accessor_module_for_schema(schema,
-              conflicting_modules: container_modules + [Container],
-            )
-          end
-
-          container_class = @container_classes[container_modules.freeze]
+          container_class = @container_classes[{modules: container_modules.freeze, schemas: object.jsi_schemas}]
 
           container_class.new(object, openapi_document_class, options)
         end
