@@ -439,7 +439,7 @@ module Scorpio
         end
       end
 
-      include JSI::Util::FingerprintHash
+      include(JSI::Util::Private::FingerprintHash)
 
       def jsi_fingerprint
         {class: self.class, contained_object: as_json}
