@@ -497,36 +497,88 @@ module Scorpio
 
   class ResourceBase
     class Container
-      @container_classes = Hash.new do |h, modules|
-        container_class = Class.new(Container)
-        modules.each do |mod|
-          container_class.include(mod)
+      @container_classes = Hash.new do |h, key|
+        modules, schemas = key[:modules], key[:schemas]
+
+        container_class = Class.new(Container) do
+          modules.each do |mod|
+            include(mod)
+          end
+
+          schemas.each do |schema|
+            include(JSI::SchemaClasses.accessor_module_for_schema(schema, conflicting_modules: modules + [Container]))
+          end
         end
-        h[modules] = container_class
+        h[key] = container_class
       end
 
       class << self
         def new_container(object, openapi_document_class, options = {})
           container_modules = Set[]
 
-          # TODO this is JSI internals that scorpio shouldn't really be using
           if object.respond_to?(:to_hash)
-            container_modules << JSI::Base::HashNode
+            container_modules << Container::Hash
           end
           if object.respond_to?(:to_ary)
-            container_modules << JSI::Base::ArrayNode
+            container_modules << Container::Array
           end
 
-          container_modules += object.jsi_schemas.map do |schema|
-            JSI::SchemaClasses.accessor_module_for_schema(schema,
-              conflicting_modules: container_modules + [Container],
-            )
-          end
-
-          container_class = @container_classes[container_modules.freeze]
+          container_class = @container_classes[{modules: container_modules.freeze, schemas: object.jsi_schemas}]
 
           container_class.new(object, openapi_document_class, options)
         end
+      end
+    end
+
+    module Container::Hash
+      include(Enumerable)
+      include(JSI::Util::Hashlike) # TODO this is JSI internals that scorpio shouldn't really be using
+
+      def each(**kw, &block)
+        return(to_enum(__method__, **kw) { contained_object.size }) unless block
+        if block.arity > 1
+          contained_object.each_key { |k| yield(k, self[k, **kw]) }
+        else
+          contained_object.each_key { |k| yield([k, self[k, **kw]]) }
+        end
+        self
+      end
+
+      def to_hash(**kw)
+        hash = {}
+        contained_object.each_key { |k| hash[k] = self[k, **kw] }
+        hash
+      end
+
+      def as_json(options = {})
+        hash = {}
+        each_key do |k|
+          ks = k.is_a?(String) ? k :
+            k.is_a?(Symbol) ? k.to_s :
+            k.respond_to?(:to_str) && (kstr = k.to_str).is_a?(String) ? kstr :
+            raise(TypeError, "JSON object (Hash) cannot be keyed with: #{k.pretty_inspect.chomp}")
+          hash[ks] = JSI::Util.as_json(self[k], **options)
+        end
+        hash
+      end
+    end
+
+    module Container::Array
+      include(Enumerable)
+      include(JSI::Util::Arraylike) # TODO this is JSI internals that scorpio shouldn't really be using
+
+      def each(**kw, &block)
+        return(to_enum(__method__, **kw) { contained_object.size }) unless block
+        contained_object.each_index { |i| yield(self[i, **kw]) }
+        self
+      end
+
+      def to_ary(**kw)
+        to_a(**kw)
+      end
+
+      def as_json(options = {})
+        each_index.map { |i| JSI::Util.as_json(self[i], **options) }
       end
     end
 
