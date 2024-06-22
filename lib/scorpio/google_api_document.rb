@@ -29,13 +29,16 @@ module Scorpio
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
     module SchemaLike
       def to_openapi
-        dup_doc = JSI::Util.as_json(self)
         # openapi does not want an id field on schemas
-        dup_doc.delete('id')
+        dup_doc = jsi_node_content.reject { |k, _| k == 'id' }
         if dup_doc['properties'].is_a?(Hash)
-          required_properties = dup_doc['properties'].select do |key, value|
-            value.is_a?(Hash) ? value.delete('required') : nil
-          end.keys
+          required_properties = []
+          dup_doc['properties'].each do |key, value|
+            if value.is_a?(Hash) && value.key?('required')
+              required_properties.push(key) if value['required']
+              dup_doc = dup_doc.merge({'properties' => value.reject { |vk, _| vk == 'required' }})
+            end
+          end
           # put required before properties
           unless required_properties.empty?
             dup_doc = dup_doc.map do |k, v|
