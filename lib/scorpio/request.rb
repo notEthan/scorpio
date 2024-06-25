@@ -390,12 +390,17 @@ module Scorpio
       ur.response.body_object
     end
 
-    # todo make a proper iterator interface
+    # Runs this request, passing the resulting Ur to the given block.
+    # The `next_page` callable is then called with that Ur and results in the next page's Ur, or nil.
+    # This repeats until the `next_page` call results in nil.
+    #
+    # See {OpenAPI::Operation#each_link_page} for integration with an OpenAPI Operation.
+    #
     # @param next_page [#call] a callable which will take a parameter `page_ur`, which is a {Scorpio::Ur},
     #   and must result in an Ur representing the next page, which will be yielded to the block.
     # @yield [Scorpio::Ur] yields the first page, and each subsequent result of calls to `next_page` until
     #   that results in nil
-    # @return [void]
+    # @return [Enumerator, nil]
     def each_page_ur(next_page: , raise_on_http_error: true)
       return to_enum(__method__, next_page: next_page, raise_on_http_error: raise_on_http_error) unless block_given?
       page_ur = run_ur
