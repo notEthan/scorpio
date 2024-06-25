@@ -166,7 +166,7 @@ module Scorpio
               #'url' => '',
             #},
           },
-          'host' => ad.rootUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.baseUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.name, # uhh ... got nothin' better 
+          'host' => ad.rootUrl ? Addressable::URI.parse(ad.rootUrl).host : ad.baseUrl ? Addressable::URI.parse(ad.baseUrl).host : ad.name, # uhh ... got nothin' better
           'basePath' => begin
             path = ad.servicePath || ad.basePath || (ad.baseUrl ? Addressable::URI.parse(ad.baseUrl).path : '/')
             path =~ %r(\A/) ? path : "/" + path

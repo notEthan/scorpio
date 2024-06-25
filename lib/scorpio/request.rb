@@ -129,13 +129,21 @@ module Scorpio
     end
     include Configurables
 
-    # @param operation [Scorpio::OpenAPI::Operation]
+    @request_class_by_operation = Hash.new do |h, op|
+      h[op] = Class.new(Request) do
+        define_method(:operation) { op }
+        include(op.request_accessor_module)
+      end
+    end
+
+    def self.request_class_by_operation(operation)
+      @request_class_by_operation[operation]
+    end
+
     # @param configuration [#to_hash] a hash keyed with configurable attributes for
     #   the request - instance methods of Scorpio::Request::Configurables, whose values
     #   will be assigned for those attributes.
-    def initialize(operation, configuration = {}, &b)
-      @operation = operation
-
+    def initialize(configuration = {}, &b)
       configuration = JSI::Util.stringify_symbol_keys(configuration)
       params_set = Set.new # the set of params that have been set
       # do the Configurables first
@@ -150,8 +158,6 @@ module Scorpio
         param = param_for(name) || raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
         set_param_from(param['in'], param['name'], value)
       end
-
-      extend operation.request_accessor_module
 
       if block_given?
         yield self
