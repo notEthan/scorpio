@@ -69,7 +69,30 @@ class Blog
     check_accept
 
     articles = Blog::Article.all
-    format_response(200, articles.map(&:serializable_hash))
+    headers = {}
+
+    if request.GET['per_page']
+      per_page = request.GET['per_page'].to_i
+      page = request.GET['page'] ? request.GET['page'].to_i : 1
+
+      if page * per_page < articles.size
+        link = Ur::Weblink.new(
+          Addressable::URI.new(
+            path: '/v1/articles',
+            query_values: {
+              per_page: per_page,
+              page: page + 1,
+            },
+          ),
+          {'rel' => 'next'},
+        )
+        headers['link'] = link.to_s
+      end
+
+      articles = articles[((page - 1) * per_page)...(page * per_page)]
+    end
+
+    format_response(200, articles.map(&:serializable_hash), headers)
   end
   get '/v1/articles_with_root' do
     check_accept
