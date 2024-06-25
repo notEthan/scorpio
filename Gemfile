@@ -21,7 +21,7 @@ activerecord_version =
   nil
 gem('activerecord', *activerecord_version)
 platform(:mri, :truffleruby) do
-  gem 'sqlite3', '~> 1.4' # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
+  gem 'sqlite3', '~> 2.0' # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
 end
 platform(:jruby) do
   gem 'activerecord-jdbcsqlite3-adapter'
