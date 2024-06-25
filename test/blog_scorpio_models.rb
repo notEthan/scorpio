@@ -17,13 +17,13 @@ class BlogModel < Scorpio::ResourceBase
 
   if ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'rest_description'
     self.openapi_document = Scorpio::Google::RestDescription.new_jsi(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
-    self.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
+    self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
   elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi2'
     self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
-    self.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
+    self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
   elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3' || ENV['SCORPIO_API_DESCRIPTION_FORMAT'].nil?
     self.openapi_document = YAML.load_file('test/blog.openapi3.yml')
-    self.server_variables = {
+    self.openapi_document.server_variables = {
       'scheme' => 'http',
       'host' => 'localhost',
       'port' => blog_port,
