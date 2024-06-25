@@ -1,3 +1,8 @@
+# v0.6.4
+
+- JSI ~> v0.8.1
+- OpenAPI::Operation#each_link_page
+
 # v0.6.3
 
 - JSI = v0.8.0
