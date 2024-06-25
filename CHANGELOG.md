@@ -1,3 +1,7 @@
+# v0.6.3
+
+- JSI = v0.8.0
+
 # v0.6.2
 - replace deprecated calls to JSI
 
