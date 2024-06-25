@@ -211,7 +211,7 @@ module Scorpio
       end
 
       # @private
-      # @param name [Scorpio::OpenAPI::Operation]
+      # @param operation [Scorpio::OpenAPI::Operation]
       # @return [String, nil]
       def api_method_name_by_operation(operation)
         raise(ArgumentError, operation.pretty_inspect) unless operation.is_a?(Scorpio::OpenAPI::Operation)
