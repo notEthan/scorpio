@@ -172,11 +172,9 @@ pet_by_id = pet_store_doc.operations['getPetById'].run(petId: pet['id'])
 
 # unlike ResourceBase instances above, JSI instances have stricter
 # equality and the pets returned from different operations are not
-# equal, though the underlying JSON instance is.
+# equal, because they are in different JSON documents.
 pet_by_id == pet
 # => false
-pet_by_id.jsi_instance == pet.jsi_instance
-# => true
 
 # let's name the pet after ourself
 pet.name = ENV['USER']
@@ -210,7 +208,7 @@ A class which subclasses Scorpio::ResourceBase directly (such as PetStore::Resou
 
 A model representing a resource needs to be configured, minimally, with:
 
-- the OpenAPI document for the REST API
+- the OpenAPI document describing the API
 - the schemas that represent instances of the model, if any
 
 If the resource has HTTP operations associated with it (most, but not all resources will):
