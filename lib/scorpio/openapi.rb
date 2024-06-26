@@ -21,7 +21,7 @@ module Scorpio
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
-      openapi_document_schema = JSI::JSONSchemaOrgDraft04.new_schema(::YAML.load_file(Scorpio.root.join(
+      openapi_document_schema = JSI::JSONSchemaDraft04.new_schema(::YAML.load_file(Scorpio.root.join(
         'documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml'
       )))
 
