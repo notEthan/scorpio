@@ -5,7 +5,7 @@ module Scorpio
     module V2
       Document = JSI.new_schema_module(JSON.parse(Scorpio.root.join(
         'documents/swagger.io/v2/schema.json'
-      ).read))
+      ).read, freeze: true))
 
       # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself.
       # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.

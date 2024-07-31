@@ -50,7 +50,7 @@ module PetStore
     # your local filesystem (making network calls at application boot
     # time is usually a bad idea), but for this example we will do a
     # quick-and-dirty HTTP get.
-    self.openapi_document = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
+    self.openapi_document = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)
   end
 
   # a Pet is a resource of the pet store, so inherits from
@@ -132,7 +132,7 @@ To consume the Pet Store service, we start by instantiating the OpenAPI document
 
 ```ruby
 require 'scorpio'
-pet_store_content = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
+pet_store_content = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)
 pet_store_oad = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
 # => #{<JSI (Scorpio::OpenAPI::V2::Document)> "swagger" => "2.0", ...}
 ```
@@ -247,7 +247,7 @@ When these are set, Scorpio::ResourceBase looks through the API description and 
 If you need a more complete representation of the HTTP request and/or response, {Scorpio::OpenAPI::Operation#run_ur} will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (without Scorpio::ResourceBase)", this code will return an Ur:
 
 ```ruby
-inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)).paths['/store/inventory']['get']
+inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)).paths['/store/inventory']['get']
 inventory_ur = inventory_op.run_ur
 # => #{<Scorpio::Ur fragment="#"> ...}
 ```
