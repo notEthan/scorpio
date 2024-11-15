@@ -22,7 +22,7 @@ module Scorpio
 
     module V3
       openapi_document_schema = JSI::JSONSchemaDraft04.new_schema(::YAML.load_file(Scorpio.root.join(
-        'documents/github.com/OAI/OpenAPI-Specification/blob/oas3-schema/schemas/v3.0/schema.yaml'
+        'documents/spec.openapis.org/oas/3.0/schema.yaml'
       )))
 
       # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself.
