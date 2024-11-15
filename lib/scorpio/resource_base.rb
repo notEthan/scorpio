@@ -50,7 +50,7 @@ module Scorpio
         end
         update_dynamic_methods
       else
-        self.represented_schemas = JSI::SchemaSet.ensure_schema_set(represented_schemas)
+        self.represented_schemas = JSI::SchemaSet.new(represented_schemas)
       end
     end)
     define_inheritable_accessor(:models_by_schema, default_value: {}.freeze)
