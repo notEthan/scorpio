@@ -14,7 +14,7 @@ module Scorpio
         # comments on V3_0's Document.definitions['Schema'].properties['additionalProperties'] apply here too
         Document.schema.definitions['schema'].properties['additionalProperties'],
       ]
-      describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
+      describe_schema.each { |s| s.describes_schema!(JSI::Schema::Draft04::DIALECT) }
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`

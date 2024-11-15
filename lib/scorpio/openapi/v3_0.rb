@@ -22,7 +22,7 @@ module Scorpio
         # a problem, and this way also applies when none of the anyOf match due to schema errors.)
         Document.schema.definitions['Schema'].properties['additionalProperties'],
       ]
-      describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
+      describe_schema.each { |s| s.describes_schema!(JSI::Schema::Draft04::DIALECT) }
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V3_0::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
