@@ -206,6 +206,11 @@ module Scorpio
       # This is {Unscoped::Document}, with dynamic scope pointing `$dynamicAnchor: "meta"` to {Ext::ExtDocument::Schema}.
       module Ext::Document
       end
+
+      # note: without this mapping, schemas in OADs with this jsonSchemaDialect would have
+      # the right dialect (see comment on `document_schema_module_by_dialect_id`), but
+      # Ext::ExtDocument does also validate OAD jsonSchemaDialect and schema $schema properties.
+      document_schema_modules_by_dialect_id[Ext::MetaSchema.schema_uri] = Ext::ExtDocument
     end
   end
 end
