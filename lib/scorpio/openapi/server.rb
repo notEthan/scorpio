@@ -2,12 +2,7 @@
 
 module Scorpio
   module OpenAPI
-    module V3
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Server') unless const_defined?(:Server)
-
       # An object representing a Server.
-      #
-      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#serverObject
       module Server
         # expands this server's #url using the given_server_variables. any variables
         # that are in the url but not in the given server variables are filled in
@@ -39,6 +34,5 @@ module Scorpio
           template.expand(server_variables).freeze
         end
       end
-    end
   end
 end

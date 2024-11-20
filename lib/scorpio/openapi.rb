@@ -18,6 +18,7 @@ module Scorpio
     autoload :Document, 'scorpio/openapi/document'
     autoload :Reference, 'scorpio/openapi/reference'
     autoload :Tag, 'scorpio/openapi/tag'
+    autoload(:Server, 'scorpio/openapi/server')
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
 
     module V3
@@ -89,6 +90,13 @@ module Scorpio
       Link                      = Document.definitions['Link']
       Callback               = Document.definitions['Callback']
       Encoding              = Document.definitions['Encoding']
+
+      # An object representing a Server.
+      #
+      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#serverObject
+      module Server
+        include(OpenAPI::Server)
+      end
 
       raise(Bug) unless Schema < JSI::Schema
       raise(Bug) unless SchemaReference < JSI::Schema
@@ -193,7 +201,6 @@ module Scorpio
       module Tag
         include OpenAPI::Tag
       end
-      require 'scorpio/openapi/v3/server'
     end
 
     module V2
