@@ -91,6 +91,28 @@ module Scorpio
       Callback               = Document.definitions['Callback']
       Encoding              = Document.definitions['Encoding']
 
+      # Describes a single API operation on a path.
+      #
+      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#operationObject
+      module Operation
+        include(OpenAPI::Operation::V3Methods)
+      end
+
+      # A document that defines or describes an API conforming to the OpenAPI Specification v3.
+      #
+      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
+      module Document
+        include(OpenAPI::Document::V3Methods)
+      end
+
+      module Reference
+        include(OpenAPI::Reference)
+      end
+
+      module Tag
+        include(OpenAPI::Tag)
+      end
+
       # An object representing a Server.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#serverObject
@@ -181,41 +203,26 @@ module Scorpio
       Enum         = Document.definitions['enum']
       JsonReference = Document.definitions['jsonReference']
 
-      raise(Bug) unless Schema < JSI::Schema
-    end
-
-    # the autoloads for OpenAPI::Operation and OpenAPI::Document are triggered below. these
-    # should not be triggered until all the classes their files reference are defined (above).
-
-
-    module V3
       module Operation
-        include OpenAPI::Operation
+        include(OpenAPI::Operation::V2Methods)
       end
-      module Document
-        include OpenAPI::Document
-      end
-      module Reference
-        include OpenAPI::Reference
-      end
-      module Tag
-        include OpenAPI::Tag
-      end
-    end
 
-    module V2
-      module Operation
-        include OpenAPI::Operation
-      end
+      # A document that defines or describes an API conforming to the OpenAPI Specification v2 (aka Swagger).
+      #
+      # The root document is known as the Swagger Object.
       module Document
-        include OpenAPI::Document
+        include(OpenAPI::Document::V2Methods)
       end
+
       module JsonReference
-        include OpenAPI::Reference
+        include(OpenAPI::Reference)
       end
+
       module Tag
-        include OpenAPI::Tag
+        include(OpenAPI::Tag)
       end
+
+      raise(Bug) unless Schema < JSI::Schema
     end
   end
 end

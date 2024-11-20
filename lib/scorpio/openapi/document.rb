@@ -66,11 +66,11 @@ module Scorpio
       include Configurables
 
       def v2?
-        is_a?(V2::Document)
+        is_a?(OpenAPI::V2::Document)
       end
 
       def v3?
-        is_a?(V3::Document)
+        is_a?(OpenAPI::V3::Document)
       end
 
       def operations
@@ -91,13 +91,8 @@ module Scorpio
       end
     end
 
-    module V3
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Document') unless const_defined?(:Document)
-
-      # A document that defines or describes an API conforming to the OpenAPI Specification v3.
-      #
-      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
-      module Document
+    module Document
+      module V3Methods
         module Configurables
           def scheme
             nil
@@ -131,16 +126,12 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Document)
       end
     end
 
-    module V2
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Document') unless const_defined?(:Document)
-
-      # A document that defines or describes an API conforming to the OpenAPI Specification v2 (aka Swagger).
-      #
-      # The root document is known as the Swagger Object.
-      module Document
+    module Document
+      module V2Methods
         module Configurables
           attr_writer :scheme
           def scheme
@@ -186,6 +177,7 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Document)
       end
     end
   end

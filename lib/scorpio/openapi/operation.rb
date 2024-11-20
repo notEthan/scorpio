@@ -48,13 +48,13 @@ module Scorpio
       # openapi v3?
       # @return [Boolean]
       def v3?
-        is_a?(V3::Operation)
+        is_a?(OpenAPI::V3::Operation)
       end
 
       # openapi v2?
       # @return [Boolean]
       def v2?
-        is_a?(V2::Operation)
+        is_a?(OpenAPI::V2::Operation)
       end
 
       # the document whence this operation came
@@ -266,13 +266,8 @@ module Scorpio
       end
     end
 
-    module V3
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Operation') unless const_defined?(:Operation)
-
-      # Describes a single API operation on a path.
-      #
-      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#operationObject
-      module Operation
+    module Operation
+      module V3Methods
         module Configurables
           def scheme
             # not applicable; for OpenAPI v3, scheme is specified by servers.
@@ -302,6 +297,7 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Operation)
 
         # @return [JSI::Schema]
         def request_schema(media_type: self.request_media_type)
@@ -354,9 +350,9 @@ module Scorpio
         end
       end
     end
-    module V2
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Operation') unless const_defined?(:Operation)
-      module Operation
+
+    module Operation
+      module V2Methods
         module Configurables
           attr_writer :scheme
           def scheme
@@ -381,6 +377,7 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Operation)
 
         # the body parameter
         # @return [#to_hash]
