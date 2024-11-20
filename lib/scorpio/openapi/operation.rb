@@ -66,8 +66,8 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::PathItem)
-        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::Paths)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
+        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::Paths)
         @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
       end
 
@@ -95,7 +95,7 @@ module Scorpio
       # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::PathItem)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 
