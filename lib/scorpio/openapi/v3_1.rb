@@ -3,6 +3,12 @@
 module Scorpio
   module OpenAPI
     module V3_1
+      class << self
+        attr_accessor(:document_schema_modules_by_dialect_id)
+      end
+
+      self.document_schema_modules_by_dialect_id = {}
+
       def self.document_name_subschemas(document_schema_module, namespace)
         namespace.const_set(:Info,         document_schema_module.defs['info'])
         namespace.const_set(:Contact,       document_schema_module.defs['contact'])
