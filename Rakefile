@@ -11,6 +11,7 @@ task 'test:each_format' do
     rest_description
     openapi2
     openapi3.0
+    openapi3.1
   )
 
   require 'term/ansicolor'
