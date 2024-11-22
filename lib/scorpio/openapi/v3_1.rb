@@ -207,6 +207,8 @@ module Scorpio
       module Ext::Document
       end
 
+      set_up_document_schema_module(Ext::Document)
+      document_name_subschemas(Ext::Document, Ext)
       # note: without this mapping, schemas in OADs with this jsonSchemaDialect would have
       # the right dialect (see comment on `document_schema_module_by_dialect_id`), but
       # Ext::ExtDocument does also validate OAD jsonSchemaDialect and schema $schema properties.
