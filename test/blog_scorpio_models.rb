@@ -28,6 +28,13 @@ class BlogModel < Scorpio::ResourceBase
       'host' => 'localhost',
       'port' => blog_port,
     }
+  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3.1'
+    self.openapi_document = YAML.load_file('test/blog.openapi3_1.yml')
+    self.openapi_document.server_variables = {
+      'scheme' => 'http',
+      'host' => 'localhost',
+      'port' => blog_port,
+    }
   else
     abort("bad SCORPIO_API_DESCRIPTION_FORMAT")
   end
