@@ -57,6 +57,33 @@ module Scorpio
         document_schema_module
       end
 
+      # This is pretty much: `Unscoped::Document.with_dynamic_scope_from(JSI.registry.find(dialect_id))`
+      # plus {.set_up_document_schema_module}.
+      #
+      # However, this also supports a dialect whose meta-schema isn't aware of dynamic scope and doesn't
+      # have a `$dynamicAnchor: "meta"`, e.g. `jsonSchemaDialect: "http://json-schema.org/draft-07/schema"`.
+      #
+      # A schema like {Ext::ExtDocument} exists to `$ref` to {Unscoped::Document} with anchor `meta`
+      # in dynamic scope, with the `$dynamicAnchor: "meta"` schema `$ref`ing to {Ext::MetaSchema}.
+      # This method obviates the need for such a schema, directly applying dynamic scope.
+      def self.document_schema_module_by_dialect_id(dialect_id)
+        dialect_uri = JSI::Util.uri(dialect_id)
+        document_schema_modules_by_dialect_id[dialect_uri] ||= begin
+          metaschema = JSI.registry.find(dialect_uri)
+          dynamic_anchor_map = metaschema.jsi_next_schema_dynamic_anchor_map
+          unless dynamic_anchor_map.key?('meta')
+            # hax: pretend that the identified meta-schema has `$dynamicAnchor: "meta"`
+            # this enables e.g. `jsonSchemaDialect: "http://json-schema.org/draft-07/schema"` to work
+            # this is non-API JSI internals.
+            dynamic_anchor_map = dynamic_anchor_map.merge({
+              'meta' => [metaschema, [].freeze].freeze,
+            }).freeze
+          end
+          document_schema = Unscoped::Document.schema.jsi_with_schema_dynamic_anchor_map(dynamic_anchor_map)
+          set_up_document_schema_module(document_schema.jsi_schema_module)
+        end
+      end
+
 
       module Document
         include(OpenAPI::Document::V3Methods)
