@@ -28,6 +28,21 @@ module Scorpio
     module PathItem
     end
 
+    module SecurityScheme
+      include(Document::Descendent)
+
+      # @return [Enumerable<OpenAPI::Operation>]
+      def operations
+        openapi_document.operations.select do |op|
+          op.security.respond_to?(:to_ary) && op.security.any? { |sr| sr.each_key.include?(propertyName) }
+        end
+      end
+
+      def propertyName
+        jsi_ptr.tokens.last
+      end
+    end
+
     autoload(:V2, 'scorpio/openapi/v2')
     autoload(:V3, 'scorpio/openapi/v3_0')
     autoload(:V3_0, 'scorpio/openapi/v3_0')

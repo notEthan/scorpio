@@ -145,3 +145,13 @@ describe 'openapi tags' do
     assert_equal(exp_ops, act_ops)
   end
 end
+
+describe("openapi securitySchemes") do
+  it("#operations") do
+    oad = Scorpio::OpenAPI::V3_0::Document.new_jsi({
+      paths: {'/': {get: {security: [{a: {}}]}}},
+      components: {securitySchemes: {a: {type: 'apiKey', in: 'x', name: 'x'}}},
+    }, stringify_symbol_keys: true)
+    assert_equal(1, oad.components.securitySchemes['a'].operations.count)
+  end
+end
