@@ -13,16 +13,16 @@ module Scorpio
         #
         # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
         # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3::Document]
-        def from_instance(instance)
+        def from_instance(instance, **new_param)
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
           elsif instance.is_a?(JSI::Base)
             raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
           elsif instance.respond_to?(:to_hash)
             if instance['swagger'] =~ /\A2(\.|\z)/
-              instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance)
+              instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
             elsif instance['openapi'] =~ /\A3(\.|\z)/
-              instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance)
+              instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance, **new_param)
             else
               raise(ArgumentError, "instance does not look like a recognized openapi document")
             end
