@@ -19,9 +19,9 @@ module Scorpio
           elsif instance.is_a?(JSI::Base)
             raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
           elsif instance.respond_to?(:to_hash)
-            if instance['swagger'] =~ /\A2(\.|\z)/
+            if (instance['swagger'].is_a?(String) && instance['swagger'] =~ /\A2(\.|\z)/) || instance['swagger'] == 2
               instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
-            elsif instance['openapi'] =~ /\A3(\.|\z)/
+            elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.0(\.|\z)/) || instance['openapi'] == 3.0
               instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance, **new_param)
             else
               raise(ArgumentError, "instance does not look like a recognized openapi document")
