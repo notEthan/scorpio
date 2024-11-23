@@ -66,8 +66,8 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
-        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::Paths)
+        return(@path_template_str = nil) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
+        return(@path_template_str = nil) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::Paths)
         @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
       end
 
@@ -75,6 +75,7 @@ module Scorpio
       # @return [Addressable::Template]
       def path_template
         return @path_template if instance_variable_defined?(:@path_template)
+        return(@path_template = nil) if !path_template_str
         @path_template = Addressable::Template.new(path_template_str)
       end
 
@@ -95,7 +96,7 @@ module Scorpio
       # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
+        return(@http_method = nil) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 
@@ -264,7 +265,7 @@ module Scorpio
       private
 
       def jsi_object_group_text
-        [*super, http_method, path_template_str].freeze
+        [*super, http_method, path_template_str].compact.freeze
       end
     end
 
