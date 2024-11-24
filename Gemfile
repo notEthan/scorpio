@@ -28,12 +28,26 @@ group(:test) do
   gem('rack-test')
   gem('webrick')
   gem('api_hammer')
-  activerecord_version =
-    RUBY_ENGINE == 'jruby' ? '< 7.1' : # TODO rm. some incompatibility with activerecord-jdbc-adapter at 7.1
-    nil
-  gem('activerecord', *activerecord_version)
-  platform(:mri, :truffleruby) do
-    gem('sqlite3', '~> 1.4') # loosen this in accordance with active_record/connection_adapters/sqlite3_adapter.rb
+
+  # sqlite3 version is in accordance with active_record/connection_adapters/sqlite3_adapter.rb
+  [
+    {activerecord: '~> 8.0', ruby: '3.2', sqlite: '>= 2.1'},
+    {activerecord: '~> 7.2', ruby: '3.1', sqlite: '>= 1.4'},
+    {activerecord: '~> 7.0', ruby: '2.7', sqlite: '>= 1.4'},
+    {activerecord: '~> 6.0', ruby: '2.5', sqlite: '~> 1.4'},
+  ].map(&:values).each do |activerecord, ruby, sqlite|
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new(ruby)
+      if RUBY_ENGINE == 'jruby'
+        # override. update this per released version of activerecord-jdbc-adapter, current latest 71.x corresponding to Rails 7.1.x
+        activerecord = '< 7.2'
+      end
+      gem('activerecord', activerecord)
+
+      platform(:mri, :truffleruby) do
+        gem('sqlite3', sqlite)
+      end
+      break
+    end
   end
   platform(:jruby) do
     gem('activerecord-jdbcsqlite3-adapter')
