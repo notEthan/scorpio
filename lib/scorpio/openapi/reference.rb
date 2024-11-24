@@ -19,9 +19,9 @@ module Scorpio
       # @yield [JSI::Base] if a block is given
       # @return [JSI::Base]
       def deref
-        return unless respond_to?(:to_hash) && self['$ref'].respond_to?(:to_str)
+        return unless respond_to?(:to_hash) && key?('$ref') && jsi_node_content['$ref'].respond_to?(:to_str)
 
-        ref_uri = Addressable::URI.parse(self['$ref'])
+        ref_uri = Addressable::URI.parse(jsi_node_content['$ref'])
         ref_uri_nofrag = ref_uri.merge(fragment: nil)
 
         if !ref_uri_nofrag.empty? || ref_uri.fragment.nil?
