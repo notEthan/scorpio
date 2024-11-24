@@ -37,6 +37,9 @@ jobs:
 
     runs-on: ${{ matrix.runs-on }}
 
+    env:
+      BUNDLE_WITHOUT: dev doc # ruby/setup-ruby's invocation of bundle install will be without these groups
+
     steps:
 
     - uses: actions/checkout@v2
