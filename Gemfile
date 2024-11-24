@@ -29,7 +29,6 @@ group(:test) do
   gem('webrick')
   gem('api_hammer')
   activerecord_version =
-    RUBY_ENGINE == 'truffleruby' ? '>= 6' : # TODO rm why is truffleruby using 5.x without this?
     RUBY_ENGINE == 'jruby' ? '< 7.1' : # TODO rm. some incompatibility with activerecord-jdbc-adapter at 7.1
     nil
   gem('activerecord', *activerecord_version)
