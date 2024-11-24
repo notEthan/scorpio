@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ethan"]
   spec.email         = ["ethan@unth.net"]
 
-  spec.summary       = 'Scorpio REST client'
-  spec.description   = 'ORM style REST client'
+  spec.summary       = "Scorpio web API client"
+  spec.description   = "Scorpio offers a client interface to any web API described by an OpenAPI description, following ORM conventions for RESTful resources."
   spec.homepage      = "https://github.com/notEthan/scorpio"
   spec.license       = "AGPL-3.0"
 
