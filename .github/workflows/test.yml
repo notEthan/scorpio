@@ -3,6 +3,23 @@ on:
 - push
 - pull_request
 jobs:
+  gig:
+    runs-on: ubuntu-latest
+
+    env:
+      BUNDLE_WITHOUT: dev test doc # ruby/setup-ruby's invocation of bundle install will be without these groups
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: head
+        bundler-cache: true
+
+    - run: bundle exec rake gig
+
   test:
     strategy:
       fail-fast: false
