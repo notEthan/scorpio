@@ -3,7 +3,14 @@ source 'https://rubygems.org'
 gemspec
 
 group(:dev) do
-  platform(:mri) { gem('debug') }
+  platform(:mri) do
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7')
+      gem('debug', '> 1')
+    else
+      gem('byebug')
+    end
+  end
+  platform(:jruby) { gem('ruby-debug') }
 end
 
 gem 'rake'

@@ -30,6 +30,14 @@ if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'debug' }
   require('debug')
   Object.send(:alias_method, :dbg, :debugger)
 end
+if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'byebug' }
+  require('byebug')
+  Object.send(:alias_method, :dbg, :byebug)
+end
+if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'ruby-debug' }
+  require('ruby-debug')
+  Object.send(:alias_method, :dbg, :debugger)
+end
 
 # NO EXPECTATIONS 
 ENV["MT_NO_EXPECTATIONS"] = ''
