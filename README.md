@@ -1,6 +1,6 @@
 # Scorpio
 
-![Test CI Status](https://github.com/notEthan/scorpio/actions/workflows/test.yml/badge.svg?branch=stable)
+![Test CI Status](https://github.com/notEthan/scorpio/actions/workflows/test.yml/badge.svg?branch=main)
 [![Coverage Status](https://coveralls.io/repos/github/notEthan/scorpio/badge.svg)](https://coveralls.io/github/notEthan/scorpio)
 
 Scorpio is a library that helps you, as a client, consume an HTTP service described by an OpenAPI document. You provide the OpenAPI description document, a little bit of configuration, and Scorpio will take that and dynamically generate an interface for you to call the service's operations and interact with its resources as an ORM.
