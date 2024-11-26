@@ -43,6 +43,7 @@ module Scorpio
         namespace.const_set(:Examples,            document_schema_module.defs['examples'])
         namespace.const_set(:MapOfStrings,         document_schema_module.defs['map-of-strings'])
         namespace.const_set(:StylesForForm,         document_schema_module.defs['styles-for-form'])
+        namespace.const_set(:SpecificationExtension, document_schema_module.defs['specification-extensions'].patternProperties["^x-"])
       end
 
       def self.set_up_document_schema_module(document_schema_module)
