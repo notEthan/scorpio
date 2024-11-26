@@ -31,13 +31,15 @@ end
 
 require 'active_record'
 ActiveRecord::Base.logger = Blog.logger
-dbpath = Pathname.new("tmp/blog#{$blog_port || raise('$blog_port is nil')}.sqlite3")
-FileUtils.mkdir_p(dbpath.dirname)
-dbpath.unlink if dbpath.exist?
-at_exit { dbpath.unlink }
+dbfile = "tmp/blog#{$blog_port || raise('$blog_port is nil')}.sqlite3"
+dbfiles = [dbfile, dbfile + '-shm', dbfile + '-wal']
+FileUtils.mkdir_p(File.dirname(dbfile))
+dbunlink = proc { dbfiles.each { |f| File.unlink(f) if File.exist?(f) } }
+dbunlink[]
+at_exit(&dbunlink)
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
-  :database  => dbpath
+  :database => dbfile,
 )
 
 ActiveRecord::Schema.define do
