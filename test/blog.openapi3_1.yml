@@ -53,6 +53,9 @@ paths:
       tags:
       - articles
       operationId: articles.index_with_root
+      parameters:
+        - name: note
+          in: header
       responses:
         default:
           description: default response
