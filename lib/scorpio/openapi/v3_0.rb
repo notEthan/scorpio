@@ -112,6 +112,7 @@ module Scorpio
 
       module PathItem
         include(OpenAPI::PathItem)
+        include(OpenAPI::Reference)
       end
 
       module SecurityScheme
