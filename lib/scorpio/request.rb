@@ -321,7 +321,7 @@ module Scorpio
       elsif param_in == 'query'
         self.query_params = (self.query_params || {}).merge(name => value)
       elsif param_in == 'header'
-        self.headers = self.headers.merge(name => value)
+        self.headers = self.headers.merge(name => value.to_str)
       elsif param_in == 'cookie'
         raise(NotImplementedError, "cookies not implemented: #{name.inspect} => #{value.inspect}")
       else
