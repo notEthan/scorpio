@@ -20,10 +20,10 @@ describe 'blog' do
   it 'indexes articles with root' do
     blog_article
 
-    articles = Article.index_with_root
+    articles = Article.index_with_root(note: 'request note')
     assert_respond_to(articles, :to_hash)
     assert_equal('v1', articles['version'])
-    assert_equal('hi!', articles['note'])
+    assert_equal('request note', articles['note'])
     assert_instance_of(Article, articles['best_article'])
     assert_equal(articles['articles'].last, articles['best_article'])
     assert_equal(1, articles['articles'].size)
