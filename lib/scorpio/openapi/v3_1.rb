@@ -54,6 +54,7 @@ module Scorpio
         document_schema_module.defs['server'].include(OpenAPI::Server)
         document_schema_module.defs['paths'].include(OpenAPI::Paths)
         document_schema_module.defs['path-item'].include(OpenAPI::PathItem)
+        document_schema_module.defs['path-item'].include(OpenAPI::Reference)
         document_schema_module.defs['security-scheme'].include(OpenAPI::SecurityScheme)
 
         document_schema_module
