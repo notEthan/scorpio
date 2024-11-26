@@ -112,7 +112,7 @@ class Blog
       # this is on the response schema, not indicating it is an article
       'version' => 'v1',
       # this is not in the response schema at all
-      'note' => 'hi!',
+      'note' => env['HTTP_NOTE'] || 'hi!',
     }
     format_response(200, body)
   end

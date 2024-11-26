@@ -18,6 +18,10 @@ resources:
         id: articles.index_with_root
         path: articles_with_root
         httpMethod: GET
+        parameters:
+          note:
+            # property 'location' only has documented values 'path' and 'query' but scorpio supports 'header' too
+            location: header
         response:
           $ref: https://blog.example.com/schemas/articles_with_root/v1.0.0
       read:
