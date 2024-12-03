@@ -9,6 +9,7 @@ require_relative 'blog'
 
 STDOUT.reopen(Scorpio.root.join('log/blog_webrick_stdout.log').open('a'))
 STDERR.reopen(Scorpio.root.join('log/blog_webrick_stderr.log').open('a'))
+STDOUT.sync = STDERR.sync = true
 
 trap('INT') { ::Rack::Handler::WEBrick.shutdown }
 
