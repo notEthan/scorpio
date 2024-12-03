@@ -373,7 +373,7 @@ module Scorpio
           'source' => {'operationId' => operation.operationId, 'call_params' => call_params, 'url' => ur.request.uri.to_s},
           'ur' => ur,
         }
-        response_object_to_instances(ur.response.body_object, initialize_options)
+        response_object_to_instances(ur.response.body_object(mutable: true), initialize_options)
       end
 
       def response_object_to_instances(object, initialize_options = {})

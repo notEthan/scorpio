@@ -385,12 +385,13 @@ module Scorpio
     # parsed according to an understood media type, and instantiated with the applicable
     # response schema if one is specified. see {Scorpio::Response#body_object} for more detail.
     #
+    # @param mutable (see Response#body_object)
     # @raise [Scorpio::HTTPError] if the request returns a 4xx or 5xx status, the appropriate
     #   error is raised - see {Scorpio::HTTPErrors}
-    def run
+    def run(mutable: false)
       ur = run_ur
       ur.raise_on_http_error
-      ur.response.body_object
+      ur.response.body_object(mutable: mutable)
     end
 
     # Runs this request, passing the resulting Ur to the given block.

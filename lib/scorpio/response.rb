@@ -14,21 +14,23 @@ module Scorpio
 
     # the body (String) is parsed according to the response media type, if supported (only JSON is
     # currently supported), and instantiated as a JSI instance of {#response_schema} if that is defined.
-    def body_object
+    #
+    # @param mutable [Boolean] instantiate the response body object as mutable?
+    def body_object(mutable: false)
       if json?
         if body.empty?
           # an empty body isn't valid json, of course, but we'll just return nil for it.
           body_object = nil
         else
           begin
-            body_object = ::JSON.parse(body)
+            body_object = JSON.parse(body, freeze: !mutable)
           #rescue ::JSON::ParserError
             # TODO
           end
         end
 
         if response_schema && (body_object.respond_to?(:to_hash) || body_object.respond_to?(:to_ary))
-          body_object = response_schema.new_jsi(body_object, mutable: true)
+          body_object = response_schema.new_jsi(body_object, mutable: mutable)
         end
 
         body_object
