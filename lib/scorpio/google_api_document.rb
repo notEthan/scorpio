@@ -57,6 +57,10 @@ module Scorpio
         return @base_url if instance_variable_defined?(:@base_url)
         JSI::Util.uri(rootUrl ? File.join(rootUrl, servicePath) : baseUrl) # baseUrl is deprecated
       end
+
+      def title
+        self['title'] # override OpenAPI::Document#title
+      end
     end
 
     module RestResource
