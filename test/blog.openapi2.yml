@@ -27,7 +27,7 @@ paths:
           schema:
             type: array
             items:
-              "$ref": "#/definitions/articles"
+              "$ref": "#/definitions/article"
     post:
       tags:
       - articles
@@ -37,12 +37,12 @@ paths:
         in: body
         required: true
         schema:
-          "$ref": "#/definitions/articles"
+          "$ref": "#/definitions/article"
       responses:
         default:
           description: default response
           schema:
-            "$ref": "#/definitions/articles"
+            "$ref": "#/definitions/article"
   "/articles_with_root":
     get:
       tags:
@@ -57,9 +57,9 @@ paths:
               articles:
                 type: array
                 items:
-                  "$ref": "#/definitions/articles"
+                  "$ref": "#/definitions/article"
               best_article:
-                "$ref": "#/definitions/articles"
+                "$ref": "#/definitions/article"
               version:
                 type: string
   "/articles/{id}":
@@ -76,7 +76,7 @@ paths:
         default:
           description: default response
           schema:
-            "$ref": "#/definitions/articles"
+            "$ref": "#/definitions/article"
     patch:
       tags:
       - articles
@@ -90,12 +90,12 @@ paths:
         in: body
         required: true
         schema:
-          "$ref": "#/definitions/articles"
+          "$ref": "#/definitions/article"
       responses:
         default:
           description: default response
           schema:
-            "$ref": "#/definitions/articles"
+            "$ref": "#/definitions/article"
   "/clean":
     post:
       tags:
@@ -105,7 +105,7 @@ paths:
         default:
           description: default response
 definitions:
-  articles:
+  article:
     type: object
     properties:
       id:

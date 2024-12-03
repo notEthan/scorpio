@@ -40,9 +40,9 @@ end
 class Article < BlogModel
   self.tag_name = 'articles'
   if openapi_document.v2?
-    self.represented_schemas = [openapi_document.definitions['articles']]
+    self.represented_schemas = [openapi_document.definitions['article']]
   else
-    self.represented_schemas = [openapi_document.components.schemas['articles']]
+    self.represented_schemas = [openapi_document.components.schemas['article']]
   end
 end
 

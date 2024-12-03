@@ -34,7 +34,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/articles'
+                  $ref: '#/components/schemas/article'
     post:
       tags:
       - articles
@@ -45,9 +45,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/articles'
+                $ref: '#/components/schemas/article'
       requestBody:
-        $ref: '#/components/requestBodies/articles'
+        $ref: '#/components/requestBodies/article'
   /articles_with_root:
     get:
       tags:
@@ -64,9 +64,9 @@ paths:
                   articles:
                     type: array
                     items:
-                      $ref: '#/components/schemas/articles'
+                      $ref: '#/components/schemas/article'
                   best_article:
-                    $ref: '#/components/schemas/articles'
+                    $ref: '#/components/schemas/article'
                   version:
                     type: string
   '/articles/{id}':
@@ -86,7 +86,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/articles'
+                $ref: '#/components/schemas/article'
     patch:
       tags:
       - articles
@@ -103,9 +103,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/articles'
+                $ref: '#/components/schemas/article'
       requestBody:
-        $ref: '#/components/requestBodies/articles'
+        $ref: '#/components/requestBodies/article'
   /clean:
     post:
       tags:
@@ -116,14 +116,14 @@ paths:
           description: default response
 components:
   requestBodies:
-    articles:
+    article:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/articles'
+            $ref: '#/components/schemas/article'
       required: true
   schemas:
-    articles:
+    article:
       type: object
       properties:
         id:

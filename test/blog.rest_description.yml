@@ -13,7 +13,7 @@ resources:
         response:
           type: array
           items:
-            $ref: https://blog.example.com/schemas/articles/v1.0.0
+            $ref: https://blog.example.com/schemas/article/v1.0.0
       index_with_root:
         path: articles_with_root
         httpMethod: GET
@@ -23,30 +23,30 @@ resources:
             articles:
               type: array
               items:
-                $ref: https://blog.example.com/schemas/articles/v1.0.0
+                $ref: https://blog.example.com/schemas/article/v1.0.0
             best_article:
-              $ref: https://blog.example.com/schemas/articles/v1.0.0
+              $ref: https://blog.example.com/schemas/article/v1.0.0
             version:
               type: string
       read:
         path: articles/{id}
         httpMethod: GET
         response:
-          $ref: https://blog.example.com/schemas/articles/v1.0.0
+          $ref: https://blog.example.com/schemas/article/v1.0.0
       post:
         path: articles
         httpMethod: POST
         request:
-          $ref: https://blog.example.com/schemas/articles/v1.0.0
+          $ref: https://blog.example.com/schemas/article/v1.0.0
         response:
-          $ref: https://blog.example.com/schemas/articles/v1.0.0
+          $ref: https://blog.example.com/schemas/article/v1.0.0
       patch:
         path: articles/{id}
         httpMethod: PATCH
         request:
-          $ref: https://blog.example.com/schemas/articles/v1.0.0
+          $ref: https://blog.example.com/schemas/article/v1.0.0
         response:
-          $ref: https://blog.example.com/schemas/articles/v1.0.0
+          $ref: https://blog.example.com/schemas/article/v1.0.0
   clean:
     methods:
       clean:
@@ -55,8 +55,8 @@ resources:
         response:
           {}
 schemas:
-  articles:
-    id: https://blog.example.com/schemas/articles/v1.0.0
+  article:
+    id: https://blog.example.com/schemas/article/v1.0.0
     type: object
     properties:
       id:
