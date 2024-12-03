@@ -8,21 +8,25 @@ resources:
   articles:
     methods:
       index:
+        id: articles.index
         path: articles
         httpMethod: GET
         response:
           $ref: https://blog.example.com/schemas/articles/v1.0.0
       index_with_root:
+        id: articles.index_with_root
         path: articles_with_root
         httpMethod: GET
         response:
           $ref: https://blog.example.com/schemas/articles_with_root/v1.0.0
       read:
+        id: articles.read
         path: articles/{id}
         httpMethod: GET
         response:
           $ref: https://blog.example.com/schemas/article/v1.0.0
       post:
+        id: articles.post
         path: articles
         httpMethod: POST
         request:
@@ -30,6 +34,7 @@ resources:
         response:
           $ref: https://blog.example.com/schemas/article/v1.0.0
       patch:
+        id: articles.patch
         path: articles/{id}
         httpMethod: PATCH
         request:
@@ -39,6 +44,7 @@ resources:
   clean:
     methods:
       clean:
+        id: clean
         path: clean
         httpMethod: POST
         response:
