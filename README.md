@@ -243,17 +243,7 @@ For background on the Google discovery service and the API description format it
 - https://developers.google.com/discovery/
 - https://developers.google.com/discovery/v1/reference/
 
-This format is still supported indirectly, by converting from a Google API document to OpenAPI using `Scorpio::Google::RestDescription#to_openapi_document`. Example conversion looks like:
-
-```ruby
-class MyModel < Scorpio::ResourceBase
-  rest_description_doc = YAML.load_file('path/to/doc.yml')
-  rest_description = Scorpio::Google::RestDescription.new(rest_description_doc)
-  self.openapi_document = rest_description.to_openapi_document
-
-  # ... the remainder of your setup and model code here
-end
-```
+This format is still supported.
 
 ## Other
 
