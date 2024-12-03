@@ -163,7 +163,7 @@ module Scorpio
       end
 
       def operation_for_resource_class?(operation)
-        return true if tag_name && operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
+        return true if tag_name && operation.tagged?(tag_name)
 
         request_response_schemas = operation.request_schemas | operation.response_schemas
         # TODO/FIX nil instance is wrong. works for $ref and allOf, not for others.
@@ -191,7 +191,7 @@ module Scorpio
         end
 
         # the below only apply if the operation has this resource's tag
-        return false unless tag_name && operation.tags.respond_to?(:to_ary) && operation.tags.include?(tag_name)
+        return false unless tag_name && operation.tagged?(tag_name)
 
         # define an instance method if path or query params can be filled in from
         # property names described by represented_schemas
@@ -229,8 +229,7 @@ module Scorpio
         # if the operationId is just "addPet"
         # then the operation's method name on Pet will be "addPet".
         tag_name_match = tag_name &&
-          operation.tags.respond_to?(:to_ary) && # TODO maybe operation.tags.valid?
-          operation.tags.include?(tag_name) &&
+          operation.tagged?(tag_name) &&
           operation.operationId &&
           operation.operationId.match(/\A#{Regexp.escape(tag_name)}[\.\/\:](\w+)\z/)
 
