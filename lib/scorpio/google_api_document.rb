@@ -70,6 +70,15 @@ module Scorpio
     module RestMethod
       include(OpenAPI::Operation)
 
+      def tagged?(tag_name)
+        resource_names.include?(tag_name)
+      end
+
+      def resource_names
+        # resource name is the property name where a RestResource is. kind of hax but it works.
+        jsi_parent_nodes.select { |n| n.is_a?(RestResource) }.map { |r| r.jsi_ptr.tokens.last }
+      end
+
       def path_template_str
         path
       end
