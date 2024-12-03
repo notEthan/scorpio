@@ -242,9 +242,7 @@ module Scorpio
       end
 
       def update_class_and_instance_api_methods
-        openapi_document.paths.each do |path, path_item|
-          path_item.each do |http_method, operation|
-            next unless operation.is_a?(Scorpio::OpenAPI::Operation)
+        openapi_document.operations.each do |operation|
             method_name = api_method_name_by_operation(operation)
             if method_name
               # class method
@@ -261,7 +259,6 @@ module Scorpio
                 end
               end
             end
-          end
         end
       end
 
