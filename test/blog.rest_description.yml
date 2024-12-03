@@ -1,3 +1,4 @@
+kind: discovery#restDescription
 discoveryVersion: v1
 name: blog
 title: "Scorpio Blog"
