@@ -30,8 +30,26 @@ module Scorpio
       Response.schema.describes_schema!([JSI::Schema::Draft04])
     end
 
+    module HasMethodsAndResources
+      def operations
+        return @operations if instance_variable_defined?(:@operations)
+        @operations = OpenAPI::OperationsScope.new(each_operation)
+      end
+
+      def each_operation(&block)
+        return(to_enum(__method__)) unless block
+
+        (self['methods'] || {}).each_value(&block)
+
+        (self['resources'] || {}).each_value do |resource|
+          resource.each_operation(&block)
+        end
+      end
+    end
+
     module RestDescription
       include(OpenAPI::Document)
+      include(HasMethodsAndResources)
 
       attr_writer(:base_url)
 
@@ -39,6 +57,10 @@ module Scorpio
         return @base_url if instance_variable_defined?(:@base_url)
         JSI::Util.uri(rootUrl ? File.join(rootUrl, servicePath) : baseUrl) # baseUrl is deprecated
       end
+    end
+
+    module RestResource
+      include(HasMethodsAndResources)
     end
 
     module RestMethod
