@@ -16,8 +16,8 @@ class BlogModel < Scorpio::ResourceBase
   blog_port = $blog_port || raise('$blog_port is nil')
 
   if ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'rest_description'
-    self.openapi_document = Scorpio::Google::RestDescription.new_jsi(YAML.load_file('test/blog.rest_description.yml')).to_openapi_document
-    self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
+    self.openapi_document = YAML.load_file('test/blog.rest_description.yml')
+    self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.servicePath)
   elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi2'
     self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
     self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
@@ -39,7 +39,9 @@ end
 # this model, Article, is a resource of the blog API.
 class Article < BlogModel
   self.tag_name = 'articles'
-  if openapi_document.v2?
+  if ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'rest_description'
+    self.represented_schemas = [openapi_document.schemas['article']]
+  elsif openapi_document.v2?
     self.represented_schemas = [openapi_document.definitions['article']]
   else
     self.represented_schemas = [openapi_document.components.schemas['article']]
