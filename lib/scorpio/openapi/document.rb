@@ -89,6 +89,10 @@ module Scorpio
           end
         end
       end
+
+      def title
+        info && info.title
+      end
     end
 
     module V3
