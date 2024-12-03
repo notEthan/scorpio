@@ -24,6 +24,10 @@ module Scorpio
     module RestMethod
       Request = properties['request']
       Response = properties['response']
+
+      # these only contain a $ref to a schema, but that is enough to use them as schemas
+      Request.schema.describes_schema!([JSI::Schema::Draft04])
+      Response.schema.describes_schema!([JSI::Schema::Draft04])
     end
 
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
