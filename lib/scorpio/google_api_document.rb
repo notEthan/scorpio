@@ -30,6 +30,84 @@ module Scorpio
       Response.schema.describes_schema!([JSI::Schema::Draft04])
     end
 
+    module RestDescription
+      include(OpenAPI::Document)
+
+      attr_writer(:base_url)
+
+      def base_url(scheme: nil, server: nil, server_variables: nil)
+        return @base_url if instance_variable_defined?(:@base_url)
+        JSI::Util.uri(rootUrl ? File.join(rootUrl, servicePath) : baseUrl) # baseUrl is deprecated
+      end
+    end
+
+    module RestMethod
+      include(OpenAPI::Operation)
+
+      def path_template_str
+        path
+      end
+
+      def parameters
+        (self['parameters'] || {}).map do |name, schema|
+          param = {'name' => name}
+          param['in'] = schema.location if schema.key?('location')
+          param['schema'] = schema
+          #param['description'] = schema.description if schema.key?('description')
+          #param['required'] = schema.required if schema.key?('required')
+          param
+        end
+      end
+
+      def request_media_type
+        'application/json'
+      end
+
+      def http_method
+        httpMethod
+      end
+
+      def openapi_document
+        rest_description
+      end
+
+      def rest_description
+        jsi_parent_nodes.detect { |p| p.is_a?(RestDescription) }
+      end
+
+      def scheme
+        nil
+      end
+
+      def server
+        nil
+      end
+
+      def server_variables
+        nil
+      end
+
+      def operationId
+        id
+      end
+
+      def request_schema
+        request
+      end
+
+      def request_schemas
+        request ? [request] : []
+      end
+
+      def response_schema(status: nil, media_type: nil)
+        response
+      end
+
+      def response_schemas
+        response ? [response] : []
+      end
+    end
+
     # google does a weird thing where it defines a schema with a $ref property where a json-schema is to be used in the document (method request and response fields), instead of just setting the schema to be the json-schema schema. we'll share a module across those schema classes that really represent schemas. is this confusingly meta enough?
     module SchemaLike
       def to_openapi
