@@ -1,11 +1,12 @@
 ---
 kind: discovery#restDescription
-etag: '"YWOzh2SDasdU84ArJnpYek-OMdg/K3nEDF6hixE8Pks2-9Ysn9j9prQ"'
+etag: '"-2NioU2H8y8siEzrBOV_qzRI6kQ/vabF8Q1ADCm_Bt9EBq9rkrRawQA"'
+revision: '20200806'
 discoveryVersion: v1
 id: discovery:v1
 name: discovery
 version: v1
-title: APIs Discovery Service
+title: API Discovery Service
 description: Provides information about other Google APIs, such as what APIs are available, the resource, and method details for each API.
 ownerDomain: google.com
 ownerName: Google
@@ -48,11 +49,11 @@ parameters:
     location: query
   quotaUser:
     type: string
-    description: Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.
+    description: An opaque string that represents a user for quota purposes. Must not exceed 40 characters.
     location: query
   userIp:
     type: string
-    description: IP address of the site where the request originates. Use this if you want to enforce per-user limits.
+    description: Deprecated. Please use quotaUser instead.
     location: query
 schemas:
   DirectoryList:
@@ -210,6 +211,14 @@ schemas:
                   type: string
                 type_value:
                   type: string
+      enumDeprecated:
+        type: array
+        description: The deprecation status for the enums. Each position maps to the corresponding value in the "enum" array.
+        items:
+          type: boolean
+      deprecated:
+        type: boolean
+        description: Whether the parameter is deprecated.
   RestDescription:
     id: RestDescription
     type: object
@@ -345,6 +354,25 @@ schemas:
         description: The version of this API.
       version_module:
         type: boolean
+      endpoints:
+        type: array
+        description: A list of location-based endpoint objects for this API. Each object contains the endpoint URL, location, description and deprecation status.
+        items:
+          type: object
+          description: A single endpoint object
+          properties:
+            location:
+              type: string
+              description: The location of the endpoint
+            deprecated:
+              type: boolean
+              description: Whether this endpoint is deprecated
+            endpointUrl:
+              type: string
+              description: The URL of the endpoint target host
+            description:
+              type: string
+              description: A string describing the host designated by the URL
   RestMethod:
     id: RestMethod
     type: object
@@ -447,6 +475,15 @@ schemas:
       useMediaDownloadService:
         type: boolean
         description: Indicates that downloads from this method should use the download service URL (i.e. "/download"). Only applies if the method supports media download.
+      apiVersion:
+        type: string
+        description: The API Version of this method, as passed in via the `X-Goog-Api-Version` header or `$apiVersion` query parameter.
+      flatPath:
+        type: string
+        description: The URI path of this REST method in (RFC 6570) format without level 2 features ({+var}). Supplementary to the path property.
+      deprecated:
+        type: boolean
+        description: Whether this method is deprecated.
   RestResource:
     id: RestResource
     type: object
@@ -463,6 +500,9 @@ schemas:
         additionalProperties:
           "$ref": RestResource
           description: Description for any sub-resources on this resource.
+      deprecated:
+        type: boolean
+        description: Whether this resource is deprecated.
 resources:
   apis:
     methods:
