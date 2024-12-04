@@ -236,14 +236,16 @@ Scorpio provides a pickle adapter to use models with [Pickle](https://rubygems.o
 
 ### Google API discovery service
 
-An initial implementation of Scorpio::ResourceBase was based on the format defined for Google's API discovery service.
+Scorpio was initially built to work with the API description format defined for Google's API discovery service. Though Scorpio is now primarily built for OpenAPI, Google's format is still supported.
 
 For background on the Google discovery service and the API description format it defines, see:
 
 - https://developers.google.com/discovery/
 - https://developers.google.com/discovery/v1/reference/
 
-This format is still supported.
+Such an API description (called a "rest description" or sometimes "discovery document") is an instance of {Scorpio::Google::RestDescription}. Note that Scorpio being OpenAPI-centric, some interfaces use the idioms or terminology of OpenAPI, e.g. a {Scorpio::Google::RestMethod} uses the interface of {Scorpio::OpenAPI::Operation}. See `examples/google` in Scorpio's repository for example usage.
+
+Google does provide official [API clients in Ruby](https://github.com/googleapis/google-api-ruby-client). These weigh in at nearly 5 million lines of code across about 500 gems, almost all generated code from the same API documents Scorpio uses. Scorpio's dynamic handling of API documents and their schemas provides comparable functionality.
 
 ## Other
 
