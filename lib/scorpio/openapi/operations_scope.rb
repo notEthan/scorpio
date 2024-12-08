@@ -32,6 +32,24 @@ module Scorpio
       def [](operationId)
         @operations_by_id[operationId]
       end
+
+      # @return [OperationsScope]
+      def select(&block)
+        OperationsScope.new(@enum.select(&block))
+      end
+
+      # @return [OperationsScope]
+      def reject(&block)
+        OperationsScope.new(@enum.reject(&block))
+      end
+
+      # Operations with the indicated tag
+      # @param tag [String, OpenAPI::Tag]
+      # @return [OperationsScope]
+      def tagged(tag)
+        tag_name = tag.is_a?(OpenAPI::Tag) ? tag.name : tag
+        select { |op| op.tagged?(tag_name) }
+      end
     end
   end
 end
