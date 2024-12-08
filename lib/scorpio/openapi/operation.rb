@@ -99,6 +99,38 @@ module Scorpio
         @http_method = jsi_ptr.tokens.last
       end
 
+      def get?
+        'get'.casecmp?(http_method)
+      end
+
+      def put?
+        'put'.casecmp?(http_method)
+      end
+
+      def post?
+        'post'.casecmp?(http_method)
+      end
+
+      def delete?
+        'delete'.casecmp?(http_method)
+      end
+
+      def options?
+        'options'.casecmp?(http_method)
+      end
+
+      def head?
+        'head'.casecmp?(http_method)
+      end
+
+      def patch?
+        'patch'.casecmp?(http_method)
+      end
+
+      def trace?
+        'trace'.casecmp?(http_method)
+      end
+
       # a short identifier for this operation appropriate for an error message
       # @return [String]
       def human_id
