@@ -9,8 +9,8 @@ require 'api_hammer'
 # resources - it sets no tag_name and defines no represented_schemas.
 class BlogModel < Scorpio::ResourceBase
   define_inheritable_accessor(:logger)
-  logpath = Pathname.new('log/test.log')
-  FileUtils.mkdir_p(logpath.dirname)
+  logpath = 'log/test.log'
+  FileUtils.mkdir_p(File.dirname(logpath))
   self.logger = ::Logger.new(logpath)
 
   blog_port = $blog_port || raise('$blog_port is nil')
