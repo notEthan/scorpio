@@ -23,6 +23,7 @@ group(:test) do
   gem('simplecov')
   gem('simplecov-lcov')
   gem('sinatra', '~> 1.0')
+  gem('ostruct') if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.5')
   gem('rack', '~> 1.0')
   gem('rack-accept')
   gem('rack-test')
