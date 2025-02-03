@@ -17,6 +17,8 @@ module Scorpio
   module Ur
     Request = Ur.properties["request"]
 
+    # The Scorpio::Request from which this Ur was run
+    # @return [Scorpio::Request]
     attr_accessor :scorpio_request
 
     # raises a subclass of Scorpio::HTTPError if the response has an error status.
