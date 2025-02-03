@@ -243,7 +243,7 @@ When these are set, Scorpio::ResourceBase looks through the API description and 
 
 ## Scorpio::Ur
 
-If you need a more complete representation of the HTTP request and/or response, Scorpio::OpenAPI::Operation#run_ur or Scorpio::Request#run_ur will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (using Scorpio::OpenAPI classes)", this code will return an Ur:
+If you need a more complete representation of the HTTP request and/or response, {Scorpio::OpenAPI::Operation#run_ur} will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (without Scorpio::ResourceBase)", this code will return an Ur:
 
 ```ruby
 inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)).paths['/store/inventory']['get']
