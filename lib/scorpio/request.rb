@@ -143,9 +143,10 @@ module Scorpio
       @request_class_by_operation[operation]
     end
 
-    # @param configuration [#to_hash] a hash keyed with configurable attributes for
-    #   the request - instance methods of Scorpio::Request::Configurables, whose values
-    #   will be assigned for those attributes.
+    # @param configuration [#to_hash] A hash of configurable attributes or
+    #   parameters for the request - instance methods of
+    #   {Scorpio::Request::Configurables}, or request parameters defined by the
+    #   operation.
     def initialize(configuration = {}, &b)
       configuration = JSI::Util.stringify_symbol_keys(configuration)
       params_set = Set.new # the set of params that have been set
