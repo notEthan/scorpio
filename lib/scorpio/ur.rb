@@ -15,6 +15,8 @@ module Scorpio
   -> { Scorpio::Response }.() # invoke autoload
 
   module Ur
+    Request = Ur.properties["request"]
+
     attr_accessor :scorpio_request
 
     # raises a subclass of Scorpio::HTTPError if the response has an error status.
