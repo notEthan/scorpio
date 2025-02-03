@@ -12,7 +12,7 @@ module Scorpio
     }
   })
 
-  -> { Scorpio::Response }.() # invoke autoload
+  Scorpio::Response.itself # invoke autoload. this is Scorpio::Ur.properties['response']
 
   module Ur
     Request = Ur.properties["request"]
