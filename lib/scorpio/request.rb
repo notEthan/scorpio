@@ -258,7 +258,7 @@ module Scorpio
     # builds a Faraday connection with this Request's faraday_builder and faraday_adapter.
     # passes a given proc yield_ur to middleware to yield an Ur for requests made with the connection.
     #
-    # @param yield_ur [Proc]
+    # @param yield_ur [Proc, nil]
     # @return [::Faraday::Connection]
     def faraday_connection(yield_ur = nil)
       Faraday.new do |faraday_connection|
