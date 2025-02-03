@@ -306,12 +306,12 @@ module Scorpio
       param_for(name) || raise(ParameterError, "There is no parameter named #{name} on operation #{operation.human_id}:\n#{operation.pretty_inspect.chomp}")
     end
 
-    # applies the named value to the appropriate parameter of the request
+    # Applies the given value to the appropriate parameter of the request
     # @param param_in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply
-    #   the named value
+    #   the given value
     # @param name [String, Symbol] the parameter name to apply the value to
-    # @param value [Object] the value
-    # @return [Object] echoes the value param
+    # @param value [Object] parameter value
+    # @return [Object] the given parameter value
     # @raise [ArgumentError] invalid `param_in` parameter
     # @raise [NotImplementedError] cookies aren't implemented
     def set_param_from(param_in, name, value)
