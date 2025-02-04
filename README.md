@@ -122,11 +122,13 @@ PetStore::Pet.getPetById(petId: 0)
 
 Isn't that cool? You get class methods like getPetById, instance methods like updatePet, attribute accessors like #name and #tags, all dynamically generated from the OpenAPI description. You just make a few classes with a line or two of configuration in each.
 
-## Pet Store (using Scorpio::OpenAPI classes)
+## Pet Store (without Scorpio::ResourceBase)
 
-You do not have to define resource classes to use Scorpio to call OpenAPI operations - the classes Scorpio uses to represent concepts from OpenAPI can be called directly. Scorpio uses [JSI](https://github.com/notEthan/jsi) classes to represent OpenAPI schemes such as the Document and its Operations.
+You do not have to define resource classes as above to use Scorpio to interact with a service - ResourceBase is a helpful representation of the service's resources, but operations can be run directly from Scorpio's representation of the OpenAPI document.
 
-We start by instantiating the OpenAPI document. `Scorpio::OpenAPI::Document.from_instance` returns a V2 or V3 OpenAPI Document class instance.
+This representation uses [JSI](https://github.com/notEthan/jsi) with the JSON schema describing OpenAPI documents (for the relevant version of the OpenAPI specification). Scorpio's API client functionality is implemented using these schemas, and the result is that the instantiated OpenAPI document is itself the client to the service it describes.
+
+To consume the Pet Store service, we start by instantiating the OpenAPI document. {Scorpio::OpenAPI::Document.from_instance} returns a JSI instance described by the appropriate V2 or V3 OpenAPI document schema.
 
 ```ruby
 require 'scorpio'
@@ -135,7 +137,7 @@ pet_store_doc = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
 # => #{<JSI (Scorpio::OpenAPI::V2::Document)> "swagger" => "2.0", ...}
 ```
 
-The OpenAPI document holds the JSON that represents it, so to get an Operation you go through the document's paths, just as it is represented in the JSON.
+Within `pet_store_doc` we can access an operation under the OAD's `#paths` property - JSI objects have accessors for described properties, or can be subscripted as with the Hash/Array nodes they represent.
 
 ```ruby
 # The store inventory operation will let us see what statuses there are
@@ -148,14 +150,14 @@ inventory_op = pet_store_doc.paths['/store/inventory']['get']
 #    }
 ```
 
-Alternatively, Scorpio defines a helper `Document#operations` which behaves like an Enumerable of all the Operations in the Document. It can be subscripted with the `operationId`:
+Alternatively, Scorpio defines a helper {Scorpio::OpenAPI::Document#operations} which is an Enumerable of all the Operations in the Document. It can be subscripted with an `operationId`:
 
 ```ruby
 inventory_op = pet_store_doc.operations['getInventory']
 # => returns the same inventory_op as above.
 ```
 
-Now that we have an operation, we can run requests from it. {Scorpio::OpenAPI::Operation#run} performs the operation by running a request. If the response is an error, a {Scorpio::HTTPError} subclass will be raised. On success, it returns the response body entity, instantiated according to the OpenAPI schema for the operation response, if specified. For more detail on how json-schema instances are represented, see the gem [JSI](https://github.com/notEthan/jsi).
+Now that we have an operation, we can run requests from it with {Scorpio::OpenAPI::Operation#run}. On success, it returns the parsed response body, instantiated using the JSON schema for the operation response, if that is specified in the OAD.
 
 ```ruby
 inventory = inventory_op.run
@@ -168,7 +170,7 @@ inventory = inventory_op.run
 #    }
 ```
 
-let's pick a state and find a pet. we'll go through the rest of the example in the ResourceBase section pretty much like it is up there:
+We'll pick a state, find a pet, and go through the rest of the example in the ResourceBase section pretty much like it is up there:
 
 ```ruby
 # call the operation findPetsByStatus
