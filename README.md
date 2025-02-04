@@ -133,16 +133,16 @@ To consume the Pet Store service, we start by instantiating the OpenAPI document
 ```ruby
 require 'scorpio'
 pet_store_content = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
-pet_store_doc = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
+pet_store_oad = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
 # => #{<JSI (Scorpio::OpenAPI::V2::Document)> "swagger" => "2.0", ...}
 ```
 
-Within `pet_store_doc` we can access an operation under the OAD's `#paths` property - JSI objects have accessors for described properties, or can be subscripted as with the Hash/Array nodes they represent.
+Within `pet_store_oad` we can access an operation under the OAD's `#paths` property - JSI objects have accessors for described properties, or can be subscripted as with the Hash/Array nodes they represent.
 
 ```ruby
 # The store inventory operation will let us see what statuses there are
 # in the store.
-inventory_op = pet_store_doc.paths['/store/inventory']['get']
+inventory_op = pet_store_oad.paths['/store/inventory']['get']
 # => #{<JSI (Scorpio::OpenAPI::V2::Operation)>
 #      "summary" => "Returns pet inventories by status",
 #      "operationId" => "getInventory",
@@ -153,7 +153,7 @@ inventory_op = pet_store_doc.paths['/store/inventory']['get']
 Alternatively, Scorpio defines a helper {Scorpio::OpenAPI::Document#operations} which is an Enumerable of all the Operations in the Document. It can be subscripted with an `operationId`:
 
 ```ruby
-inventory_op = pet_store_doc.operations['getInventory']
+inventory_op = pet_store_oad.operations['getInventory']
 # => returns the same inventory_op as above.
 ```
 
@@ -175,7 +175,7 @@ We'll pick a state, find a pet, and go through the rest of the example in the Re
 ```ruby
 # call the operation findPetsByStatus
 # doc: https://petstore.swagger.io/#/pet/findPetsByStatus
-sold_pets = pet_store_doc.operations['findPetsByStatus'].run(status: 'sold')
+sold_pets = pet_store_oad.operations['findPetsByStatus'].run(status: 'sold')
 # sold_pets is an array-like collection of JSI instances
 
 pet = sold_pets.detect { |pet| pet.tags.any? }
@@ -189,7 +189,7 @@ pet.tags.map(&:name)
 
 # compare the pet from findPetsByStatus to one returned from getPetById
 # doc: https://petstore.swagger.io/#/pet/getPetById
-pet_by_id = pet_store_doc.operations['getPetById'].run(petId: pet['id'])
+pet_by_id = pet_store_oad.operations['getPetById'].run(petId: pet['id'])
 
 # unlike ResourceBase instances above, JSI instances have stricter
 # equality and the pets returned from different operations are not
@@ -202,14 +202,14 @@ pet.name = ENV['USER']
 
 # store the result in the pet store.
 # updatePet: https://petstore.swagger.io/#/pet/updatePet
-pet_store_doc.operations['updatePet'].run(body_object: pet)
+pet_store_oad.operations['updatePet'].run(body_object: pet)
 
 # check that it was saved
-pet_store_doc.operations['getPetById'].run(petId: pet['id']).name
+pet_store_oad.operations['getPetById'].run(petId: pet['id']).name
 # => "ethan" (unless for some reason your name is not Ethan)
 
 # here is how errors are handled:
-pet_store_doc.operations['getPetById'].run(petId: 0)
+pet_store_oad.operations['getPetById'].run(petId: 0)
 # raises: Scorpio::HTTPErrors::NotFound404Error
 #   Error calling operation getPetById:
 #   {"code":1,"type":"error","message":"Pet not found"}
