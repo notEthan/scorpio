@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 module Scorpio
-  class RequestSchemaFailure < Error
-  end
-
   class ResourceBase
     class << self
       # ResourceBase.inheritable_accessor_defaults is a hash of accessor names (Symbol) mapped 
