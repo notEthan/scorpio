@@ -3,24 +3,30 @@
 ![Test CI Status](https://github.com/notEthan/scorpio/actions/workflows/test.yml/badge.svg?branch=main)
 [![Coverage Status](https://coveralls.io/repos/github/notEthan/scorpio/badge.svg)](https://coveralls.io/github/notEthan/scorpio)
 
-Scorpio is a library that helps you, as a client, consume an HTTP service described by an OpenAPI document. You provide the OpenAPI description document, a little bit of configuration, and Scorpio will take that and dynamically generate an interface for you to call the service's operations and interact with its resources as an ORM.
+Scorpio is a library that helps you, as a client, consume a service whose API is described by an OpenAPI description. You provide the OpenAPI description document, a little bit of configuration, and using that Scorpio will dynamically construct interfaces for you to call the service's operations and interact with its resources like an ORM.
 
-Note: The canonical location of this README is on [RubyDoc](http://rubydoc.info/gems/scorpio/). When viewed on [Github](https://github.com/notEthan/scorpio/), it may be inconsistent with the latest released gem, and Yardoc links will not work.
+Note: The canonical location of this README is on [RubyDoc](https://rubydoc.info/gems/scorpio/). When viewed on [Github](https://github.com/notEthan/scorpio/), it may be inconsistent with the latest released gem, and Yardoc links will not work.
 
 ## Background
 
-To start with, you need an OpenAPI (formerly known as Swagger) document describing a service you will be consuming. v2 and v3 are both supported.[^1] This document can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing your service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+### OpenAPI specification and OpenAPI documents
 
+To start with, you need an OpenAPI document (an OAD) describing a service you will be consuming. OpenAPI Specification v3.0 and v2 (formerly known as Swagger) are supported. An OAD can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing a given service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+
+- [Learn about OpenAPI](https://learn.openapis.org/)
 - [OpenAPI Specification at Wikipedia](https://en.wikipedia.org/wiki/OpenAPI_Specification)
-- [OpenAPI Initiative](https://www.openapis.org/) is the official web site for OpenAPI
-- [OpenAPI Specification on GitHub](https://github.com/OAI/OpenAPI-Specification)
-- [swagger.io](https://swagger.io/) API tooling
+- OpenAPI [Specification v2.0](https://spec.openapis.org/oas/v2.0.html) and [Specification v3.0](https://spec.openapis.org/oas/v3.0.html)
+- [OpenAPI Specification development on GitHub](https://github.com/OAI/OpenAPI-Specification)
 
-OpenAPI relies on the definition of schemas using the JSON schema specification, which can be learned about at https://json-schema.org/
+### JSON Schema, JSI
 
-Once you have the OpenAPI document describing the service you will consume, you can get started implementing the code that will interact with that service.
+[JSON Schema](https://json-schema.org/) is an important part of OpenAPI documents, in which it is used to describe various components of a service's requests and responses.
 
-[^1]: Certain features may be missing, but Scorpio tries to make workarounds easy. Issues and pull requests regarding missing functionality are welcome.
+[JSI](https://github.com/notEthan/jsi) is a Ruby library that offers an Object-Oriented representation for JSON data using JSON Schemas.
+
+Scorpio utilizes JSI to instantiate components of the API described by JSON schemas, in particular JSON request and response bodies.
+
+Scorpio's core is built on JSI. It uses the JSON Schema describing OpenAPI documents (which is published along with the OpenAPI specification) with JSI to instantiate an OAD and to define functionality of the document, operations, and other components.
 
 ## Pet Store (using Scorpio::ResourceBase)
 
