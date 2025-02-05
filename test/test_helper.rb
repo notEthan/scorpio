@@ -21,7 +21,23 @@ end
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'scorpio'
 
-require 'bundler/setup'
+require('bundler')
+bundler_groups = [:default, :test]
+bundler_groups << :dev unless ENV['CI']
+Bundler.setup(*bundler_groups)
+
+if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'debug' }
+  require('debug')
+  Object.send(:alias_method, :dbg, :debugger)
+end
+if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'byebug' }
+  require('byebug')
+  Object.send(:alias_method, :dbg, :byebug)
+end
+if !ENV['CI'] && Bundler.load.specs.any? { |spec| spec.name == 'ruby-debug' }
+  require('ruby-debug')
+  Object.send(:alias_method, :dbg, :debugger)
+end
 
 # NO EXPECTATIONS 
 ENV["MT_NO_EXPECTATIONS"] = ''
