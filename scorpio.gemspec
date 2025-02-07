@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
     'scorpio.gemspec',
     *Dir['lib/**/*'],
     *Dir['documents/**/*'],
+    *Dir['pages/**/*'],
   ].reject { |f| File.lstat(f).ftype == 'directory' }
 
   spec.require_paths = ["lib"]

@@ -2,4 +2,5 @@
 --markup=markdown
 --markup-provider=redcarpet
 --no-private
+--files pages/**/*.md
 lib/**/*.rb
