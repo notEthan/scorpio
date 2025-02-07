@@ -50,7 +50,6 @@ module PetStore
     # your local filesystem (making network calls at application boot
     # time is usually a bad idea), but for this example we will do a
     # quick-and-dirty HTTP get.
-    require 'json'
     self.openapi_document = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
   end
 
