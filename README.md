@@ -140,8 +140,6 @@ pet_store_oad = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
 Within `pet_store_oad` we can access an operation under the OAD's `#paths` property - JSI objects have accessors for described properties, or can be subscripted as with the Hash/Array nodes they represent.
 
 ```ruby
-# The store inventory operation will let us see what statuses there are
-# in the store.
 inventory_op = pet_store_oad.paths['/store/inventory']['get']
 # => #{<JSI (Scorpio::OpenAPI::V2::Operation)>
 #      "summary" => "Returns pet inventories by status",
@@ -176,7 +174,9 @@ We'll pick a state, find a pet, and go through the rest of the example in the Re
 # call the operation findPetsByStatus
 # doc: https://petstore.swagger.io/#/pet/findPetsByStatus
 sold_pets = pet_store_oad.operations['findPetsByStatus'].run(status: 'sold')
-# sold_pets is an array-like collection of JSI instances
+# sold_pets is an array-like collection of JSI instances.
+# Each item is described by the OAD's Pet schema.
+sold_pets.first.described_by?(pet_store_oad.definitions['Pet']) # => true
 
 pet = sold_pets.detect { |pet| pet.tags.any? }
 
