@@ -261,7 +261,7 @@ module Scorpio
     # @return [::Faraday::Connection]
     def faraday_connection(yield_ur = nil)
       Faraday.new do |faraday_connection|
-        faraday_builder.call(faraday_connection)
+        faraday_builder.call(faraday_connection) if faraday_builder
         if yield_ur
           -> { ::Ur::Faraday }.() # autoload trigger
 

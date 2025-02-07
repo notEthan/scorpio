@@ -48,7 +48,7 @@ module Scorpio
         attr_writer :faraday_builder
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
-          -> (_) { }
+          nil
         end
 
         attr_writer :faraday_adapter
