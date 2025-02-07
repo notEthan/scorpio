@@ -87,6 +87,7 @@ sold_pets = PetStore::Pet.findPetsByStatus(status: 'sold')
 # sold_pets is an array-like collection of PetStore::Pet instances
 
 pet = sold_pets.sample
+# => #<PetStore::Pet #{<JSI> "id" => 9, "name" => "Ix", "status" => "sold", ...}>
 
 pet.tags.map(&:name)
 # note that you have accessors on PetStore::Pet like #tags, and also that
