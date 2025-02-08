@@ -23,5 +23,6 @@ module Scorpio
 
     autoload(:V2, 'scorpio/openapi/v2')
     autoload(:V3, 'scorpio/openapi/v3_0')
+    autoload(:V3_0, 'scorpio/openapi/v3_0')
   end
 end

@@ -2,12 +2,12 @@
 
 module Scorpio
   module OpenAPI
-    module V3
+    module V3_0
       Document = JSI::JSONSchemaDraft04.new_schema_module(YAML.safe_load(Scorpio.root.join(
         'documents/spec.openapis.org/oas/3.0/schema.yaml'
       ).read))
 
-      # the schema represented by Scorpio::OpenAPI::V3::Schema will describe schemas itself.
+      # the schema represented by Scorpio::OpenAPI::V3_0::Schema will describe schemas itself.
       # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
       describe_schema = [
         Document.schema.definitions['Schema'],
@@ -25,7 +25,7 @@ module Scorpio
       describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
 
       # naming these is not strictly necessary, but is nice to have.
-      # generated: `puts Scorpio::OpenAPI::V3::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
+      # generated: `puts Scorpio::OpenAPI::V3_0::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
 
 
       Reference      = Document.definitions['Reference']
@@ -104,5 +104,8 @@ module Scorpio
       raise(Bug) unless Schema < JSI::Schema
       raise(Bug) unless SchemaReference < JSI::Schema
     end
+
+    # @deprecated after v0.7
+    V3 = V3_0
   end
 end

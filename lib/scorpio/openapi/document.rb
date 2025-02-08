@@ -12,7 +12,7 @@ module Scorpio
         # instantiating it.
         #
         # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
-        # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3::Document]
+        # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3_0::Document]
         def from_instance(instance, **new_param)
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
@@ -70,7 +70,7 @@ module Scorpio
       end
 
       def v3?
-        is_a?(OpenAPI::V3::Document)
+        is_a?(OpenAPI::V3_0::Document)
       end
 
       def operations

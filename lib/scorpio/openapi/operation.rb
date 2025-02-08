@@ -48,7 +48,7 @@ module Scorpio
       # openapi v3?
       # @return [Boolean]
       def v3?
-        is_a?(OpenAPI::V3::Operation)
+        is_a?(OpenAPI::V3_0::Operation)
       end
 
       # openapi v2?
@@ -66,8 +66,8 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
-        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::Paths)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::PathItem)
+        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::Paths)
         @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
       end
 
@@ -95,7 +95,7 @@ module Scorpio
       # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 
@@ -144,7 +144,7 @@ module Scorpio
       end
 
       # @param status [String, Integer]
-      # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
+      # @return [Scorpio::OpenAPI::V3_0::Response, Scorpio::OpenAPI::V2::Response]
       def oa_response(status: )
         status = status.to_s if status.is_a?(Numeric)
         if responses
@@ -162,7 +162,7 @@ module Scorpio
         parameters = self.parameters ? self.parameters.to_a.dup : []
         path_template.variables.each do |var|
           unless parameters.any? { |p| p['in'] == 'path' && p['name'] == var }
-            # we could instantiate this as a V2::Parameter or a V3::Parameter
+            # we could instantiate this as a V2::Parameter or a V3_0::Parameter
             # or a ParameterWithContentInPath or whatever. but I can't be bothered.
             parameters << {
               'name' => var,
@@ -326,9 +326,9 @@ module Scorpio
         # @return [JSI::Schema]
         def response_schema(status: , media_type: )
           oa_response = self.oa_response(status: status)
-          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3::MediaTypes
-          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3::MediaType
-          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3::Schema
+          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3_0::MediaTypes
+          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3_0::MediaType
+          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3_0::Schema
           oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
         end
 
