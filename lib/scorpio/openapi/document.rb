@@ -22,7 +22,7 @@ module Scorpio
             if (instance['swagger'].is_a?(String) && instance['swagger'] =~ /\A2(\.|\z)/) || instance['swagger'] == 2
               instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
             elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.0(\.|\z)/) || instance['openapi'] == 3.0
-              instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance, **new_param)
+              instance = Scorpio::OpenAPI::V3_0::Document.new_jsi(instance, **new_param)
             elsif instance['kind'] == 'discovery#restDescription'
               Scorpio::Google::RestDescription.new_jsi(instance, register: true, **new_param)
             else
