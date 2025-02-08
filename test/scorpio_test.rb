@@ -107,7 +107,7 @@ describe 'blog' do
 end
 
 describe 'openapi boolean schema' do
-  it 'is a schema, v3' do
+  it("is a schema, v3.0") do
     document = Scorpio::OpenAPI::V3_0::Document.new_jsi({
       'components' => {
         'schemas' => {

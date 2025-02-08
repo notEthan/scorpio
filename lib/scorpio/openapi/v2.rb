@@ -11,7 +11,7 @@ module Scorpio
       # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
       describe_schema = [
         Document.schema.definitions['schema'],
-        # comments on V3's definitions['Schema'].properties['additionalProperties'] apply here too
+        # comments on V3_0's Document.definitions['Schema'].properties['additionalProperties'] apply here too
         Document.schema.definitions['schema'].properties['additionalProperties'],
       ]
       describe_schema.each { |s| s.describes_schema!([JSI::Schema::Draft04]) }
