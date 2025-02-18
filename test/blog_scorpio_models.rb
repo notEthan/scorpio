@@ -21,8 +21,8 @@ class BlogModel < Scorpio::ResourceBase
   elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi2'
     self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
     self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
-  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3' || ENV['SCORPIO_API_DESCRIPTION_FORMAT'].nil?
-    self.openapi_document = YAML.load_file('test/blog.openapi3.yml')
+  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3.0' || ENV['SCORPIO_API_DESCRIPTION_FORMAT'].nil?
+    self.openapi_document = YAML.load_file('test/blog.openapi3_0.yml')
     self.openapi_document.server_variables = {
       'scheme' => 'http',
       'host' => 'localhost',

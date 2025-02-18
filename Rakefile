@@ -10,7 +10,7 @@ task 'test:each_format' do
   formats = %w(
     rest_description
     openapi2
-    openapi3
+    openapi3.0
   )
 
   require 'term/ansicolor'
