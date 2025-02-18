@@ -224,6 +224,17 @@ module Scorpio
       # the right dialect (see comment on `document_schema_module_by_dialect_id`), but
       # Ext::ExtDocument does also validate OAD jsonSchemaDialect and schema $schema properties.
       document_schema_modules_by_dialect_id[Ext::MetaSchema.schema_uri] = Ext::ExtDocument
+
+
+      module JSONSchemaDraft202012
+      end
+
+      JSONSchemaDraft202012::Document = Unscoped::Document.with_dynamic_scope_from(JSI::JSONSchemaDraft202012)
+      # Describes an OAD with `jsonSchemaDialect: "https://json-schema.org/draft/2020-12/schema"`
+      module JSONSchemaDraft202012::Document
+      end
+
+      document_name_subschemas(JSONSchemaDraft202012::Document, JSONSchemaDraft202012)
     end
   end
 end
