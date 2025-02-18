@@ -44,6 +44,7 @@ ignore_files = %w(
   Gemfile
   Rakefile
   test/**/*
+  examples/**/*
   bin/documents_to_yml.rb
   resources/icons/**/*
 ).map { |glob| Dir.glob(glob, File::FNM_DOTMATCH) }.inject([], &:|)
