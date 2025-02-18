@@ -1,0 +1,134 @@
+openapi: 3.1.0
+servers:
+- url: "{scheme}://{host}:{port}/{basePath}"
+  variables:
+    scheme:
+      default: https
+    host:
+      default: blog.scorpio
+    port:
+      default: '443'
+    basePath:
+      enum:
+        - v1
+      default: v1
+info:
+  title: Scorpio Blog
+  description: REST service for the Scorpio Blog
+  version: ''
+  contact: {}
+tags:
+- name: articles
+  description: articles
+paths:
+  /articles:
+    get:
+      tags:
+      - articles
+      operationId: articles.index
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/article'
+    post:
+      tags:
+      - articles
+      operationId: articles.post
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/article'
+      requestBody:
+        $ref: '#/components/requestBodies/article'
+  /articles_with_root:
+    get:
+      tags:
+      - articles
+      operationId: articles.index_with_root
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/article'
+                  best_article:
+                    $ref: '#/components/schemas/article'
+                  version:
+                    type: string
+  '/articles/{id}':
+    get:
+      tags:
+      - articles
+      operationId: articles.read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/article'
+    patch:
+      tags:
+      - articles
+      operationId: articles.patch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/article'
+      requestBody:
+        $ref: '#/components/requestBodies/article'
+  /clean:
+    post:
+      tags:
+      - clean
+      operationId: clean
+      responses:
+        default:
+          description: default response
+components:
+  requestBodies:
+    article:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/article'
+      required: true
+  schemas:
+    article:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        author_id:
+          type: integer
