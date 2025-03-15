@@ -179,8 +179,9 @@ module Scorpio
       end
     end
 
-    # @return [Scorpio::OpenAPI::Operation]
-    attr_reader :operation
+    # @!method operation
+    #   @return [Scorpio::OpenAPI::Operation]
+
 
     # @return [Scorpio::OpenAPI::Document]
     def openapi_document
