@@ -14,11 +14,6 @@ module Scorpio
           if variables
             server_variables = (given_server_variables.keys | variables.keys).map do |key|
               server_variable = variables[key]
-              if server_variable && server_variable.enum
-                unless server_variable.enum.include?(given_server_variables[key])
-                  warn # TODO BLAME
-                end
-              end
               if given_server_variables.key?(key)
                 {key => given_server_variables[key]}
               elsif server_variable.key?('default')
