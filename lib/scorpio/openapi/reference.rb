@@ -21,23 +21,13 @@ module Scorpio
       def deref
         return unless respond_to?(:to_hash) && key?('$ref') && jsi_node_content['$ref'].respond_to?(:to_str)
 
-        ref_uri = Addressable::URI.parse(jsi_node_content['$ref'])
-        ref_uri_nofrag = ref_uri.merge(fragment: nil)
+        ref = @memos.fetch(:oa_ref) { @memos[:oa_ref] = JSI::Ref.new(jsi_node_content['$ref'], referrer: self) }
 
-        if !ref_uri_nofrag.empty? || ref_uri.fragment.nil?
-          raise(NotImplementedError,
-            "Scorpio currently only supports fragment URIs as OpenAPI references. cannot find reference by uri: #{self['$ref']}"
-          )
-        end
+        # TODO type check resolved
 
-        ptr = JSI::Ptr.from_fragment(ref_uri.fragment)
-        deref_jsi = ptr.evaluate(jsi_root_node)
+        yield ref.resolve if block_given?
 
-        # TODO type check deref_jsi
-
-        yield deref_jsi if block_given?
-
-        deref_jsi
+        ref.resolve
       end
     end
   end
