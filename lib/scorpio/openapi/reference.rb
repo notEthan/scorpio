@@ -3,6 +3,17 @@
 module Scorpio
   module OpenAPI
     module Reference
+      # @private
+      module IncludeRecursive
+        def included(mod)
+          super
+          return if mod.is_a?(Class)
+          mod.send(:extend, IncludeRecursive)
+        end
+      end
+
+      extend(IncludeRecursive)
+
       # Derefable is included on the schema module of any schema that describes a reference or has an
       # in-place applicator that describes a reference. You can call #deref regardless whether an object
       # is of an expected type, or a reference to one, or a reference to a reference to one.
