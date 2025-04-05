@@ -8,7 +8,25 @@ module Scorpio
         def included(mod)
           super
           return if mod.is_a?(Class)
+          document_subschemas_include_derefable(mod)
           mod.send(:extend, IncludeRecursive)
+        end
+
+        # - when a schema module includes OpenAPI::Reference
+        # - then we go to the schema's root node (which describes an OpenAPI Document)
+        # - and for each descendent schema, describing a part of an OAD
+        # - if that schema _could_ describe a reference, because its in-place applicators
+        #   include the schema of the schema module including Reference
+        #   (e.g. it has a oneOf with a $ref: '#/definitions/Reference')
+        # - then its schema module includes Derefable
+        def document_subschemas_include_derefable(mod)
+          return unless mod.is_a?(JSI::SchemaModule)
+
+          mod.schema.jsi_root_node.jsi_each_descendent_schema do |schema|
+            if to_enum(:schema_all_inplace_applicator_schemas, schema).include?(mod.schema)
+              schema.jsi_schema_module.include(Derefable)
+            end
+          end
         end
 
         # yield all of the schema's in-place applicator schemas, recursively, following $ref.
