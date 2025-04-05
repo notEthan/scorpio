@@ -3,6 +3,19 @@
 module Scorpio
   module OpenAPI
     module Reference
+      # Derefable is included on the schema module of any schema that describes a reference or has an
+      # in-place applicator that describes a reference. You can call #deref regardless whether an object
+      # is of an expected type, or a reference to one, or a reference to a reference to one.
+      module Derefable
+        # resolves references ({Reference#resolve}) recursively.
+        def deref
+          return self unless is_a?(Reference) && has_ref?
+          resolved = resolve
+          return resolved if !resolved.is_a?(Reference)
+          resolved.deref
+        end
+      end
+
       # overrides JSI::Base#[] to implicitly resolve this Reference, except when
       # the given token is present in this Reference's instance (this should usually
       # only apply to the token '$ref')
