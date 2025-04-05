@@ -10,6 +10,33 @@ module Scorpio
           return if mod.is_a?(Class)
           mod.send(:extend, IncludeRecursive)
         end
+
+        # yield all of the schema's in-place applicator schemas, recursively, following $ref.
+        # TODO find a better home for this code (it is not particular to OpenAPI::Reference)
+        def schema_all_inplace_applicator_schemas(schema, &block)
+          yield schema
+          if schema.keyword?('$ref')
+            schema_all_inplace_applicator_schemas(schema.schema_ref.resolve, &block)
+          end
+          ia_elements = schema.dialect.elements.select { |element| element.invokes?(:inplace_applicate) }
+          cxt = JSI::Schema::Cxt::Block.new(
+            schema: schema,
+            abort: false,
+            block: proc { |ptr| schema_all_inplace_applicator_schemas(schema.subschema(ptr), &block) },
+          )
+          ia_elements.each do |element|
+            # getting subschemas yielded from action :subschema on elements that invoke :inplace_applicate
+            # is a kind of hacky way to get _all_ inplace applicators.
+            # getting applicator schemas normally comes from invoking :inplace_applicate, but that
+            # requires an instance and yields just the applicators that apply to that instance, not all.
+            #
+            # this does not work when the schemas an element yields from :subschema do not match its in-place
+            # applicator schemas. the only element that does that is for $ref which is handled above.
+            element.actions[:subschema].each do |action|
+              cxt.instance_exec(&action)
+            end
+          end
+        end
       end
 
       extend(IncludeRecursive)
