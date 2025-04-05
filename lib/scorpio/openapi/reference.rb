@@ -15,11 +15,16 @@ module Scorpio
         return super
       end
 
+      # @return [Boolean]
+      def has_ref?
+        jsi_child_token_present?('$ref')
+      end
+
       # yields or returns the target of this reference
       # @yield [JSI::Base] if a block is given
       # @return [JSI::Base]
       def resolve
-        return unless respond_to?(:to_hash) && key?('$ref') && jsi_node_content['$ref'].respond_to?(:to_str)
+        return unless has_ref?
 
         ref = @memos.fetch(:oa_ref) { @memos[:oa_ref] = JSI::Ref.new(jsi_node_content['$ref'], referrer: self) }
 
