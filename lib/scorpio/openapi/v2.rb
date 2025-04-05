@@ -109,6 +109,7 @@ module Scorpio
 
       module PathItem
         include(OpenAPI::PathItem)
+        include(OpenAPI::Reference)
       end
 
       raise(Bug) unless Schema < JSI::Schema
