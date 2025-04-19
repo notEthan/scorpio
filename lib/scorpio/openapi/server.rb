@@ -4,6 +4,8 @@ module Scorpio
   module OpenAPI
       # An object representing a Server.
       module Server
+        include(Document::Descendent)
+
         # expands this server's #url template using the given_server_variables. any variables
         # that are in the url but not in the given server variables are filled in
         # using the default value for the variable.

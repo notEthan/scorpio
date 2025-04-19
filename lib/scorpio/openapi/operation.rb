@@ -44,6 +44,7 @@ module Scorpio
         end
       end
       include Configurables
+      include(Document::Descendent)
 
       # openapi v3?
       # @return [Boolean]
@@ -55,12 +56,6 @@ module Scorpio
       # @return [Boolean]
       def v2?
         is_a?(OpenAPI::V2::Operation)
-      end
-
-      # the document whence this operation came
-      # @return [Scorpio::OpenAPI::Document]
-      def openapi_document
-        jsi_parent_nodes.detect { |p| p.is_a?(Scorpio::OpenAPI::Document) }
       end
 
       # @return [String]

@@ -34,6 +34,13 @@ module Scorpio
         end
       end
 
+      module Descendent
+        # @return [Scorpio::OpenAPI::Document]
+        def openapi_document
+          jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::Document) } || raise(Error, "not inside an OpenAPI document (#{inspect})")
+        end
+      end
+
       module Configurables
         attr_writer :request_headers
         def request_headers
