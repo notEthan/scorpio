@@ -132,11 +132,7 @@ module Scorpio
             end
           end
 
-          attr_writer :request_media_type
-          def request_media_type
-            return @request_media_type if instance_variable_defined?(:@request_media_type)
-            nil
-          end
+          attr_accessor(:request_media_type)
         end
         include Configurables
         include(OpenAPI::Document)
