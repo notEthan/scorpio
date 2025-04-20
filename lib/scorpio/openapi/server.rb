@@ -4,7 +4,7 @@ module Scorpio
   module OpenAPI
       # An object representing a Server.
       module Server
-        # expands this server's #url using the given_server_variables. any variables
+        # expands this server's #url template using the given_server_variables. any variables
         # that are in the url but not in the given server variables are filled in
         # using the default value for the variable.
         #
