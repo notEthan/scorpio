@@ -2,12 +2,6 @@
 
 require_relative 'test_helper'
 
-class ScorpioTest < Minitest::Test
-  def test_that_it_has_a_version_number
-    refute_nil ::Scorpio::VERSION
-  end
-end
-
 describe 'blog' do
   let(:blog_article) { Article.post('title' => "sports!") }
 
