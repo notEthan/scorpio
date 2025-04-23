@@ -79,7 +79,7 @@ module Scorpio
         include(OpenAPI::Operation::V3Methods)
       end
 
-      # A document that defines or describes an API conforming to the OpenAPI Specification v3.
+      # A document that defines or describes an API conforming to the OpenAPI Specification v3.0.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
       module Document
