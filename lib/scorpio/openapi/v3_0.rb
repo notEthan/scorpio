@@ -118,9 +118,6 @@ module Scorpio
       module SecurityScheme
         include(OpenAPI::SecurityScheme)
       end
-
-      raise(Bug) unless Schema < JSI::Schema
-      raise(Bug) unless SchemaReference < JSI::Schema
     end
 
     # @deprecated after v0.7
