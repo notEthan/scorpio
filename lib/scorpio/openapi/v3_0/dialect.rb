@@ -34,8 +34,7 @@ module Scorpio
 
         JSI::Schema::Elements::ENUM[],
 
-        # TODO `nullable`
-        JSI::Schema::Elements::TYPE[],
+        OpenAPI::SchemaElements::TYPE_NULLABLE,
 
         JSI::Schema::Elements::ALL_OF[],
         JSI::Schema::Elements::ONE_OF[],
