@@ -84,6 +84,13 @@ module Scorpio
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
       module Document
         include(OpenAPI::Document::V3Methods)
+
+        # @return [#to_hash] /components/schemas, if present, or an empty hash
+        def components_schemas
+          return JSI::Util::EMPTY_HASH unless key?('components') && components.respond_to?(:to_hash)
+          return JSI::Util::EMPTY_HASH unless components.key?('schemas') && components.schemas.respond_to?(:to_hash)
+          components.schemas
+        end
       end
 
       module Reference
