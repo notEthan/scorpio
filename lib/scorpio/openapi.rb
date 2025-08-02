@@ -47,5 +47,7 @@ module Scorpio
     autoload(:V3, 'scorpio/openapi/v3_0')
     autoload(:V3_0, 'scorpio/openapi/v3_0')
     autoload(:V3_1, 'scorpio/openapi/v3_1')
+
+    autoload(:SchemaElements, 'scorpio/openapi/schema_elements')
   end
 end
