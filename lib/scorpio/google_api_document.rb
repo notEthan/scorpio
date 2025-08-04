@@ -126,7 +126,8 @@ module Scorpio
         id
       end
 
-      def request_schema
+      # @param media_type unused
+      def request_schema(media_type: nil)
         request
       end
 
