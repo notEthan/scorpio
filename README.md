@@ -173,7 +173,8 @@ We'll pick a state, find a pet, and go through the rest of the example in the Re
 ```ruby
 # call the operation findPetsByStatus
 # doc: https://petstore.swagger.io/#/pet/findPetsByStatus
-sold_pets = pet_store_oad.operations['findPetsByStatus'].run(status: 'sold')
+# we will be mutating one of these, so we pass mutable: true
+sold_pets = pet_store_oad.operations['findPetsByStatus'].run(status: 'sold', mutable: true)
 # sold_pets is an array-like collection of JSI instances.
 # Each item is described by the OAD's Pet schema.
 sold_pets.first.described_by?(pet_store_oad.definitions['Pet']) # => true
