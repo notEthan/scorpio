@@ -19,23 +19,20 @@ module Scorpio
         define_singleton_method(accessor, &default_getter)
         inheritable_accessor_defaults[accessor] = singleton_class.instance_method(accessor)
         # field setter method. redefines the getter, replacing the method with one that returns the
-        # setter's argument (that being inherited to the scope of the define_method(accessor) block
+        # setter's argument `value`
         define_singleton_method(:"#{accessor}=") do |value|
-          # the setter operates on the singleton class of the receiver (self)
-          singleton_class.instance_exec(value, self) do |value_, klass|
             # remove a previous getter. NameError is raised if a getter is not defined on this class;
             # this may be ignored.
             begin
-              remove_method(accessor)
+              singleton_class.send(:remove_method, accessor)
             rescue NameError
             end
             # getter method
-            define_method(accessor) { value_ }
+            define_singleton_method(accessor) { value }
             # invoke on_set callback defined on the class
             if on_set
-              klass.instance_exec(&on_set)
+              instance_exec(&on_set)
             end
-          end
         end
       end
     end
