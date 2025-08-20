@@ -148,7 +148,7 @@ module Scorpio
       end
 
       h[op] = request_class
-    end
+    end.compare_by_identity
 
     def self.request_class_by_operation(operation)
       @request_class_by_operation[operation]
