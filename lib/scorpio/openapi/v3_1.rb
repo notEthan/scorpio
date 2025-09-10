@@ -31,7 +31,6 @@ module Scorpio
         namespace.const_set(:SecurityScheme,    document_schema_module.defs['security-scheme'])
         namespace.const_set(:OAuthFlows,         document_schema_module.defs['oauth-flows'])
         namespace.const_set(:SecurityRequirement, document_schema_module.defs['security-requirement'])
-        namespace.const_set(:SpecificationExtensions, document_schema_module.defs['specification-extensions'])
         namespace.const_set(:Examples,            document_schema_module.defs['examples'])
         namespace.const_set(:MapOfStrings,         document_schema_module.defs['map-of-strings'])
         namespace.const_set(:StylesForForm,         document_schema_module.defs['styles-for-form'])
