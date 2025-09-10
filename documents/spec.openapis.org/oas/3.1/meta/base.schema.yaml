@@ -1,3 +1,4 @@
+# Scorpio::OpenAPI::V3_1::Ext::VocabSchema
 $id: https://spec.openapis.org/oas/3.1/meta/base
 $schema: https://json-schema.org/draft/2020-12/schema
 
