@@ -106,6 +106,9 @@ module Scorpio
       # - $id: `https://spec.openapis.org/oas/3.1/schema/2022-10-07`
       module Unscoped::Document
       end
+      # if jsonSchemaDialect is explicit nil, instantiate a document with no meta-schema in dynamic scope.
+      # note the default when jsonSchemaDialect is absent is not nil, it is Unscoped::Document.properties['jsonSchemaDialect'].default.
+      document_schema_modules_by_dialect_id[nil] = Unscoped::Document
     end
   end
 end
