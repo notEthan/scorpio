@@ -207,7 +207,7 @@ module Scorpio
       #   - The draft/2020-12 vocabularies - core, applicator, validation, etc (required: true)
       #   - {Ext::VOCAB} `<https://spec.openapis.org/oas/3.1/vocab/base>` (required: false)
       # - allOf:
-      #   - $ref: JSI::JSONSchemaDraft202012 `<https://json-schema.org/draft/2020-12/schema>` (with dynamic scope meta → {Ext::ExtDocument::Schema})
+      #   - $ref: {Ext::JSONSchemaDraft202012} `<https://json-schema.org/draft/2020-12/schema>`
       #   - $ref: {Ext::VocabSchema} `<https://spec.openapis.org/oas/3.1/meta/base>`
       module Ext::MetaSchema
       end
@@ -224,6 +224,12 @@ module Scorpio
       # the right dialect (see comment on `document_schema_module_by_dialect_id`), but
       # Ext::ExtDocument does also validate OAD jsonSchemaDialect and schema $schema properties.
       document_schema_modules_by_dialect_id[Ext::MetaSchema.schema_uri] = Ext::ExtDocument
+
+      Ext::JSONSchemaDraft202012 = JSI::JSONSchemaDraft202012.with_dynamic_scope_from(Ext::ExtDocument)
+      JSI::JSONSchemaDraft202012.name_vocab_schemas(Ext::JSONSchemaDraft202012)
+      # JSI::JSONSchemaDraft202012, with dynamic scope pointing `$dynamicAnchor: "meta"` to {Ext::ExtDocument::Schema}.
+      module Ext::JSONSchemaDraft202012
+      end
 
 
       module JSONSchemaDraft202012
