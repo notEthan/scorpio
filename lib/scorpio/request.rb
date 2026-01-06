@@ -38,6 +38,12 @@ module Scorpio
         nil
       end
 
+      attr_writer(:querystring)
+      def querystring
+        return @querystring if instance_variable_defined?(:@querystring)
+        nil
+      end
+
       attr_writer :scheme
       def scheme
         return @scheme if instance_variable_defined?(:@scheme)
@@ -203,8 +209,12 @@ module Scorpio
       end
 
       path = path_template.expand(path_params)
+      raise(AmbiguousParameter, "query_params + querystring both specified") if query_params && querystring
       if query_params
         path.query_values = query_params
+      end
+      if querystring
+        path.query = querystring
       end
       path.freeze
     end
