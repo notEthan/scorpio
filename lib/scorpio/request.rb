@@ -111,6 +111,8 @@ module Scorpio
         operation.user_agent
       end
 
+      attr_accessor(:accept)
+
       attr_writer :faraday_builder
       def faraday_builder
         return @faraday_builder if instance_variable_defined?(:@faraday_builder)
@@ -373,6 +375,7 @@ module Scorpio
       if user_agent
         headers['User-Agent'] = user_agent
       end
+      headers['Accept'] = accept if accept
       if !content_type_header
         if media_type
           headers['Content-Type'] = media_type
