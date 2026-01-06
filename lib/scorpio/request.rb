@@ -68,6 +68,11 @@ module Scorpio
         operation.base_url(scheme: scheme, server: server, server_variables: server_variables)
       end
 
+      # overriding url will cause all of path_params, query_params, querystring, scheme, server, server_variables, and base_url to be ignored
+      def url=(url)
+        @url = JSI::Util.uri(url)
+      end
+
       attr_writer :body
       def body
         return @body if instance_variable_defined?(:@body)
@@ -228,6 +233,7 @@ module Scorpio
     # the full URL for this request
     # @return [Addressable::URI]
     def url
+      return @url if instance_variable_defined?(:@url)
       unless base_url
         raise(ArgumentError, "no base_url has been specified for request")
       end
