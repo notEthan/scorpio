@@ -235,20 +235,7 @@ module Scorpio
             # no next link; we are at the end
             nil
           elsif nextlinks.size == 1
-            nextlink = nextlinks.first
-            # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
-            # we use File.join just to deal with consecutive slashes.
-            template = Addressable::Template.new(File.join(init_request.base_url, path_template_str))
-            target_uri = nextlink.absolute_target_uri
-            path_params = template.extract(target_uri.merge(query: nil))
-            unless path_params
-              raise("the URI of the link to the next page did not match the URI of this operation")
-            end
-            query_params = target_uri.query_values
-            run_ur(
-              path_params: path_params,
-              query_params: query_params,
-            )
+            run_ur(url: nextlinks.first.absolute_target_uri)
           else
             # TODO better error class / context / message
             raise("response included multiple links with rel=next")
