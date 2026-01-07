@@ -12,7 +12,7 @@ module Scorpio
       ur.scorpio_request.operation.response_schema(status: status, media_type: media_type)
     end
 
-    # media types for which Scorpio has implemented parsing {Response#body_object} from {Response#body}
+    # media types for which Scorpio has implemented parsing {Response#body_object} from `Response#body`
     SUPPORTED_MEDIA_TYPES = %w(
       application/json
     ).map(&:freeze).freeze
