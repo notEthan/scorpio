@@ -46,12 +46,12 @@ describe 'blog' do
       Article.read({})
     end
     path = BlogModel.openapi_document.operations['articles.read'].path_template_str
-    assert_equal(%Q(path #{path} for operation articles.read requires path_params which were missing: ["id"]),
+    assert_equal(%Q(missing params: ["id"]\nfor path: #{path}\nfor operation: articles.read),
       e.message)
     e = assert_raises(ArgumentError) do
       Article.read({id: ''})
     end
-    assert_equal(%Q(path #{path} for operation articles.read requires path_params which were empty: ["id"]),
+    assert_equal(%Q(empty params: ["id"] for path: #{path}\nfor operation articles.read),
       e.message)
   end
   it 'tries to read a nonexistent article' do
