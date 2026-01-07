@@ -138,34 +138,12 @@ module Scorpio
     end
     include Configurables
 
-    @request_class_by_operation = Hash.new do |h, op|
-      request_class = Class.new(Request) do
-        define_singleton_method(:inspect) { -"#{Request} (for operation: #{op.human_id})" }
-        define_method(:operation) { op }
-        include(op.request_accessor_module)
-      end
-
-      # naming the class helps with debugging and some built-in ruby error messages
-      const_name = JSI::Util::Private.const_name_from_parts([
-        op.openapi_document && (op.openapi_document.jsi_base_uri || op.openapi_document.title),
-        *(op.operationId || [op.http_method, op.path_template_str]),
-      ].compact)
-      if const_name && !Request.const_defined?(const_name)
-        Request.const_set(const_name, request_class)
-      end
-
-      h[op] = request_class
-    end.compare_by_identity
-
-    def self.request_class_by_operation(operation)
-      @request_class_by_operation[operation]
-    end
-
     # @param configuration [#to_hash] A hash of configurable attributes or
     #   parameters for the request - instance methods of
     #   {Scorpio::Request::Configurables}, or request parameters defined by the
     #   operation.
-    def initialize(**configuration, &b)
+    def initialize(operation, **configuration, &b)
+      @operation = operation
       configuration = JSI::Util.stringify_symbol_keys(configuration)
       configuration.each do |name, value|
         if Configurables.public_method_defined?("#{name}=")
@@ -181,9 +159,8 @@ module Scorpio
       end
     end
 
-    # @!method operation
-    #   @return [Scorpio::OpenAPI::Operation]
-
+    # @return [Scorpio::OpenAPI::Operation]
+    attr_reader(:operation)
 
     # @return [Scorpio::OpenAPI::Document]
     def openapi_document
