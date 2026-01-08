@@ -214,8 +214,8 @@ module Scorpio
       # runs a {Scorpio::Request} for this operation - see {Scorpio::Request#run}.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return response body object
-      def run(**configuration, &b)
-        build_request(**configuration, &b).run
+      def run(mutable: false, **configuration, &b)
+        build_request(**configuration, &b).run(mutable: mutable)
       end
 
       # Runs this operation with the given request config, and yields the resulting {Scorpio::Ur}.
