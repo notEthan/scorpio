@@ -199,23 +199,23 @@ module Scorpio
       # instantiates a {Scorpio::Request} for this operation.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
-      def build_request(configuration = {}, &b)
+      def build_request(**configuration, &b)
         @request_class ||= Scorpio::Request.request_class_by_operation(self)
-        @request_class.new(configuration, &b)
+        @request_class.new(**configuration, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Ur] response ur
-      def run_ur(configuration = {}, &b)
-        build_request(configuration, &b).run_ur
+      def run_ur(**configuration, &b)
+        build_request(**configuration, &b).run_ur
       end
 
       # runs a {Scorpio::Request} for this operation - see {Scorpio::Request#run}.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return response body object
-      def run(configuration = {}, &b)
-        build_request(configuration, &b).run
+      def run(**configuration, &b)
+        build_request(**configuration, &b).run
       end
 
       # Runs this operation with the given request config, and yields the resulting {Scorpio::Ur}.
@@ -227,8 +227,8 @@ module Scorpio
       # @param configuration (see Scorpio::Request#initialize)
       # @yield [Scorpio::Ur]
       # @return [Enumerator, nil]
-      def each_link_page(configuration = {}, &block)
-        init_request = build_request(configuration)
+      def each_link_page(**configuration, &block)
+        init_request = build_request(**configuration)
         next_page = proc do |last_page_ur|
           nextlinks = last_page_ur.response.links.select { |link| link.rel?('next') }
           if nextlinks.size == 0

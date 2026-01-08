@@ -158,7 +158,7 @@ module Scorpio
     #   parameters for the request - instance methods of
     #   {Scorpio::Request::Configurables}, or request parameters defined by the
     #   operation.
-    def initialize(configuration = {}, &b)
+    def initialize(**configuration, &b)
       configuration = JSI::Util.stringify_symbol_keys(configuration)
       params_set = Set.new # the set of params that have been set
       # do the Configurables first
