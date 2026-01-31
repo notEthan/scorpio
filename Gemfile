@@ -18,7 +18,6 @@ gem 'gig'
 
 group(:test) do
   gem('minitest', '~> 5.0')
-  gem('minitest-around')
   gem('minitest-reporters')
   gem('simplecov')
   gem('simplecov-lcov')
