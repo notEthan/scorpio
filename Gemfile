@@ -38,8 +38,8 @@ group(:test) do
   ].map(&:values).each do |activerecord, ruby, sqlite|
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new(ruby)
       if RUBY_ENGINE == 'jruby'
-        # override. update this per released version of activerecord-jdbc-adapter, current latest 71.x corresponding to Rails 7.1.x
-        activerecord = '< 7.2'
+        # override. update this per released version of activerecord-jdbc-adapter, current latest 72.x corresponding to Rails 7.2.x
+        activerecord = '< 7.3'
       end
       gem('activerecord', activerecord)
 
