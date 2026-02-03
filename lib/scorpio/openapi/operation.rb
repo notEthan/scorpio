@@ -171,37 +171,11 @@ module Scorpio
         parameters
       end
 
-      # a module with accessor methods for unambiguously named parameters of this operation.
-      # @return [Module]
-      def request_accessor_module
-        return @request_accessor_module if instance_variable_defined?(:@request_accessor_module)
-        @request_accessor_module = begin
-          operation = self
-          params_by_name = inferred_parameters.group_by { |p| p['name'] }
-          Module.new do
-            define_singleton_method(:inspect) { "(Scorpio param module for operation: #{operation.human_id})" }
-            instance_method_modules = [Request]
-            instance_method_names = instance_method_modules.map do |mod|
-              (mod.instance_methods + mod.private_instance_methods).map(&:to_s)
-            end.inject(Set.new, &:merge)
-            params_by_name.each do |name, params|
-              next if instance_method_names.include?(name)
-              if params.size == 1
-                param = params.first
-                define_method("#{name}=") { |value| set_param_from(param['in'], param['name'], value) }
-                define_method(name) { get_param_from(param['in'], param['name']) }
-              end
-            end
-          end
-        end
-      end
-
       # instantiates a {Scorpio::Request} for this operation.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
       def build_request(**configuration, &b)
-        @request_class ||= Scorpio::Request.request_class_by_operation(self)
-        @request_class.new(**configuration, &b)
+        Scorpio::Request.new(self, **configuration, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
