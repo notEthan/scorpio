@@ -3,18 +3,20 @@
 module Scorpio
   module OpenAPI
     module V2
+      describe_schema_ptrs = Set[
+        # this schema (Scorpio::OpenAPI::V2::Schema) describes schemas in an OpenAPI document.
+        JSI::Ptr['definitions', 'schema'],
+        # this schema describes a boolean schema, only allowed for 'additionalProperties'
+        JSI::Ptr['definitions', 'schema', 'properties', 'additionalProperties', 'anyOf', 1],
+      ].freeze
+
       Document = JSI.new_schema_module(JSON.parse(Scorpio.root.join(
         'documents/swagger.io/v2/schema.json'
       ).read, freeze: true))
 
-      # the schema represented by Scorpio::OpenAPI::V2::Schema will describe schemas itself.
-      # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
-      describe_schema = [
-        Document.schema.definitions['schema'],
-        # comments on V3_0's Document.definitions['Schema'].properties['additionalProperties'] apply here too
-        Document.schema.definitions['schema'].properties['additionalProperties'],
-      ]
-      describe_schema.each { |s| s.describes_schema!(JSI::Schema::Draft04::DIALECT) }
+      describe_schema_ptrs.each do |ptr|
+        (Document / ptr).describes_schema!(JSI::Schema::Draft04::DIALECT)
+      end
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V2::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`

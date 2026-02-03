@@ -167,18 +167,13 @@ module Scorpio
     #   operation.
     def initialize(**configuration, &b)
       configuration = JSI::Util.stringify_symbol_keys(configuration)
-      params_set = Set.new # the set of params that have been set
-      # do the Configurables first
       configuration.each do |name, value|
         if Configurables.public_method_defined?("#{name}=")
           Configurables.instance_method("#{name}=").bind(self).call(value)
-          params_set << name
+        else
+          param = param_for(name) || raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
+          set_param_from(param['in'], param['name'], value)
         end
-      end
-      # then do other top-level params
-      configuration.reject { |name, _| params_set.include?(name) }.each do |name, value|
-        param = param_for(name) || raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
-        set_param_from(param['in'], param['name'], value)
       end
 
       if block_given?
