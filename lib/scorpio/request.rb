@@ -5,9 +5,8 @@ module Scorpio
   # Base class, not directly instantiated; subclassed per operation, defining accessors for operation params.
   # Used by {Scorpio::OpenAPI::Operation#build_request} and related methods.
   class Request
-    # media types for which Scorpio has implemented generating / parsing between body
-    # and body_object (see {Request#body} and {Response#body_object})
-    SUPPORTED_REQUEST_MEDIA_TYPES = %w(
+    # media types for which Scorpio has implemented generating {Request#body} from {Request#body_object}
+    SUPPORTED_MEDIA_TYPES = %w(
       application/json
       application/x-www-form-urlencoded
     ).map(&:freeze).freeze
@@ -21,7 +20,7 @@ module Scorpio
       if media_types.size == 1
         media_types.first
       else
-        SUPPORTED_REQUEST_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
+        SUPPORTED_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
       end
     end
 
@@ -78,7 +77,7 @@ module Scorpio
           elsif content_type && content_type.form_urlencoded?
             URI.encode_www_form(body_object)
 
-          # NOTE: the supported media types above should correspond to Request::SUPPORTED_REQUEST_MEDIA_TYPES
+          # NOTE: the supported media types above should correspond to Request::SUPPORTED_MEDIA_TYPES
 
           else
             if body_object.respond_to?(:to_str)
@@ -133,19 +132,32 @@ module Scorpio
     include Configurables
 
     @request_class_by_operation = Hash.new do |h, op|
-      h[op] = Class.new(Request) do
+      request_class = Class.new(Request) do
+        define_singleton_method(:inspect) { -"#{Request} (for operation: #{op.human_id})" }
         define_method(:operation) { op }
         include(op.request_accessor_module)
       end
+
+      # naming the class helps with debugging and some built-in ruby error messages
+      const_name = JSI::Util::Private.const_name_from_parts([
+        op.openapi_document && (op.openapi_document.jsi_schema_base_uri || op.openapi_document.title),
+        *(op.operationId || [op.http_method, op.path_template_str]),
+      ].compact)
+      if const_name && !Request.const_defined?(const_name)
+        Request.const_set(const_name, request_class)
+      end
+
+      h[op] = request_class
     end
 
     def self.request_class_by_operation(operation)
       @request_class_by_operation[operation]
     end
 
-    # @param configuration [#to_hash] a hash keyed with configurable attributes for
-    #   the request - instance methods of Scorpio::Request::Configurables, whose values
-    #   will be assigned for those attributes.
+    # @param configuration [#to_hash] A hash of configurable attributes or
+    #   parameters for the request - instance methods of
+    #   {Scorpio::Request::Configurables}, or request parameters defined by the
+    #   operation.
     def initialize(configuration = {}, &b)
       configuration = JSI::Util.stringify_symbol_keys(configuration)
       params_set = Set.new # the set of params that have been set
@@ -249,7 +261,7 @@ module Scorpio
     # @return [::Faraday::Connection]
     def faraday_connection(yield_ur = nil)
       Faraday.new do |faraday_connection|
-        faraday_builder.call(faraday_connection)
+        faraday_builder.call(faraday_connection) if faraday_builder
         if yield_ur
           -> { ::Ur::Faraday }.() # autoload trigger
 
@@ -305,12 +317,12 @@ module Scorpio
       param_for(name) || raise(ParameterError, "There is no parameter named #{name} on operation #{operation.human_id}:\n#{operation.pretty_inspect.chomp}")
     end
 
-    # applies the named value to the appropriate parameter of the request
+    # Applies the given value to the appropriate parameter of the request
     # @param param_in [String, Symbol] one of 'path', 'query', 'header', or 'cookie' - where to apply
-    #   the named value
+    #   the given value
     # @param name [String, Symbol] the parameter name to apply the value to
-    # @param value [Object] the value
-    # @return [Object] echoes the value param
+    # @param value [Object] parameter value
+    # @return [Object] the given parameter value
     # @raise [ArgumentError] invalid `param_in` parameter
     # @raise [NotImplementedError] cookies aren't implemented
     def set_param_from(param_in, name, value)

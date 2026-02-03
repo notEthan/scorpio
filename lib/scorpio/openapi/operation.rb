@@ -48,13 +48,13 @@ module Scorpio
       # openapi v3?
       # @return [Boolean]
       def v3?
-        is_a?(V3::Operation)
+        is_a?(OpenAPI::V3_0::Operation)
       end
 
       # openapi v2?
       # @return [Boolean]
       def v2?
-        is_a?(V2::Operation)
+        is_a?(OpenAPI::V2::Operation)
       end
 
       # the document whence this operation came
@@ -66,8 +66,8 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
-        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::Paths)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::PathItem)
+        raise(Bug) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::Paths) || jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::Paths)
         @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
       end
 
@@ -95,7 +95,7 @@ module Scorpio
       # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3::PathItem)
+        raise(Bug) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::V2::PathItem) || jsi_parent_node.is_a?(Scorpio::OpenAPI::V3_0::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 
@@ -144,7 +144,7 @@ module Scorpio
       end
 
       # @param status [String, Integer]
-      # @return [Scorpio::OpenAPI::V3::Response, Scorpio::OpenAPI::V2::Response]
+      # @return [Scorpio::OpenAPI::V3_0::Response, Scorpio::OpenAPI::V2::Response]
       def oa_response(status: )
         status = status.to_s if status.is_a?(Numeric)
         if responses
@@ -162,7 +162,7 @@ module Scorpio
         parameters = self.parameters ? self.parameters.to_a.dup : []
         path_template.variables.each do |var|
           unless parameters.any? { |p| p['in'] == 'path' && p['name'] == var }
-            # we could instantiate this as a V2::Parameter or a V3::Parameter
+            # we could instantiate this as a V2::Parameter or a V3_0::Parameter
             # or a ParameterWithContentInPath or whatever. but I can't be bothered.
             parameters << {
               'name' => var,
@@ -180,8 +180,10 @@ module Scorpio
       def request_accessor_module
         return @request_accessor_module if instance_variable_defined?(:@request_accessor_module)
         @request_accessor_module = begin
+          operation = self
           params_by_name = inferred_parameters.group_by { |p| p['name'] }
           Module.new do
+            define_singleton_method(:inspect) { "(Scorpio param module for operation: #{operation.human_id})" }
             instance_method_modules = [Request]
             instance_method_names = instance_method_modules.map do |mod|
               (mod.instance_methods + mod.private_instance_methods).map(&:to_s)
@@ -266,13 +268,8 @@ module Scorpio
       end
     end
 
-    module V3
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Operation') unless const_defined?(:Operation)
-
-      # Describes a single API operation on a path.
-      #
-      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#operationObject
-      module Operation
+    module Operation
+      module V3Methods
         module Configurables
           def scheme
             # not applicable; for OpenAPI v3, scheme is specified by servers.
@@ -302,6 +299,7 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Operation)
 
         # @return [JSI::Schema]
         def request_schema(media_type: self.request_media_type)
@@ -330,9 +328,9 @@ module Scorpio
         # @return [JSI::Schema]
         def response_schema(status: , media_type: )
           oa_response = self.oa_response(status: status)
-          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3::MediaTypes
-          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3::MediaType
-          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3::Schema
+          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3_0::MediaTypes
+          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3_0::MediaType
+          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3_0::Schema
           oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
         end
 
@@ -354,9 +352,9 @@ module Scorpio
         end
       end
     end
-    module V2
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Operation') unless const_defined?(:Operation)
-      module Operation
+
+    module Operation
+      module V2Methods
         module Configurables
           attr_writer :scheme
           def scheme
@@ -381,6 +379,7 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Operation)
 
         # the body parameter
         # @return [#to_hash]

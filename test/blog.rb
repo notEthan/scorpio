@@ -42,6 +42,9 @@ ActiveRecord::Base.establish_connection(
   :database => dbfile,
 )
 
+# active_record/migration uses Kernel#puts; send $stdout to a file to quiet it
+$stdout_real = $stdout
+$stdout = Scorpio.root.join('log/blog_app_stdout.log').open('a')
 ActiveRecord::Schema.define do
   create_table :articles do |table|
     table.column :title, :string
@@ -52,6 +55,7 @@ ActiveRecord::Schema.define do
     table.column :name, :string
   end
 end
+$stdout = $stdout_real
 
 # we will namespace the models under Blog so that the top-level namespace
 # can be used by the scorpio model classes

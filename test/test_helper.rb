@@ -43,7 +43,6 @@ end
 ENV["MT_NO_EXPECTATIONS"] = ''
 
 require 'minitest/autorun'
-require 'minitest/around/spec'
 require 'minitest/reporters'
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
@@ -55,8 +54,7 @@ class ScorpioSpec < Minitest::Spec
     # :nocov:
   end
 
-  around do |test|
-    test.call
+  after do
     BlogClean.clean
   end
 

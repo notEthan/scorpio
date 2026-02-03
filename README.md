@@ -1,26 +1,32 @@
 # Scorpio
 
-![Test CI Status](https://github.com/notEthan/scorpio/actions/workflows/test.yml/badge.svg?branch=stable)
+![Test CI Status](https://github.com/notEthan/scorpio/actions/workflows/test.yml/badge.svg?branch=main)
 [![Coverage Status](https://coveralls.io/repos/github/notEthan/scorpio/badge.svg)](https://coveralls.io/github/notEthan/scorpio)
 
-Scorpio is a library that helps you, as a client, consume an HTTP service described by an OpenAPI document. You provide the OpenAPI description document, a little bit of configuration, and Scorpio will take that and dynamically generate an interface for you to call the service's operations and interact with its resources as an ORM.
+Scorpio is a library that helps you, as a client, consume a service whose API is described by an OpenAPI description. You provide the OpenAPI description document, a little bit of configuration, and using that Scorpio will dynamically construct interfaces for you to call the service's operations and interact with its resources like an ORM.
 
-Note: The canonical location of this README is on [RubyDoc](http://rubydoc.info/gems/scorpio/). When viewed on [Github](https://github.com/notEthan/scorpio/), it may be inconsistent with the latest released gem, and Yardoc links will not work.
+Note: The canonical location of this README is on [RubyDoc](https://rubydoc.info/gems/scorpio/). When viewed on [Github](https://github.com/notEthan/scorpio/), it may be inconsistent with the latest released gem, and Yardoc links will not work.
 
 ## Background
 
-To start with, you need an OpenAPI (formerly known as Swagger) document describing a service you will be consuming. v2 and v3 are both supported.[^1] This document can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing your service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+### OpenAPI specification and OpenAPI documents
 
+To start with, you need an OpenAPI document (an OAD) describing a service you will be consuming. OpenAPI Specification v3.0 and v2 (formerly known as Swagger) are supported. An OAD can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing a given service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+
+- [Learn about OpenAPI](https://learn.openapis.org/)
 - [OpenAPI Specification at Wikipedia](https://en.wikipedia.org/wiki/OpenAPI_Specification)
-- [OpenAPI Initiative](https://www.openapis.org/) is the official web site for OpenAPI
-- [OpenAPI Specification on GitHub](https://github.com/OAI/OpenAPI-Specification)
-- [swagger.io](https://swagger.io/) API tooling
+- OpenAPI [Specification v2.0](https://spec.openapis.org/oas/v2.0.html) and [Specification v3.0](https://spec.openapis.org/oas/v3.0.html)
+- [OpenAPI Specification development on GitHub](https://github.com/OAI/OpenAPI-Specification)
 
-OpenAPI relies on the definition of schemas using the JSON schema specification, which can be learned about at https://json-schema.org/
+### JSON Schema, JSI
 
-Once you have the OpenAPI document describing the service you will consume, you can get started implementing the code that will interact with that service.
+[JSON Schema](https://json-schema.org/) is an important part of OpenAPI documents, in which it is used to describe various components of a service's requests and responses.
 
-[^1]: Certain features may be missing, but Scorpio tries to make workarounds easy. Issues and pull requests regarding missing functionality are welcome.
+[JSI](https://github.com/notEthan/jsi) is a Ruby library that offers an Object-Oriented representation for JSON data using JSON Schemas.
+
+Scorpio utilizes JSI to instantiate components of the API described by JSON schemas, in particular JSON request and response bodies.
+
+Scorpio's core is built on JSI. It uses the JSON Schema describing OpenAPI documents (which is published along with the OpenAPI specification) with JSI to instantiate an OAD and to define functionality of the document, operations, and other components.
 
 ## Pet Store (using Scorpio::ResourceBase)
 
@@ -33,38 +39,46 @@ require 'scorpio'
 # PetStore is a module to contain our pet store related classes.
 # it is optional - your naming conventions are your own.
 module PetStore
-  # Scorpio's recommended structure is to have a base class which inherits from
-  # Scorpio::ResourceBase to represent the Pet Store and all its resources.
+  # Scorpio's recommended structure is to have a base class which
+  # inherits from Scorpio::ResourceBase to represent the Pet Store
+  # and all its resources.
   #
-  # you configure the openapi document and other shared configuration on this class.
+  # You configure the OpenAPI document and other shared configuration
+  # on this class.
   class Resource < Scorpio::ResourceBase
-    # set the openapi document. you'll usually want this to be a file in your local filesystem
-    # (making network calls at application boot time is usually a bad idea), but for this
-    # example we will do a quick-and-dirty http get.
-    require 'json'
+    # Set the OpenAPI document. You'll usually want this to be a file in
+    # your local filesystem (making network calls at application boot
+    # time is usually a bad idea), but for this example we will do a
+    # quick-and-dirty HTTP get.
     self.openapi_document = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
   end
 
-  # a Pet is a resource of the pet store, so inherits from PetStore::Resource
+  # a Pet is a resource of the pet store, so inherits from
+  # PetStore::Resource
   class Pet < Resource
-    # setting the tag name tells Scorpio to associate operations tagged with 'pet' with this
-    # class and its instances. this lets you call operations such as addPet, updatePet, etc.
+    # Setting the tag name tells Scorpio to associate operations tagged
+    # with 'pet' with this class and its instances. This lets you call
+    # operations such as addPet, updatePet, etc.
     self.tag_name = 'pet'
 
-    # setting the schemas which represent a Pet will let scorpio return results from operation
-    # calls properly instantiated as Pet instances. for example, calling getPetById will return
-    # a PetStore::Pet instance since its success response refers to #/definitions/Pet.
+    # Setting the schemas which represent a Pet will let Scorpio
+    # return results from operation calls properly instantiated as
+    # Pet instances. For example, calling getPetById will return a
+    # PetStore::Pet instance since its success response refers
+    # to #/definitions/Pet.
     #
-    # this works for nested structures as well, e.g. findPetsByStatus returns an array of
-    # #/definitions/Pet and likewise Scorpio will return an array of PetStore::Pet instances.
+    # This works for nested structures as well, e.g. findPetsByStatus
+    # returns an array of #/definitions/Pet and likewise Scorpio will
+    # return an array of PetStore::Pet instances.
     #
-    # this also adds accessors for properties of the schema - in this case #id, #name, #tags, etc.
+    # This also adds accessors for properties of the schema - in this
+    # case #id, #name, #tags, etc.
     self.represented_schemas = [openapi_document.definitions['Pet']]
   end
 end
 ```
 
-That should be all you need to start calling operations:
+That is all you need to start calling operations:
 
 ```ruby
 # call the operation findPetsByStatus
@@ -73,6 +87,7 @@ sold_pets = PetStore::Pet.findPetsByStatus(status: 'sold')
 # sold_pets is an array-like collection of PetStore::Pet instances
 
 pet = sold_pets.sample
+# => #<PetStore::Pet #{<JSI> "id" => 9, "name" => "Ix", "status" => "sold", ...}>
 
 pet.tags.map(&:name)
 # note that you have accessors on PetStore::Pet like #tags, and also that
@@ -87,9 +102,10 @@ pet == PetStore::Pet.getPetById(petId: pet['id'])
 # let's name the pet after ourself
 pet.name = ENV['USER']
 
-# store the result in the pet store. note the updatePet call from the instance - our
-# calls so far have been on the class PetStore::Pet, but scorpio defines instance
-# methods to call operations where appropriate as well.
+# Store the result in the pet store. Note the updatePet call from the
+# instance - our calls so far have been on the class PetStore::Pet,
+# but Scorpio defines instance methods to call operations where
+# appropriate as well.
 # updatePet: https://petstore.swagger.io/#/pet/updatePet
 pet.updatePet
 
@@ -106,23 +122,25 @@ PetStore::Pet.getPetById(petId: 0)
 
 Isn't that cool? You get class methods like getPetById, instance methods like updatePet, attribute accessors like #name and #tags, all dynamically generated from the OpenAPI description. You just make a few classes with a line or two of configuration in each.
 
-## Pet Store (using Scorpio::OpenAPI classes)
+## Pet Store (without Scorpio::ResourceBase)
 
-You do not have to define resource classes to use Scorpio to call OpenAPI operations - the classes Scorpio uses to represent concepts from OpenAPI can be called directly. Scorpio uses [JSI](https://github.com/notEthan/jsi) classes to represent OpenAPI schemes such as the Document and its Operations.
+You do not have to define resource classes as above to use Scorpio to interact with a service - ResourceBase is a helpful representation of the service's resources, but operations can be run directly from Scorpio's representation of the OpenAPI document.
 
-We start by instantiating the OpenAPI document. `Scorpio::OpenAPI::Document.from_instance` returns a V2 or V3 OpenAPI Document class instance.
+This representation uses [JSI](https://github.com/notEthan/jsi) with the JSON schema describing OpenAPI documents (for the relevant version of the OpenAPI specification). Scorpio's API client functionality is implemented using these schemas, and the result is that the instantiated OpenAPI document is itself the client to the service it describes.
+
+To consume the Pet Store service, we start by instantiating the OpenAPI document. {Scorpio::OpenAPI::Document.from_instance} returns a JSI instance described by the appropriate V2 or V3 OpenAPI document schema.
 
 ```ruby
 require 'scorpio'
-pet_store_doc = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body))
-# => #{<Scorpio::OpenAPI::V2::Document fragment="#"> "swagger" => "2.0", ...}
+pet_store_content = JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)
+pet_store_oad = Scorpio::OpenAPI::Document.from_instance(pet_store_content)
+# => #{<JSI (Scorpio::OpenAPI::V2::Document)> "swagger" => "2.0", ...}
 ```
 
-The OpenAPI document holds the JSON that represents it, so to get an Operation you go through the document's paths, just as it is represented in the JSON.
+Within `pet_store_oad` we can access an operation under the OAD's `#paths` property - JSI objects have accessors for described properties, or can be subscripted as with the Hash/Array nodes they represent.
 
 ```ruby
-# the store inventory operation will let us see what statuses there are in the store.
-inventory_op = pet_store_doc.paths['/store/inventory']['get']
+inventory_op = pet_store_oad.paths['/store/inventory']['get']
 # => #{<JSI (Scorpio::OpenAPI::V2::Operation)>
 #      "summary" => "Returns pet inventories by status",
 #      "operationId" => "getInventory",
@@ -130,14 +148,14 @@ inventory_op = pet_store_doc.paths['/store/inventory']['get']
 #    }
 ```
 
-Alternatively, Scorpio defines a helper `Document#operations` which behaves like an Enumerable of all the Operations in the Document. It can be subscripted with the `operationId`:
+Alternatively, Scorpio defines a helper {Scorpio::OpenAPI::Document#operations} which is an Enumerable of all the Operations in the Document. It can be subscripted with an `operationId`:
 
 ```ruby
-inventory_op = pet_store_doc.operations['getInventory']
+inventory_op = pet_store_oad.operations['getInventory']
 # => returns the same inventory_op as above.
 ```
 
-Now that we have an operation, we can run requests from it. {Scorpio::OpenAPI::Operation#run} performs the operation by running a request. If the response is an error, a {Scorpio::HTTPError} subclass will be raised. On success, it returns the response body entity, instantiated according to the OpenAPI schema for the operation response, if specified. For more detail on how json-schema instances are represented, see the gem [JSI](https://github.com/notEthan/jsi).
+Now that we have an operation, we can run requests from it with {Scorpio::OpenAPI::Operation#run}. On success, it returns the parsed response body, instantiated using the JSON schema for the operation response, if that is specified in the OAD.
 
 ```ruby
 inventory = inventory_op.run
@@ -150,25 +168,28 @@ inventory = inventory_op.run
 #    }
 ```
 
-let's pick a state and find a pet. we'll go through the rest of the example in the ResourceBase section pretty much like it is up there:
+We'll pick a state, find a pet, and go through the rest of the example in the ResourceBase section pretty much like it is up there:
 
 ```ruby
 # call the operation findPetsByStatus
 # doc: https://petstore.swagger.io/#/pet/findPetsByStatus
-sold_pets = pet_store_doc.operations['findPetsByStatus'].run(status: 'sold')
-# sold_pets is an array-like collection of JSI instances
+sold_pets = pet_store_oad.operations['findPetsByStatus'].run(status: 'sold')
+# sold_pets is an array-like collection of JSI instances.
+# Each item is described by the OAD's Pet schema.
+sold_pets.first.described_by?(pet_store_oad.definitions['Pet']) # => true
 
 pet = sold_pets.detect { |pet| pet.tags.any? }
 
 pet.tags.map(&:name)
-# note that you have accessors on the returned JSI like #tags, and also that
-# tags have accessors for properties 'name' and 'id' from the tags schema
-# (your tag names will be different depending on what's in the pet store)
+# Note that you have accessors on the returned JSI like #tags, and also
+# that tags have accessors for properties 'name' and 'id' from the tags
+# schema (your tag names will be different depending on what's in the
+# pet store).
 # => ["aucune"]
 
 # compare the pet from findPetsByStatus to one returned from getPetById
 # doc: https://petstore.swagger.io/#/pet/getPetById
-pet_by_id = pet_store_doc.operations['getPetById'].run(petId: pet['id'])
+pet_by_id = pet_store_oad.operations['getPetById'].run(petId: pet['id'])
 
 # unlike ResourceBase instances above, JSI instances have stricter
 # equality and the pets returned from different operations are not
@@ -181,14 +202,14 @@ pet.name = ENV['USER']
 
 # store the result in the pet store.
 # updatePet: https://petstore.swagger.io/#/pet/updatePet
-pet_store_doc.operations['updatePet'].run(body_object: pet)
+pet_store_oad.operations['updatePet'].run(body_object: pet)
 
 # check that it was saved
-pet_store_doc.operations['getPetById'].run(petId: pet['id']).name
+pet_store_oad.operations['getPetById'].run(petId: pet['id']).name
 # => "ethan" (unless for some reason your name is not Ethan)
 
 # here is how errors are handled:
-pet_store_doc.operations['getPetById'].run(petId: 0)
+pet_store_oad.operations['getPetById'].run(petId: 0)
 # raises: Scorpio::HTTPErrors::NotFound404Error
 #   Error calling operation getPetById:
 #   {"code":1,"type":"error","message":"Pet not found"}
@@ -222,7 +243,7 @@ When these are set, Scorpio::ResourceBase looks through the API description and 
 
 ## Scorpio::Ur
 
-If you need a more complete representation of the HTTP request and/or response, Scorpio::OpenAPI::Operation#run_ur or Scorpio::Request#run_ur will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (using Scorpio::OpenAPI classes)", this code will return an Ur:
+If you need a more complete representation of the HTTP request and/or response, {Scorpio::OpenAPI::Operation#run_ur} will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (without Scorpio::ResourceBase)", this code will return an Ur:
 
 ```ruby
 inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body)).paths['/store/inventory']['get']
@@ -236,24 +257,16 @@ Scorpio provides a pickle adapter to use models with [Pickle](https://rubygems.o
 
 ### Google API discovery service
 
-An initial implementation of Scorpio::ResourceBase was based on the format defined for Google's API discovery service.
+Scorpio was initially built to work with the API description format defined for Google's API discovery service. Though Scorpio is now primarily built for OpenAPI, Google's format is still supported.
 
 For background on the Google discovery service and the API description format it defines, see:
 
 - https://developers.google.com/discovery/
 - https://developers.google.com/discovery/v1/reference/
 
-This format is still supported indirectly, by converting from a Google API document to OpenAPI using `Scorpio::Google::RestDescription#to_openapi_document`. Example conversion looks like:
+Such an API description (called a "rest description" or sometimes "discovery document") is an instance of {Scorpio::Google::RestDescription}. Note that Scorpio being OpenAPI-centric, some interfaces use the idioms or terminology of OpenAPI, e.g. a {Scorpio::Google::RestMethod} uses the interface of {Scorpio::OpenAPI::Operation}. See `examples/google` in Scorpio's repository for example usage.
 
-```ruby
-class MyModel < Scorpio::ResourceBase
-  rest_description_doc = YAML.load_file('path/to/doc.yml')
-  rest_description = Scorpio::Google::RestDescription.new(rest_description_doc)
-  self.openapi_document = rest_description.to_openapi_document
-
-  # ... the remainder of your setup and model code here
-end
-```
+Google does provide official [API clients in Ruby](https://github.com/googleapis/google-api-ruby-client). These weigh in at nearly 5 million lines of code across about 500 gems, almost all generated code from the same API documents Scorpio uses. Scorpio's dynamic handling of API documents and their schemas provides comparable functionality.
 
 ## Other
 

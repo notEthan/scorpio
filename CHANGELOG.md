@@ -51,7 +51,7 @@
 - bugfixes
 
 # v0.4.0
-- Scorpio::OpenAPI v3 classes updated from OAI/OpenAPI-Specification branch oas3-schema
+- Scorpio::OpenAPI v3.0 classes updated from OAI/OpenAPI-Specification branch oas3-schema
 - any uniquely-named request parameter will have accessors on Request and can be passed as config to #initialize
 - Request#each_page_ur for pagination
 - significantly improved documentation
@@ -61,7 +61,7 @@
 - miscellaneous minor fixes and improvements
 
 # v0.3.0
-- OpenAPI v3 support
+- OpenAPI v3.0 support
 - classes Request/Response, OpenAPI::Operation, OpenAPI::Document handle a request. ResourceBase relies on these.
 - extract SchemaInstanceBase and friends to gem JSI
 

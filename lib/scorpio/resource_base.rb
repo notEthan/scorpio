@@ -69,8 +69,8 @@ module Scorpio
       if openapi_document && openapi_document.v2?
         raise(ArgumentError, "servers are not supported for OpenAPI V2")
       end
-      unless server.is_a?(Scorpio::OpenAPI::V3::Server)
-        raise(TypeError, "server must be an #{Scorpio::OpenAPI::V3::Server.inspect}. received: #{server.pretty_inspect.chomp}")
+      unless server.is_a?(OpenAPI::Server)
+        raise(TypeError, "server must be an #{OpenAPI::Server}. received: #{server.pretty_inspect.chomp}")
       end
     })
 

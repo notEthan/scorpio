@@ -12,6 +12,11 @@ module Scorpio
       ur.scorpio_request.operation.response_schema(status: status, media_type: media_type)
     end
 
+    # media types for which Scorpio has implemented parsing {Response#body_object} from {Response#body}
+    SUPPORTED_MEDIA_TYPES = %w(
+      application/json
+    ).map(&:freeze).freeze
+
     # the body (String) is parsed according to the response media type, if supported (only JSON is
     # currently supported), and instantiated as a JSI instance of {#response_schema} if that is defined.
     #
@@ -29,17 +34,20 @@ module Scorpio
           end
         end
 
-        if response_schema && (body_object.respond_to?(:to_hash) || body_object.respond_to?(:to_ary))
-          body_object = response_schema.new_jsi(body_object, mutable: mutable)
-        end
+      # NOTE: the supported media types above should correspond to Response::SUPPORTED_MEDIA_TYPES
 
-        body_object
       elsif content_type && content_type.type_text? && content_type.subtype?('plain')
-        body
+        body_object = body
       else
         # we will return the body if we do not have a supported parsing. for now.
-        body
+        body_object = body
       end
+
+      if response_schema && (body_object.respond_to?(:to_hash) || body_object.respond_to?(:to_ary))
+        body_object = response_schema.new_jsi(body_object, mutable: mutable)
+      end
+
+      body_object
     end
   end
 end

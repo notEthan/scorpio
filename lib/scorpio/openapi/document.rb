@@ -12,7 +12,7 @@ module Scorpio
         # instantiating it.
         #
         # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
-        # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3::Document]
+        # @return [Scorpio::OpenAPI::V2::Document, Scorpio::OpenAPI::V3_0::Document]
         def from_instance(instance, **new_param)
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
@@ -23,6 +23,8 @@ module Scorpio
               instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
             elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.0(\.|\z)/) || instance['openapi'] == 3.0
               instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance, **new_param)
+            elsif instance['kind'] == 'discovery#restDescription'
+              Scorpio::Google::RestDescription.new_jsi(instance, register: true, **new_param)
             else
               raise(ArgumentError, "instance does not look like a recognized openapi document")
             end
@@ -48,7 +50,7 @@ module Scorpio
         attr_writer :faraday_builder
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
-          -> (_) { }
+          nil
         end
 
         attr_writer :faraday_adapter
@@ -66,11 +68,11 @@ module Scorpio
       include Configurables
 
       def v2?
-        is_a?(V2::Document)
+        is_a?(OpenAPI::V2::Document)
       end
 
       def v3?
-        is_a?(V3::Document)
+        is_a?(OpenAPI::V3_0::Document)
       end
 
       def operations
@@ -89,15 +91,14 @@ module Scorpio
           end
         end
       end
+
+      def title
+        info && info.title
+      end
     end
 
-    module V3
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V3::Document') unless const_defined?(:Document)
-
-      # A document that defines or describes an API conforming to the OpenAPI Specification v3.
-      #
-      # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
-      module Document
+    module Document
+      module V3Methods
         module Configurables
           def scheme
             nil
@@ -131,16 +132,12 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Document)
       end
     end
 
-    module V2
-      raise(Bug, 'const_defined? Scorpio::OpenAPI::V2::Document') unless const_defined?(:Document)
-
-      # A document that defines or describes an API conforming to the OpenAPI Specification v2 (aka Swagger).
-      #
-      # The root document is known as the Swagger Object.
-      module Document
+    module Document
+      module V2Methods
         module Configurables
           attr_writer :scheme
           def scheme
@@ -186,6 +183,7 @@ module Scorpio
           end
         end
         include Configurables
+        include(OpenAPI::Document)
       end
     end
   end

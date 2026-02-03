@@ -18,7 +18,6 @@ gem 'gig'
 
 group(:test) do
   gem('minitest', '~> 5.0')
-  gem('minitest-around')
   gem('minitest-reporters')
   gem('simplecov')
   gem('simplecov-lcov')
@@ -27,6 +26,7 @@ group(:test) do
   gem('rack', '~> 1.0')
   gem('rack-accept')
   gem('rack-test')
+  gem('faraday-rack')
   gem('webrick')
   gem('api_hammer')
 
@@ -39,8 +39,8 @@ group(:test) do
   ].map(&:values).each do |activerecord, ruby, sqlite|
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new(ruby)
       if RUBY_ENGINE == 'jruby'
-        # override. update this per released version of activerecord-jdbc-adapter, current latest 71.x corresponding to Rails 7.1.x
-        activerecord = '< 7.2'
+        # override. update this per released version of activerecord-jdbc-adapter, current latest 72.x corresponding to Rails 7.2.x
+        activerecord = '< 7.3'
       end
       gem('activerecord', activerecord)
 
