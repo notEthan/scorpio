@@ -26,6 +26,7 @@ group(:test) do
   gem('rack', '~> 1.0')
   gem('rack-accept')
   gem('rack-test')
+  gem('faraday-rack')
   gem('webrick')
   gem('api_hammer')
 
