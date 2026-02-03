@@ -3,11 +3,11 @@
 module Scorpio
   module Google
     discovery_rest_description_doc = YAML.safe_load(Scorpio.root.join('documents/www.googleapis.com/discovery/v1/apis/discovery/v1/rest.yml').read)
-    DISCOVERY_REST_DESCRIPTION = JSI::MetaSchemaNode.new(
+    DISCOVERY_REST_DESCRIPTION = JSI.new_metaschema_node(
       discovery_rest_description_doc,
-      metaschema_root_ptr: JSI::Ptr['schemas']['JsonSchema'],
-      root_schema_ptr: JSI::Ptr['schemas']['RestDescription'],
-      schema_implementation_modules: [JSI::Schema::Draft04],
+      dialect: JSI::Schema::Draft04::DIALECT,
+      metaschema_root_ref: "#/schemas/JsonSchema",
+      root_schema_ref: "#/schemas/RestDescription",
     )
 
     # naming these is not strictly necessary, but is nice to have.

@@ -147,7 +147,7 @@ module Scorpio
 
       # naming the class helps with debugging and some built-in ruby error messages
       const_name = JSI::Util::Private.const_name_from_parts([
-        op.openapi_document && (op.openapi_document.jsi_schema_base_uri || op.openapi_document.title),
+        op.openapi_document && (op.openapi_document.jsi_base_uri || op.openapi_document.title),
         *(op.operationId || [op.http_method, op.path_template_str]),
       ].compact)
       if const_name && !Request.const_defined?(const_name)
