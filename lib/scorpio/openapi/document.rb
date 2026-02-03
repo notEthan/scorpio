@@ -23,6 +23,8 @@ module Scorpio
               instance = Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
             elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.0(\.|\z)/) || instance['openapi'] == 3.0
               instance = Scorpio::OpenAPI::V3::Document.new_jsi(instance, **new_param)
+            elsif instance['kind'] == 'discovery#restDescription'
+              Scorpio::Google::RestDescription.new_jsi(instance, register: true, **new_param)
             else
               raise(ArgumentError, "instance does not look like a recognized openapi document")
             end
@@ -48,7 +50,7 @@ module Scorpio
         attr_writer :faraday_builder
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
-          -> (_) { }
+          nil
         end
 
         attr_writer :faraday_adapter
@@ -88,6 +90,10 @@ module Scorpio
             end
           end
         end
+      end
+
+      def title
+        info && info.title
       end
     end
 

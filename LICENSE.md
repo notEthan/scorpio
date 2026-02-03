@@ -1,8 +1,6 @@
-Copright © [Ethan](https://github.com/notEthan/)
+Scorpio Copyright © [Ethan](https://github.com/notEthan/), licensed under the terms of the [GNU Affero General Public License version 3](https://www.gnu.org/licenses/agpl-3.0.html).
 
-[<img align="right" src="https://github.com/notEthan/scorpio/raw/master/resources/icons/AGPL-3.0.png">](https://www.gnu.org/licenses/agpl-3.0.html)
-
-Scorpio is licensed under the terms of the [GNU Affero General Public License version 3](https://www.gnu.org/licenses/agpl-3.0.html).
+[<img align="right" src="https://www.gnu.org/graphics/agplv3-155x51.png">](https://www.gnu.org/licenses/agpl-3.0.html)
 
 GNU Affero General Public License
 =================================

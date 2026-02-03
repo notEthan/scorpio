@@ -27,6 +27,10 @@ task 'test:each_format' do
     success = system(cmd)
     {success: success, cmd: cmd, exitstatus: $?.exitstatus}.tap(&print_result)
   end
+  if !Dir['tmp/*'].empty?
+    STDERR.puts
+    STDERR.puts("#{Term::ANSIColor.bright_yellow('cleanup')}: tmp/ contains leftover files: #{Dir['tmp/*']}")
+  end
   STDERR.puts
   STDERR.puts "#{Term::ANSIColor.cyan('SUMMARY')}:"
   results.each(&print_result)
@@ -44,6 +48,7 @@ ignore_files = %w(
   Gemfile
   Rakefile
   test/**/*
+  examples/**/*
   bin/documents_to_yml.rb
   resources/icons/**/*
 ).map { |glob| Dir.glob(glob, File::FNM_DOTMATCH) }.inject([], &:|)

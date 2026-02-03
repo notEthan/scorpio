@@ -51,12 +51,13 @@ describe 'blog' do
     e = assert_raises(ArgumentError) do
       Article.read({})
     end
-    assert_equal('path /articles/{id} for operation articles.read requires path_params which were missing: ["id"]',
+    path = BlogModel.openapi_document.operations['articles.read'].path_template_str
+    assert_equal(%Q(path #{path} for operation articles.read requires path_params which were missing: ["id"]),
       e.message)
     e = assert_raises(ArgumentError) do
       Article.read({id: ''})
     end
-    assert_equal('path /articles/{id} for operation articles.read requires path_params which were empty: ["id"]',
+    assert_equal(%Q(path #{path} for operation articles.read requires path_params which were empty: ["id"]),
       e.message)
   end
   it 'tries to read a nonexistent article' do
@@ -133,7 +134,6 @@ end
 
 describe 'openapi tags' do
   it 'associates operations with a tag' do
-    tag = BlogModel.openapi_document.tags.detect { |t| t.name == 'articles' }
     exp_opIds = %w(
       articles.index
       articles.post
@@ -141,8 +141,13 @@ describe 'openapi tags' do
       articles.read
       articles.patch
     )
-    exp_ops = exp_opIds.map { |id| BlogModel.openapi_document.operations[id] }
-    act_ops = tag.operations.to_a
+    exp_ops = exp_opIds.map { |id| BlogModel.openapi_document.operations[id] }.to_set
+    if BlogModel.openapi_document.is_a?(Scorpio::Google::RestDescription)
+      act_ops = BlogModel.openapi_document.operations.select { |op| op.tagged?('articles') }.to_set
+    else
+      tag = BlogModel.openapi_document.tags.detect { |t| t.name == 'articles' }
+      act_ops = tag.operations.to_set
+    end
     assert_equal(exp_ops, act_ops)
   end
 end

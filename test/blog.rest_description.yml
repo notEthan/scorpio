@@ -1,3 +1,4 @@
+kind: discovery#restDescription
 discoveryVersion: v1
 name: blog
 title: "Scorpio Blog"
@@ -8,32 +9,25 @@ resources:
   articles:
     methods:
       index:
+        id: articles.index
         path: articles
         httpMethod: GET
         response:
-          type: array
-          items:
-            $ref: https://blog.example.com/schemas/article/v1.0.0
+          $ref: https://blog.example.com/schemas/articles/v1.0.0
       index_with_root:
+        id: articles.index_with_root
         path: articles_with_root
         httpMethod: GET
         response:
-          type: object
-          properties:
-            articles:
-              type: array
-              items:
-                $ref: https://blog.example.com/schemas/article/v1.0.0
-            best_article:
-              $ref: https://blog.example.com/schemas/article/v1.0.0
-            version:
-              type: string
+          $ref: https://blog.example.com/schemas/articles_with_root/v1.0.0
       read:
+        id: articles.read
         path: articles/{id}
         httpMethod: GET
         response:
           $ref: https://blog.example.com/schemas/article/v1.0.0
       post:
+        id: articles.post
         path: articles
         httpMethod: POST
         request:
@@ -41,6 +35,7 @@ resources:
         response:
           $ref: https://blog.example.com/schemas/article/v1.0.0
       patch:
+        id: articles.patch
         path: articles/{id}
         httpMethod: PATCH
         request:
@@ -50,6 +45,7 @@ resources:
   clean:
     methods:
       clean:
+        id: clean
         path: clean
         httpMethod: POST
         response:
@@ -65,3 +61,18 @@ schemas:
         type: string
       author_id:
         type: integer
+  articles:
+    id: https://blog.example.com/schemas/articles/v1.0.0
+    type: array
+    items:
+      $ref: https://blog.example.com/schemas/article/v1.0.0
+  articles_with_root:
+    id: https://blog.example.com/schemas/articles_with_root/v1.0.0
+    type: object
+    properties:
+      articles:
+        $ref: https://blog.example.com/schemas/articles/v1.0.0
+      best_article:
+        $ref: https://blog.example.com/schemas/article/v1.0.0
+      version:
+        type: string
