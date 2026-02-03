@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative('test_helper')
+require('faraday/rack') unless Faraday::Adapter.constants.include?(:Rack)
 
 describe(Scorpio::ResourceBase) do
   let(:app) { proc { [200, {'Content-Type' => 'application/json'}, ['{"☺": true}']] } }
