@@ -235,7 +235,7 @@ module Scorpio
             # no next link; we are at the end
             nil
           elsif nextlinks.size == 1
-            run_ur(url: nextlinks.first.absolute_target_uri)
+            run_ur(**configuration, url: nextlinks.first.absolute_target_uri)
           else
             # TODO better error class / context / message
             raise("response included multiple links with rel=next")
