@@ -2,6 +2,9 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem('ur', github: 'notEthan/ur', ref: '3c7b9b')
+gem('jsi', github: 'notEthan/jsi', ref: 'v1.0.0')
+
 group(:dev) do
   platform(:mri) do
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7')
