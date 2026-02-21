@@ -168,8 +168,8 @@ module Scorpio
     def initialize(**configuration, &b)
       configuration = JSI::Util.stringify_symbol_keys(configuration)
       configuration.each do |name, value|
-        if Configurables.public_method_defined?("#{name}=")
-          Configurables.instance_method("#{name}=").bind(self).call(value)
+        if Configurables.public_method_defined?(:"#{name}=")
+          public_send(:"#{name}=", value)
         else
           param = param_for(name) || raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
           set_param_from(param['in'], param['name'], value)
