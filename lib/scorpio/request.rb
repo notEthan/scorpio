@@ -23,13 +23,6 @@ module Scorpio
       end
     end
 
-    # @param http_method [String]
-    # @return [Boolean]
-    def self.method_with_body?(http_method)
-      raise(ArgumentError) unless http_method.is_a?(String)
-      METHODS_WITH_BODIES.include?(http_method.downcase)
-    end
-
     module Configurables
       attr_writer :path_params
       def path_params
@@ -180,6 +173,11 @@ module Scorpio
     # @return [String]
     def http_method
       operation.http_method
+    end
+
+    # @return [Boolean]
+    def http_method_with_body?
+      METHODS_WITH_BODIES.include?(http_method.to_str.downcase)
     end
 
     # the template for the request's path, to be expanded with {Configurables#path_params} and appended to

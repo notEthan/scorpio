@@ -344,7 +344,7 @@ module Scorpio
           end
         else
           if other_params
-            if Request.method_with_body?(request.http_method)
+            if request.http_method_with_body?
               request.body_object = other_params
             else
               if other_params.respond_to?(:to_hash)
