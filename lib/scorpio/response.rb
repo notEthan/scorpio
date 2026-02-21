@@ -23,6 +23,11 @@ module Scorpio
     #
     # @param mutable [Boolean] instantiate the response body object as mutable?
     def body_object(mutable: false)
+      k = [:body_object, mutable]
+      @memos.fetch(k) { @memos[k] = compute_body_object(mutable: mutable) }
+    end
+
+    private def compute_body_object(mutable: false)
       if json?
         if body.empty?
           # an empty body isn't valid json, of course, but we'll just return nil for it.

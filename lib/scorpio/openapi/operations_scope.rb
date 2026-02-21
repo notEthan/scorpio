@@ -11,7 +11,7 @@ module Scorpio
         @operations_by_id = Hash.new do |h, operationId|
           op = enum.detect { |operation| operation.operationId == operationId }
           unless op
-            raise(::KeyError, "operationId not found: #{operationId.inspect}")
+            raise(::KeyError, -"operationId not found: #{operationId.inspect}")
           end
           h[operationId] = op
         end

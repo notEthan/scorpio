@@ -79,7 +79,7 @@ module Scorpio
       # @return [Addressable::Template]
       def uri_template(base_url: self.base_url)
         unless base_url
-          raise(ArgumentError, "no base_url has been specified for operation #{self}")
+          raise(ArgumentError, -"no base_url has been specified for operation #{self}")
         end
         # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
         # we use File.join just to deal with consecutive slashes.
@@ -136,7 +136,7 @@ module Scorpio
       # a short identifier for this operation appropriate for an error message
       # @return [String]
       def human_id
-        operationId || "path: #{path_template_str}, method: #{http_method}"
+        operationId || -"path: #{path_template_str}, method: #{http_method}"
       end
 
       # @param status [String, Integer]
@@ -171,37 +171,11 @@ module Scorpio
         parameters
       end
 
-      # a module with accessor methods for unambiguously named parameters of this operation.
-      # @return [Module]
-      def request_accessor_module
-        return @request_accessor_module if instance_variable_defined?(:@request_accessor_module)
-        @request_accessor_module = begin
-          operation = self
-          params_by_name = inferred_parameters.group_by { |p| p['name'] }
-          Module.new do
-            define_singleton_method(:inspect) { "(Scorpio param module for operation: #{operation.human_id})" }
-            instance_method_modules = [Request]
-            instance_method_names = instance_method_modules.map do |mod|
-              (mod.instance_methods + mod.private_instance_methods).map(&:to_s)
-            end.inject(Set.new, &:merge)
-            params_by_name.each do |name, params|
-              next if instance_method_names.include?(name)
-              if params.size == 1
-                param = params.first
-                define_method("#{name}=") { |value| set_param_from(param['in'], param['name'], value) }
-                define_method(name) { get_param_from(param['in'], param['name']) }
-              end
-            end
-          end
-        end
-      end
-
       # instantiates a {Scorpio::Request} for this operation.
       # parameters are all passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
       def build_request(**configuration, &b)
-        @request_class ||= Scorpio::Request.request_class_by_operation(self)
-        @request_class.new(**configuration, &b)
+        Scorpio::Request.new(self, **configuration, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
@@ -235,7 +209,7 @@ module Scorpio
             # no next link; we are at the end
             nil
           elsif nextlinks.size == 1
-            run_ur(url: nextlinks.first.absolute_target_uri)
+            run_ur(**configuration, url: nextlinks.first.absolute_target_uri)
           else
             # TODO better error class / context / message
             raise("response included multiple links with rel=next")
@@ -375,7 +349,7 @@ module Scorpio
             body_parameters.first
           else
             # TODO blame
-            raise(OpenAPI::SemanticError, "multiple body parameters on operation #{operation.pretty_inspect.chomp}")
+            raise(OpenAPI::SemanticError, -"multiple body parameters on operation #{operation.pretty_inspect.chomp}")
           end
         end
 
