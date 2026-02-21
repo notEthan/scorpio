@@ -17,7 +17,7 @@ module Scorpio
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
           elsif instance.is_a?(JSI::Base)
-            raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
+            raise(TypeError, -"instance is unexpected JSI type: #{instance.class.inspect}")
           elsif instance.respond_to?(:to_hash)
             if (instance['swagger'].is_a?(String) && instance['swagger'] =~ /\A2(\.|\z)/) || instance['swagger'] == 2
               Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
@@ -37,7 +37,7 @@ module Scorpio
       module Descendent
         # @return [Scorpio::OpenAPI::Document]
         def openapi_document
-          jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::Document) } || raise(Error, "not inside an OpenAPI document (#{inspect})")
+          jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::Document) } || raise(Error, -"not inside an OpenAPI document (#{inspect})")
         end
       end
 
@@ -51,7 +51,7 @@ module Scorpio
         attr_writer :user_agent
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
-          "Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+          -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
         end
 
         attr_writer :faraday_builder

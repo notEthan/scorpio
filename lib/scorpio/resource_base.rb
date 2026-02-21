@@ -67,7 +67,7 @@ module Scorpio
         raise(ArgumentError, "servers are not supported for OpenAPI V2")
       end
       unless server.is_a?(OpenAPI::Server)
-        raise(TypeError, "server must be an #{OpenAPI::Server}. received: #{server.pretty_inspect.chomp}")
+        raise(TypeError, -"server must be an #{OpenAPI::Server}. received: #{server.pretty_inspect.chomp}")
       end
     })
 
@@ -100,9 +100,9 @@ module Scorpio
         define_singleton_method(:openapi_document_class) { openapi_document_class }
         define_singleton_method(:openapi_document=) do |_|
           if self == openapi_document_class
-            raise(ArgumentError, "openapi_document may only be set once on #{inspect}")
+            raise(ArgumentError, -"openapi_document may only be set once on #{inspect}")
           else
-            raise(ArgumentError, "openapi_document may not be overridden on subclass #{inspect} after it was set on #{openapi_document_class.inspect}")
+            raise(ArgumentError, -"openapi_document may not be overridden on subclass #{inspect} after it was set on #{openapi_document_class.inspect}")
           end
         end
         # TODO blame validate openapi_document
@@ -115,7 +115,7 @@ module Scorpio
 
       def tag_name=(tag_name)
         unless tag_name.respond_to?(:to_str)
-          raise(TypeError, "tag_name must be a string; got: #{tag_name.inspect}")
+          raise(TypeError, -"tag_name must be a string; got: #{tag_name.inspect}")
         end
         tag_name = tag_name.to_str
 
@@ -126,7 +126,7 @@ module Scorpio
         define_singleton_method(:tag_name) { tag_name }
         define_singleton_method(:tag_name=) do |tag_name|
           unless tag_name == self.tag_name
-            raise(ArgumentError, "tag_name may not be overridden (to #{tag_name.inspect}). it is been set to #{self.tag_name.inspect}")
+            raise(ArgumentError, -"tag_name may not be overridden (to #{tag_name.inspect}). it is been set to #{self.tag_name.inspect}")
           end
         end
         update_dynamic_methods
@@ -384,7 +384,7 @@ module Scorpio
           elsif models.size == 1
             model = models.first
           else
-            raise(Scorpio::OpenAPI::Error, "multiple models indicated by response JSI. models: #{models.inspect}; object: #{object.pretty_inspect.chomp}")
+            raise(Scorpio::OpenAPI::Error, -"multiple models indicated by response JSI. models: #{models.inspect}; object: #{object.pretty_inspect.chomp}")
           end
 
           if model && object.respond_to?(:to_hash)
@@ -431,12 +431,12 @@ module Scorpio
       end
 
       def inspect
-        "\#<#{self.class.inspect} #{contained_object.inspect}>"
+        -"\#<#{self.class.inspect} #{contained_object.inspect}>"
       end
 
       def pretty_print(q)
         q.instance_exec(self) do |obj|
-          text "\#<#{obj.class.inspect}"
+          text(-"\#<#{obj.class.inspect}")
           group_sub {
             nest(2) {
               breakable ' '
@@ -565,7 +565,7 @@ module Scorpio
           ks = k.is_a?(String) ? k :
             k.is_a?(Symbol) ? k.to_s :
             k.respond_to?(:to_str) && (kstr = k.to_str).is_a?(String) ? kstr :
-            raise(TypeError, "JSON object (Hash) cannot be keyed with: #{k.pretty_inspect.chomp}")
+            raise(TypeError, -"JSON object (Hash) cannot be keyed with: #{k.pretty_inspect.chomp}")
           hash[ks] = JSI::Util.as_json(self[k], **options)
         end
         hash
@@ -616,7 +616,7 @@ module Scorpio
         if schema_names.empty?
           [Container.to_s]
         else
-          ["#{Container} (#{schema_names.join(', ')})"]
+          [-"#{Container} (#{schema_names.join(', ')})"]
         end
       end
     end

@@ -88,7 +88,7 @@ module Scorpio
             if body_object.respond_to?(:to_str)
               body_object
             else
-              raise(NotImplementedError, "Scorpio does not know how to generate the request body with content_type = #{content_type.respond_to?(:to_str) ? content_type : content_type.inspect} for operation: #{operation.human_id}. Scorpio supports media types: #{SUPPORTED_MEDIA_TYPES.join(', ')}. body_object was: #{body_object.pretty_inspect.chomp}")
+              raise(NotImplementedError, -"Scorpio does not know how to generate the request body with content_type = #{content_type.respond_to?(:to_str) ? content_type : content_type.inspect} for operation: #{operation.human_id}. Scorpio supports media types: #{SUPPORTED_MEDIA_TYPES.join(', ')}. body_object was: #{body_object.pretty_inspect.chomp}")
             end
           end
         else
@@ -171,7 +171,7 @@ module Scorpio
         if Configurables.public_method_defined?(:"#{name}=")
           public_send(:"#{name}=", value)
         else
-          param = param_for(name) || raise(ArgumentError, "unrecognized configuration value passed: #{name.inspect}")
+          param = param_for(name) || raise(ArgumentError, -"unrecognized configuration value passed: #{name.inspect}")
           set_param_from(param['in'], param['name'], value)
         end
       end
@@ -209,11 +209,11 @@ module Scorpio
       path_params = JSI::Util.stringify_symbol_keys(self.path_params)
       missing_variables = path_template.variables - path_params.keys
       if missing_variables.any?
-        raise(ArgumentError, "missing params: #{missing_variables.inspect}\nfor path: #{operation.path_template_str}\nfor operation: #{operation.human_id}")
+        raise(ArgumentError, -"missing params: #{missing_variables.inspect}\nfor path: #{operation.path_template_str}\nfor operation: #{operation.human_id}")
       end
       empty_variables = path_template.variables.select { |v| path_params[v].to_s.empty? }
       if empty_variables.any?
-        raise(ArgumentError, "empty params: #{empty_variables.inspect}\sfor path: #{operation.path_template_str}\nfor operation #{operation.human_id}")
+        raise(ArgumentError, -"empty params: #{empty_variables.inspect}\sfor path: #{operation.path_template_str}\nfor operation #{operation.human_id}")
       end
 
       path = path_template.expand(path_params)
@@ -306,7 +306,7 @@ module Scorpio
         nil
       else
         raise(AmbiguousParameter.new(
-          "There are multiple parameters for #{name}. matched parameters were: #{params.pretty_inspect.chomp}"
+          -"There are multiple parameters for #{name}. matched parameters were: #{params.pretty_inspect.chomp}"
         ).tap { |e| e.name = name })
       end
     end
@@ -316,7 +316,7 @@ module Scorpio
     # @raise [Scorpio::ParameterError] if no parameter has the given name
     # @raise (see #param_for)
     def param_for!(name)
-      param_for(name) || raise(ParameterError, "There is no parameter named #{name} on operation #{operation.human_id}:\n#{operation.pretty_inspect.chomp}")
+      param_for(name) || raise(ParameterError, -"There is no parameter named #{name} on operation #{operation.human_id}:\n#{operation.pretty_inspect.chomp}")
     end
 
     # Applies the given value to the appropriate parameter of the request
@@ -337,9 +337,9 @@ module Scorpio
       elsif param_in == 'header'
         self.headers = self.headers.merge(name => value.to_str)
       elsif param_in == 'cookie'
-        raise(NotImplementedError, "cookies not implemented: #{name.inspect} => #{value.inspect}")
+        raise(NotImplementedError, -"cookies not implemented: #{name.inspect} => #{value.inspect}")
       else
-        raise(ArgumentError, "cannot set param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp}, value: #{value.pretty_inspect.chomp})")
+        raise(ArgumentError, -"cannot set param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp}, value: #{value.pretty_inspect.chomp})")
       end
       value
     end
@@ -360,9 +360,9 @@ module Scorpio
         _, value = headers.detect { |headername, _| headername.downcase == name.downcase }
         value
       elsif param_in == 'cookie'
-        raise(NotImplementedError, "cookies not implemented: #{name.inspect}")
+        raise(NotImplementedError, -"cookies not implemented: #{name.inspect}")
       else
-        raise(OpenAPI::SemanticError, "cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
+        raise(OpenAPI::SemanticError, -"cannot get param from param_in = #{param_in.inspect} (name: #{name.pretty_inspect.chomp})")
       end
     end
 
@@ -426,8 +426,8 @@ module Scorpio
       while page_ur
         unless page_ur.is_a?(Scorpio::Ur)
           raise(TypeError, [
-            "next_page must result in a #{Scorpio::Ur}",
-            "this should be the result of #run_ur from a #{OpenAPI::Operation} or #{Request}",
+            -"next_page must result in a #{Scorpio::Ur}",
+            -"this should be the result of #run_ur from a #{OpenAPI::Operation} or #{Request}",
           ].join("\n"))
         end
         page_ur.raise_on_http_error if raise_on_http_error

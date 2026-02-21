@@ -39,7 +39,7 @@ module Scorpio
         HTTPError
       end
       if error_class
-        message = "Error calling operation #{scorpio_request.operation.human_id}:\n" + response.body
+        message = -"Error calling operation #{scorpio_request.operation.human_id}:\n#{response.body}"
         raise(error_class.new(message).tap do |e|
           e.ur = self
           e.response_object = response.body_object

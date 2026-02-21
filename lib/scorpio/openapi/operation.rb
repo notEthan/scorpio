@@ -79,7 +79,7 @@ module Scorpio
       # @return [Addressable::Template]
       def uri_template(base_url: self.base_url)
         unless base_url
-          raise(ArgumentError, "no base_url has been specified for operation #{self}")
+          raise(ArgumentError, -"no base_url has been specified for operation #{self}")
         end
         # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
         # we use File.join just to deal with consecutive slashes.
@@ -136,7 +136,7 @@ module Scorpio
       # a short identifier for this operation appropriate for an error message
       # @return [String]
       def human_id
-        operationId || "path: #{path_template_str}, method: #{http_method}"
+        operationId || -"path: #{path_template_str}, method: #{http_method}"
       end
 
       # @param status [String, Integer]
@@ -375,7 +375,7 @@ module Scorpio
             body_parameters.first
           else
             # TODO blame
-            raise(OpenAPI::SemanticError, "multiple body parameters on operation #{operation.pretty_inspect.chomp}")
+            raise(OpenAPI::SemanticError, -"multiple body parameters on operation #{operation.pretty_inspect.chomp}")
           end
         end
 
