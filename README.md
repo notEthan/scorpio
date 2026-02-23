@@ -249,7 +249,7 @@ If you need a more complete representation of the HTTP request and/or response, 
 ```ruby
 inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)).paths['/store/inventory']['get']
 inventory_ur = inventory_op.run_ur
-# => #{<Scorpio::Ur fragment="#"> ...}
+# => #{<JSI (Ur + Scorpio::Ur)> "bound" => "outbound", "request" => ...}
 ```
 
 ### Scorpio ResourceBase pickle adapter
