@@ -17,6 +17,7 @@ end
 module Scorpio
   # generally put in code paths that are not expected to be valid control flow paths.
   # rather a NotImplementedCorrectlyError. but that's too long.
+  # @private
   class Bug < NotImplementedError
   end
 
