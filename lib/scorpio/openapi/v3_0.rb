@@ -3,26 +3,22 @@
 module Scorpio
   module OpenAPI
     module V3_0
+      describe_schema_ptrs = Set[
+        # this schema (Scorpio::OpenAPI::V3_0::Schema) describes schemas in an OpenAPI document.
+        JSI::Ptr['definitions', 'Schema'],
+        # /definitions/Schema does not allow $ref; this schema describes a schema with a $ref.
+        JSI::Ptr['definitions', 'SchemaReference'],
+        # this schema describes a boolean schema, only allowed for 'additionalProperties'
+        JSI::Ptr['definitions', 'Schema', 'properties', 'additionalProperties', 'oneOf', 2],
+      ].freeze
+
       Document = JSI::JSONSchemaDraft04.new_schema_module(YAML.safe_load(Scorpio.root.join(
         'documents/spec.openapis.org/oas/3.0/schema.yaml'
       ).read))
 
-      # the schema represented by Scorpio::OpenAPI::V3_0::Schema will describe schemas itself.
-      # JSI::Schema#describes_schema! enables this to implement the functionality of schemas.
-      describe_schema = [
-        Document.schema.definitions['Schema'],
-        Document.schema.definitions['SchemaReference'],
-        # instead of the Schema definition allowing boolean, properties['additionalProperties']
-        # is a oneOf which allows a Schema, SchemaReference, or boolean.
-        # instances of the former two already include the schema implementation (per the previous
-        # describes_schema entries), but the boolean does not.
-        # including in properties['additionalProperties'] applies to any additionalProperties.
-        # (including in properties['additionalProperties'].anyOf[2] would extend booleans too, without
-        # the redundant inclusion that results for Schema and SchemaRef, but redundant inclusion is not
-        # a problem, and this way also applies when none of the anyOf match due to schema errors.)
-        Document.schema.definitions['Schema'].properties['additionalProperties'],
-      ]
-      describe_schema.each { |s| s.describes_schema!(JSI::Schema::Draft04::DIALECT) }
+      describe_schema_ptrs.each do |ptr|
+        (Document / ptr).describes_schema!(JSI::Schema::Draft04::DIALECT)
+      end
 
       # naming these is not strictly necessary, but is nice to have.
       # generated: `puts Scorpio::OpenAPI::V3_0::Document.schema.definitions.keys.map { |k| "#{k[0].upcase}#{k[1..-1]} = Document.definitions['#{k}']" }`
@@ -116,14 +112,12 @@ module Scorpio
 
       module PathItem
         include(OpenAPI::PathItem)
+        include(OpenAPI::Reference)
       end
 
       module SecurityScheme
         include(OpenAPI::SecurityScheme)
       end
-
-      raise(Bug) unless Schema < JSI::Schema
-      raise(Bug) unless SchemaReference < JSI::Schema
     end
 
     # @deprecated after v0.7

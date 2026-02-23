@@ -17,12 +17,14 @@ module Scorpio
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
           elsif instance.is_a?(JSI::Base)
-            raise(TypeError, "instance is unexpected JSI type: #{instance.class.inspect}")
+            raise(TypeError, -"instance is unexpected JSI type: #{instance.class.inspect}")
           elsif instance.respond_to?(:to_hash)
             if (instance['swagger'].is_a?(String) && instance['swagger'] =~ /\A2(\.|\z)/) || instance['swagger'] == 2
               Scorpio::OpenAPI::V2::Document.new_jsi(instance, **new_param)
             elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.0(\.|\z)/) || instance['openapi'] == 3.0
               Scorpio::OpenAPI::V3_0::Document.new_jsi(instance, **new_param)
+            elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.1(\.|\z)/) || instance['openapi'] == 3.1
+              Scorpio::OpenAPI::V3_1.new_document(instance, **new_param)
             elsif instance['kind'] == 'discovery#restDescription'
               Scorpio::Google::RestDescription.new_jsi(instance, register: true, **new_param)
             else
@@ -37,7 +39,7 @@ module Scorpio
       module Descendent
         # @return [Scorpio::OpenAPI::Document]
         def openapi_document
-          jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::Document) } || raise(Error, "not inside an OpenAPI document (#{inspect})")
+          jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::Document) } || raise(Error, -"not inside an OpenAPI document (#{inspect})")
         end
       end
 
@@ -51,7 +53,7 @@ module Scorpio
         attr_writer :user_agent
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
-          "Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+          -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
         end
 
         attr_writer :faraday_builder
@@ -132,11 +134,7 @@ module Scorpio
             end
           end
 
-          attr_writer :request_media_type
-          def request_media_type
-            return @request_media_type if instance_variable_defined?(:@request_media_type)
-            nil
-          end
+          attr_accessor(:request_media_type)
         end
         include Configurables
         include(OpenAPI::Document)
