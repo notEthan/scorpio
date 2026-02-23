@@ -3,7 +3,7 @@
 module Scorpio
   Response = Scorpio::Ur.properties['response']
 
-  # Scorpio::Response is a JSI schema module describing the same instances as ::Ur::Response.
+  # Scorpio::Response is a JSI schema module describing the same instances as [::Ur::Response](https://rubydoc.info/gems/ur/Ur/Response).
   # It relies on methods of that module.
   module Response
     # the schema for this response according to its OpenAPI doc
