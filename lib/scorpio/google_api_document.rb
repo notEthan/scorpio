@@ -11,6 +11,8 @@ module Scorpio
     )
 
     # naming these is not strictly necessary, but is nice to have.
+
+
     DirectoryList = DISCOVERY_REST_DESCRIPTION.schemas['DirectoryList'].jsi_schema_module
     JsonSchema     = DISCOVERY_REST_DESCRIPTION.schemas['JsonSchema'].jsi_schema_module
     RestDescription = DISCOVERY_REST_DESCRIPTION.schemas['RestDescription'].jsi_schema_module
