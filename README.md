@@ -220,7 +220,7 @@ pet_store_oad.operations['getPetById'].run(petId: 0)
 
 For another example of an API that a client interacts with using Scorpio::ResourceBase, Scorpio's tests implement the Blog service. This is defined in test/blog.rb. The service uses ActiveRecord models and Sinatra to make a simple RESTful service.
 
-Its API is described in `test/blog.openapi.yml`, defining the Article resource, several operations, and schemas. The client is set up in `test/blog_scorpio_models.rb`. The base class BlogModel defines the base_url and the api description, as well as some other optional setup done for testing. Its operations are tested in `test/scorpio_test.rb`.
+Its API is described in `test/blog.openapi<version>.yml`, defining the Article resource, several operations, and schemas. The client is set up in `test/blog_scorpio_models.rb`. The base class BlogModel defines the base_url and the api description, as well as some other optional setup done for testing. Its operations are tested in `test/scorpio_test.rb`.
 
 ## Scorpio::ResourceBase
 
