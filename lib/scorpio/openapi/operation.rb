@@ -46,10 +46,14 @@ module Scorpio
       include Configurables
       include(Document::Descendent)
 
-      # openapi v3?
       # @return [Boolean]
-      def v3?
+      def v3_0?
         is_a?(OpenAPI::V3_0::Operation)
+      end
+
+      # @return [Boolean]
+      def v3_1?
+        is_a?(OpenAPI::V3_1::Operation)
       end
 
       # openapi v2?

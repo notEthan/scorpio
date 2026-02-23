@@ -80,8 +80,12 @@ module Scorpio
         is_a?(OpenAPI::V2::Document)
       end
 
-      def v3?
+      def v3_0?
         is_a?(OpenAPI::V3_0::Document)
+      end
+
+      def v3_1?
+        is_a?(OpenAPI::V3_1::Document)
       end
 
       def operations
