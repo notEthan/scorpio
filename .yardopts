@@ -2,5 +2,4 @@
 --markup=markdown
 --markup-provider=redcarpet
 --no-private
---hide-void-return
 lib/**/*.rb
