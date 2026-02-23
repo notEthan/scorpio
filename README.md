@@ -11,11 +11,11 @@ Note: The canonical location of this README is on [RubyDoc](https://rubydoc.info
 
 ### OpenAPI specification and OpenAPI documents
 
-To start with, you need an OpenAPI document (an OAD) describing a service you will be consuming. OpenAPI Specification v3.0 and v2 (formerly known as Swagger) are supported. An OAD can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing a given service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+To start with, you need an OpenAPI document (an OAD) describing a service you will be consuming. OpenAPI Specification v3.1, v3.0, and v2 (formerly known as Swagger) are supported. An OAD can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing a given service is outside the scope of Scorpio. Here are several resources on OpenAPI:
 
 - [Learn about OpenAPI](https://learn.openapis.org/)
 - [OpenAPI Specification at Wikipedia](https://en.wikipedia.org/wiki/OpenAPI_Specification)
-- OpenAPI [Specification v2.0](https://spec.openapis.org/oas/v2.0.html) and [Specification v3.0](https://spec.openapis.org/oas/v3.0.html)
+- OpenAPI Specifications [v3.1](https://spec.openapis.org/oas/v3.1.html), [v3.0](https://spec.openapis.org/oas/v3.0.html), [v2.0](https://spec.openapis.org/oas/v2.0.html)
 - [OpenAPI Specification development on GitHub](https://github.com/OAI/OpenAPI-Specification)
 
 ### JSON Schema, JSI
