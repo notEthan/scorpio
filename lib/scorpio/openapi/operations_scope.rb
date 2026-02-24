@@ -21,13 +21,20 @@ module Scorpio
 
       include Enumerable
 
+      # @return [Scorpio::OpenAPI::Operation, nil]
+      def by_id(operationId)
+        @operations_by_id[operationId]
+      end
+
       # finds an operation with the given `operationId`
       # @param operationId [String] the operationId of the operation to find
       # @return [Scorpio::OpenAPI::Operation]
       # @raise [::KeyError] if the given operationId does not exist
-      def [](operationId)
+      def by_id!(operationId)
         @operations_by_id[operationId] || raise(::KeyError, -"operationId not found: #{operationId.inspect}")
       end
+
+      alias_method(:[], :by_id!)
 
       # @return [OperationsScope]
       def select(&block)
