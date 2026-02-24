@@ -1,3 +1,11 @@
+# v0.7.0
+
+- OpenAPI v3.1 (OpenAPI::V3_1)
+- rename OpenAPI::V3 to OpenAPI::V3_0
+- OpenAPI::Reference resolves $ref across documents
+- Scorpio::Google::RestDescription is an API description document on its own; rm conversion to OpenAPI
+- JSI ~> v0.9
+
 # v0.6.4
 
 - JSI ~> v0.8.1

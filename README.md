@@ -11,11 +11,11 @@ Note: The canonical location of this README is on [RubyDoc](https://rubydoc.info
 
 ### OpenAPI specification and OpenAPI documents
 
-To start with, you need an OpenAPI document (an OAD) describing a service you will be consuming. OpenAPI Specification v3.0 and v2 (formerly known as Swagger) are supported. An OAD can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing a given service is outside the scope of Scorpio. Here are several resources on OpenAPI:
+To start with, you need an OpenAPI document (an OAD) describing a service you will be consuming. OpenAPI Specification v3.1, v3.0, and v2 (formerly known as Swagger) are supported. An OAD can be written by hand or sometimes generated from other existing sources. The creation of an OpenAPI document describing a given service is outside the scope of Scorpio. Here are several resources on OpenAPI:
 
 - [Learn about OpenAPI](https://learn.openapis.org/)
 - [OpenAPI Specification at Wikipedia](https://en.wikipedia.org/wiki/OpenAPI_Specification)
-- OpenAPI [Specification v2.0](https://spec.openapis.org/oas/v2.0.html) and [Specification v3.0](https://spec.openapis.org/oas/v3.0.html)
+- OpenAPI Specifications [v3.1](https://spec.openapis.org/oas/v3.1.html), [v3.0](https://spec.openapis.org/oas/v3.0.html), [v2.0](https://spec.openapis.org/oas/v2.0.html)
 - [OpenAPI Specification development on GitHub](https://github.com/OAI/OpenAPI-Specification)
 
 ### JSON Schema, JSI
@@ -128,7 +128,7 @@ You do not have to define resource classes as above to use Scorpio to interact w
 
 This representation uses [JSI](https://github.com/notEthan/jsi) with the JSON schema describing OpenAPI documents (for the relevant version of the OpenAPI specification). Scorpio's API client functionality is implemented using these schemas, and the result is that the instantiated OpenAPI document is itself the client to the service it describes.
 
-To consume the Pet Store service, we start by instantiating the OpenAPI document. {Scorpio::OpenAPI::Document.from_instance} returns a JSI instance described by the appropriate V2 or V3 OpenAPI document schema.
+To consume the Pet Store service, we start by instantiating the OpenAPI document. {Scorpio::OpenAPI::Document.from_instance} returns a JSI instance described by the appropriate OpenAPI document schema.
 
 ```ruby
 require 'scorpio'
@@ -220,7 +220,7 @@ pet_store_oad.operations['getPetById'].run(petId: 0)
 
 For another example of an API that a client interacts with using Scorpio::ResourceBase, Scorpio's tests implement the Blog service. This is defined in test/blog.rb. The service uses ActiveRecord models and Sinatra to make a simple RESTful service.
 
-Its API is described in `test/blog.openapi.yml`, defining the Article resource, several operations, and schemas. The client is set up in `test/blog_scorpio_models.rb`. The base class BlogModel defines the base_url and the api description, as well as some other optional setup done for testing. Its operations are tested in `test/scorpio_test.rb`.
+Its API is described in `test/blog.openapi<version>.yml`, defining the Article resource, several operations, and schemas. The client is set up in `test/blog_scorpio_models.rb`. The base class BlogModel defines the base_url and the api description, as well as some other optional setup done for testing. Its operations are tested in `test/scorpio_test.rb`.
 
 ## Scorpio::ResourceBase
 
@@ -249,7 +249,7 @@ If you need a more complete representation of the HTTP request and/or response, 
 ```ruby
 inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)).paths['/store/inventory']['get']
 inventory_ur = inventory_op.run_ur
-# => #{<Scorpio::Ur fragment="#"> ...}
+# => #{<JSI (Ur + Scorpio::Ur)> "bound" => "outbound", "request" => ...}
 ```
 
 ### Scorpio ResourceBase pickle adapter
