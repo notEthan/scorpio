@@ -197,9 +197,8 @@ module Scorpio
       end
 
       # Runs this operation with the given request config, and yields the resulting {Scorpio::Ur}.
-      # If the response contains a `Link` header with a `next` link (and that link's URL
-      # corresponds to this operation), this operation is run again to that link's URL, that
-      # request's Ur yielded, and a `next` link in that response is followed.
+      # If the response contains a `Link` header with a `next` link, this operation is run again to
+      # that link's URL, that request's Ur yielded, and a `next` link in that response is followed.
       # This repeats until a response does not contain a `Link` header with a `next` link.
       #
       # @param configuration (see Scorpio::Request#initialize)
