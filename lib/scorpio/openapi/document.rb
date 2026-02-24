@@ -81,7 +81,7 @@ module Scorpio
       end
 
       def v3?
-        is_a?(OpenAPI::V3_0::Document)
+        is_a?(OpenAPI::Document::V3Methods)
       end
 
       def operations

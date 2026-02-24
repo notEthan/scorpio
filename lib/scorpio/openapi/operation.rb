@@ -49,7 +49,7 @@ module Scorpio
       # openapi v3?
       # @return [Boolean]
       def v3?
-        is_a?(OpenAPI::V3_0::Operation)
+        is_a?(OpenAPI::Operation::V3Methods)
       end
 
       # openapi v2?
