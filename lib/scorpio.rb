@@ -32,12 +32,9 @@ module Scorpio
     # @param status [Integer] if specified, sets the HTTP status the class represents
     # @return [Integer] the HTTP status the class represents
     def self.status(status = nil)
-      if status
-        @status = status
-        Scorpio.error_classes_by_status[status] = self
-      else
-        @status
-      end
+      return @status if !status
+      Scorpio.error_classes_by_status[status] = self
+      @status = status
     end
     attr_accessor :ur, :response_object
   end
