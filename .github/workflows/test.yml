@@ -29,8 +29,10 @@ jobs:
         - truffleruby
         - truffleruby+graalvm
         - '2.5'
-        - '2.7'
+        - '2'
         - '3.0'
+        - '3'
+        - ruby # latest release
         - head
         runs-on:
         - ubuntu-latest
