@@ -28,8 +28,8 @@ module Scorpio
       Response = properties['response']
 
       # these only contain a $ref to a schema, but that is enough to use them as schemas
-      Request.schema.describes_schema!([JSI::Schema::Draft04])
-      Response.schema.describes_schema!([JSI::Schema::Draft04])
+      Request.describes_schema!(JSI::Schema::Draft04::DIALECT)
+      Response.describes_schema!(JSI::Schema::Draft04::DIALECT)
     end
 
     module HasMethodsAndResources
