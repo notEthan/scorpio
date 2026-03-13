@@ -22,8 +22,11 @@ module Scorpio
             keyword: 'nullable',
           )
         else
+          if !instance_types.key?(schema_content['type'])
+            next # schema error; skip validation
+          end
           validate(
-            instance_types.key?(schema_content['type']) && instance_exec(&instance_types[schema_content['type']]),
+            instance_exec(&instance_types[schema_content['type']]),
             'validation.keyword.type.not_match',
             "instance type does not match `type` value",
             keyword: 'type',
