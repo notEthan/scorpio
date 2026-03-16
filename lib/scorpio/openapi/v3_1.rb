@@ -39,7 +39,7 @@ module Scorpio
         namespace.const_set(:SecurityRequirement, document_schema_module.defs['security-requirement'])
         namespace.const_set(:Examples,            document_schema_module.defs['examples'])
         namespace.const_set(:MapOfStrings,         document_schema_module.defs['map-of-strings'])
-        namespace.const_set(:StylesForForm,         document_schema_module.defs['styles-for-form'])
+        namespace.const_set(:ExplodeForForm,        document_schema_module.defs['explode-for-form'])
         namespace.const_set(:SpecificationExtension, document_schema_module.defs['specification-extensions'].patternProperties["^x-"])
       end
 
@@ -114,7 +114,7 @@ module Scorpio
       # meta-schema. Schemas in the document described by this are just `type: [object, boolean]`,
       # have no dialect, and are not usable schemas.
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/schema/2022-10-07`
+      # - $id: `https://spec.openapis.org/oas/3.1/schema/2025-11-23`
       module Unscoped::Document
       end
 
@@ -150,14 +150,14 @@ module Scorpio
       )
       # Schema module: Describes an OAD with schemas of the OpenAPI extension schema dialect.
       # This exists to dynamically scope the `meta` anchor
-      # for {Unscoped::Document} `<https://spec.openapis.org/oas/3.1/schema/2022-10-07>`
-      # to {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/base>`
+      # for {Unscoped::Document} `<https://spec.openapis.org/oas/3.1/schema/2025-11-23>`
+      # to {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
       # via `<#/$defs/schema>` {Ext::ExtDocument::Schema}.
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/schema-base/2022-10-07`
-      # - $ref: {Ext::Document} `<https://spec.openapis.org/oas/3.1/schema/2022-10-07>`
+      # - $id: `https://spec.openapis.org/oas/3.1/schema-base/2025-11-23`
+      # - $ref: {Ext::Document} `<https://spec.openapis.org/oas/3.1/schema/2025-11-23>`
       # - $dynamicAnchor: `meta` in `/$defs/schema` ({Ext::ExtDocument::Schema})
-      # - properties: jsonSchemaDialect const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/base>`
+      # - properties: jsonSchemaDialect const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
       module Ext::ExtDocument
       end
 
@@ -165,8 +165,8 @@ module Scorpio
       # Schema module: Describes schemas in an Ext::Document
       #
       # - $dynamicAnchor: `meta`
-      # - $ref: {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/base>`
-      # - properties: $schema const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/base>`
+      # - $ref: {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
+      # - properties: $schema const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
       module Ext::ExtDocument::Schema
       end
 
@@ -185,7 +185,7 @@ module Scorpio
       Ext::VocabSchema = Ext::Unscoped::VocabSchema.with_dynamic_scope_from(Ext::ExtDocument)
       # Schema module: vocabulary schema for {Ext::VOCAB}
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/meta/base`
+      # - $id: `https://spec.openapis.org/oas/3.1/meta/2024-11-10`
       # - $dynamicAnchor: `meta` (unused)
       # - properties (schema keywords) discriminator, example, externalDocs, xml
       module Ext::VocabSchema
@@ -201,14 +201,14 @@ module Scorpio
       Ext::MetaSchema.describes_schema!
       # Schema module: Meta-schema describing schemas within an OpenAPI document with the OpenAPI extension schema dialect
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/dialect/base`
+      # - $id: `https://spec.openapis.org/oas/3.1/dialect/2024-11-10`
       # - $dynamicAnchor: `meta` (overridden by dynamic scope with `meta` → {Ext::ExtDocument::Schema})
       # - $vocabulary:
       #   - The draft/2020-12 vocabularies - core, applicator, validation, etc (required: true)
       #   - {Ext::VOCAB} `<https://spec.openapis.org/oas/3.1/vocab/base>` (required: false)
       # - allOf:
       #   - $ref: {Ext::JSONSchemaDraft202012} `<https://json-schema.org/draft/2020-12/schema>`
-      #   - $ref: {Ext::VocabSchema} `<https://spec.openapis.org/oas/3.1/meta/base>`
+      #   - $ref: {Ext::VocabSchema} `<https://spec.openapis.org/oas/3.1/meta/2024-11-10>`
       module Ext::MetaSchema
       end
 
