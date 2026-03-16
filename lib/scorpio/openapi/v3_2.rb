@@ -202,6 +202,8 @@ module Scorpio
       module Ext::Document
       end
 
+      set_up_document_schema_module(Ext::Document)
+      document_name_subschemas(Ext::Document, Ext)
       # note: without this mapping set, document_schema_module_by_dialect_id(Ext::MetaSchema.schema_uri)
       # would be   Unscoped::Document.with_dynamic_scope_from(Ext::Unscoped::MetaSchema)
       # instead of Unscoped::Document.with_dynamic_scope_from(Ext::ExtDocument)
