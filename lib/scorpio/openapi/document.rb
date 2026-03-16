@@ -25,6 +25,8 @@ module Scorpio
               Scorpio::OpenAPI::V3_0::Document.new_jsi(instance, **new_param)
             elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.1(\.|\z)/) || instance['openapi'] == 3.1
               Scorpio::OpenAPI::V3_1.new_document(instance, **new_param)
+            elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.2(\.|\z)/) || instance['openapi'] == 3.2
+              Scorpio::OpenAPI::V3_2.new_document(instance, **new_param)
             elsif instance['kind'] == 'discovery#restDescription'
               Scorpio::Google::RestDescription.new_jsi(instance, register: true, **new_param)
             else
