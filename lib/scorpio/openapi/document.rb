@@ -125,6 +125,18 @@ module Scorpio
       end
     end
 
+    # an OAD with a `$self` property that indicates its resource URI
+    module Document::SelfURI
+      # overrides JSI::Base#jsi_each_resource_uri_compute.
+      # this is more into JSI internals than I prefer but currently this is the way to accomplish this.
+      private def jsi_each_resource_uri_compute
+        if respond_to?(:to_hash) && key?('$self')
+          yield jsi_base_uri ? jsi_base_uri.join(jsi_node_content['$self']) : JSI::URI[jsi_node_content['$self']]
+        end
+        super
+      end
+    end
+
     module Document
       module V3Methods
         module Configurables

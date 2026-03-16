@@ -100,6 +100,7 @@ module Scorpio
 
       module Document
         include(OpenAPI::Document::V3Methods)
+        include(OpenAPI::Document::SelfURI)
       end
 
 
