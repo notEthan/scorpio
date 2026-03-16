@@ -107,6 +107,99 @@ module Scorpio
       # - $id: `https://spec.openapis.org/oas/3.2/schema/2025-11-23`
       module Unscoped::Document
       end
+
+
+      # "Ext" is abbreviation for the "OpenAPI extension schema dialect" that extends JSON Schema draft 2020-12
+      # and defines keywords: `discriminator`, `example`, `externalDocs`, `xml`.
+      # This module is a namespace for that.
+      module Ext
+      end
+
+      # vocabulary for implementation of keywords: `discriminator`, `example`, `externalDocs`, `xml`
+      Ext::VOCAB = JSI::Schema::Vocabulary.new(
+        id: "https://spec.openapis.org/oas/3.2/vocab/base",
+        elements: [
+          # TODO:
+          # - discriminator
+          # - example
+          # - externalDocs
+          # - xml
+        ],
+      )
+
+
+      Ext::ExtDocument = JSI.new_schema_module(
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/schema-base.yaml').read),
+      )
+      # Schema module: Describes an OAD with schemas of the OpenAPI extension schema dialect.
+      # This exists to dynamically scope the `meta` anchor
+      # for {Unscoped::Document} `<https://spec.openapis.org/oas/3.2/schema/2025-11-23>`
+      # to {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
+      # via `<#/$defs/schema>` {Ext::ExtDocument::Schema}.
+      #
+      # - $id: `https://spec.openapis.org/oas/3.2/schema-base/2025-11-23`
+      # - $ref: {Ext::Document} `<https://spec.openapis.org/oas/3.2/schema/2025-11-23>`
+      # - $dynamicAnchor: `meta` in `/$defs/schema` ({Ext::ExtDocument::Schema})
+      # - properties: jsonSchemaDialect const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
+      module Ext::ExtDocument
+      end
+
+      Ext::ExtDocument::Schema = Ext::ExtDocument["$defs"]["schema"]
+      # Schema module: Describes schemas in an Ext::Document
+      #
+      # - $dynamicAnchor: `meta`
+      # - $ref: {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
+      # - properties: $schema const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
+      module Ext::ExtDocument::Schema
+      end
+
+
+      # Some Ext schemas are used with dynamic scope from {Ext::ExtDocument}; Ext::Unscoped namespace
+      # contains those schemas without that dynamic scope. These are not normally instantiated.
+      module Ext::Unscoped
+      end
+
+      Ext::Unscoped::VocabSchema = JSI.new_schema_module(
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/meta.yaml').read),
+      )
+      module Ext::Unscoped::VocabSchema
+      end
+
+      Ext::VocabSchema = Ext::Unscoped::VocabSchema.with_dynamic_scope_from(Ext::ExtDocument)
+      # Schema module: vocabulary schema for {Ext::VOCAB}
+      #
+      # - $id: `https://spec.openapis.org/oas/3.2/meta/2025-09-17`
+      # - $dynamicAnchor: `meta` (unused)
+      # - properties (schema keywords) discriminator, example, externalDocs, xml
+      module Ext::VocabSchema
+      end
+
+      Ext::Unscoped::MetaSchema = JSI.new_schema_module(
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/dialect.yaml').read),
+      )
+      module Ext::Unscoped::MetaSchema
+      end
+
+      Ext::MetaSchema = Ext::Unscoped::MetaSchema.with_dynamic_scope_from(Ext::ExtDocument)
+      Ext::MetaSchema.describes_schema!
+      # Schema module: Meta-schema describing schemas within an OpenAPI document with the OpenAPI extension schema dialect
+      #
+      # - $id: `https://spec.openapis.org/oas/3.2/dialect/2025-09-17`
+      # - $dynamicAnchor: `meta` (overridden by dynamic scope with `meta` → {Ext::ExtDocument::Schema})
+      # - $vocabulary:
+      #   - The draft/2020-12 vocabularies - core, applicator, validation, etc (required: true)
+      #   - {Ext::VOCAB} `<https://spec.openapis.org/oas/3.2/vocab/base>` (required: false)
+      # - allOf:
+      #   - $ref: JSI::JSONSchemaDraft202012 `<https://json-schema.org/draft/2020-12/schema>` (with dynamic scope meta → {Ext::ExtDocument::Schema})
+      #   - $ref: {Ext::VocabSchema} `<https://spec.openapis.org/oas/3.2/meta/2025-09-17>`
+      module Ext::MetaSchema
+      end
+
+      Ext::Document = Unscoped::Document.with_dynamic_scope_from(Ext::ExtDocument)
+      # Schema module: Describes an OpenAPI document containing schemas of the Ext dialect.
+      # This is {Unscoped::Document}, with dynamic scope pointing `$dynamicAnchor: "meta"` to {Ext::ExtDocument::Schema}.
+      module Ext::Document
+      end
     end
   end
 end
