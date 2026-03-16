@@ -15,7 +15,7 @@ class BlogModel < Scorpio::ResourceBase
 
   blog_port = $blog_port || raise('$blog_port is nil')
 
-  self.openapi_document = YAML.load_file(-"test/blog.#{ENV['SCORPIO_API_DESCRIPTION_FORMAT'] || 'openapi3_1'}.yml")
+  self.openapi_document = YAML.load_file(-"test/blog.#{ENV['SCORPIO_API_DESCRIPTION_FORMAT'] || 'openapi3_2'}.yml")
   if openapi_document['kind'] == 'discovery#restDescription'
     self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.servicePath)
   elsif openapi_document.v2?
