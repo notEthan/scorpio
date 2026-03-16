@@ -126,6 +126,7 @@ module Scorpio
           # - xml
         ],
       )
+      JSI.registry.register_vocabulary(Ext::VOCAB)
 
 
       Ext::ExtDocument = JSI.new_schema_module(
