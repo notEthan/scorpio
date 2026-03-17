@@ -14,16 +14,14 @@ module Scorpio
         # @return [Addressable::URI] the expanded url
         def expanded_url(given_server_variables)
           if variables
-            server_variables = (given_server_variables.keys | variables.keys).map do |key|
-              server_variable = variables[key]
+            server_variables = {}
+            (given_server_variables.keys | variables.keys).each do |key|
               if given_server_variables.key?(key)
-                {key => given_server_variables[key]}
-              elsif server_variable.key?('default')
-                {key => server_variable.default}
-              else
-                {}
+                server_variables[key] = given_server_variables[key]
+              elsif variables[key].key?('default')
+                server_variables[key] = variables[key].default
               end
-            end.inject({}, &:update)
+            end
           else
             server_variables = given_server_variables
           end
