@@ -330,6 +330,8 @@ module Scorpio
         self.path_params = self.path_params.merge(name => value)
       elsif param_in == 'query'
         self.query_params = (self.query_params || {}).merge(name => value)
+      elsif param_in == 'querystring'
+        self.querystring = value
       elsif param_in == 'header'
         self.headers = self.headers.merge(name => value.to_str)
       elsif param_in == 'cookie'
@@ -352,6 +354,8 @@ module Scorpio
         path_params[name]
       elsif param_in == 'query'
         query_params ? query_params[name] : nil
+      elsif param_in == 'querystring'
+        querystring
       elsif param_in == 'header'
         _, value = headers.detect { |headername, _| headername.casecmp?(name) }
         value
