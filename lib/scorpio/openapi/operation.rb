@@ -140,7 +140,7 @@ module Scorpio
       end
 
       # @param status [String, Integer]
-      # @return [Scorpio::OpenAPI::V3_0::Response, Scorpio::OpenAPI::V2::Response]
+      # @return [OpenAPI::Response]
       def oa_response(status: )
         status = status.to_s if status.is_a?(Numeric)
         if responses

@@ -66,6 +66,10 @@ module Scorpio
       Callback                 = Document.definitions['Callback']
       Encoding                = Document.definitions['Encoding']
 
+      module Response
+        include(OpenAPI::Response)
+      end
+
       # Describes a single API operation on a path.
       #
       # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#operationObject

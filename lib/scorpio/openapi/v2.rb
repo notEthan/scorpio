@@ -113,6 +113,10 @@ module Scorpio
         include(OpenAPI::PathItem)
         include(OpenAPI::Reference)
       end
+
+      module Response
+        include(OpenAPI::Response)
+      end
     end
   end
 end
