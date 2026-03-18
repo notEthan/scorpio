@@ -140,14 +140,14 @@ module Scorpio
       end
 
       # @param status [String, Integer]
-      # @return [OpenAPI::Response]
+      # @return [OpenAPI::Response, nil]
       def oa_response(status: )
+        return nil if !responses
         status = status.to_s if status.is_a?(Numeric)
-        if responses
-          _, oa_response = responses.detect { |k, v| k.to_s == status }
-          oa_response ||= responses['default']
+        responses.each do |k, v|
+          return v if k.to_s == status
         end
-        oa_response
+        responses[-"#{status[0]}XX"] || responses['default']
       end
 
       # operation parameters + path item parameters
