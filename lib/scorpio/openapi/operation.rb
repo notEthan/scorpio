@@ -298,9 +298,9 @@ module Scorpio
         # @return [JSI::Schema]
         def response_schema(status: , media_type: )
           oa_response = self.oa_response(status: status)
-          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3_0::MediaTypes
-          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3_0::MediaType
-          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3_0::Schema
+          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3_*::MediaTypes
+          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3_*::MediaType
+          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # JSI::Schema, Scorpio::OpenAPI::V3_*::Schema
           oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
         end
 
