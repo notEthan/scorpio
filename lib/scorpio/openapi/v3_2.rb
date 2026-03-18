@@ -46,6 +46,7 @@ module Scorpio
 
       def self.set_up_document_schema_module(document_schema_module)
         document_schema_module.include(OpenAPI::V3_2::Document)
+        document_schema_module.defs['response'].include(OpenAPI::Response)
         document_schema_module.defs['operation'].include(OpenAPI::Operation::V3Methods)
         document_schema_module.defs['reference'].include(OpenAPI::Reference)
         document_schema_module.defs['tag'].include(OpenAPI::Tag)
