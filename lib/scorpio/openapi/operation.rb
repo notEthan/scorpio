@@ -150,12 +150,26 @@ module Scorpio
         oa_response
       end
 
+      # operation parameters + path item parameters
+      #
+      # @api private
+      # @return [#to_ary<#to_hash>]
+      def inherited_parameters
+        parameters = []
+        parameters.concat(self.parameters.to_ary) if self.parameters
+        path_item = jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::PathItem) }
+        parameters.concat((path_item && path_item.parameters || []).select do |pip|
+          parameters.none? { |p| p['in'] == pip['in'] && p['name'] == pip['name'] }
+        end)
+        parameters.freeze
+      end
+
       # the parameters specified for this operation, plus any others scorpio considers to be parameters.
       #
       # @api private
-      # @return [#to_ary<#to_h>]
+      # @return [#to_ary<#to_hash>]
       def inferred_parameters
-        parameters = self.parameters ? self.parameters.to_a.dup : []
+        parameters = inherited_parameters.dup
         path_template.variables.each do |var|
           unless parameters.any? { |p| p['in'] == 'path' && p['name'] == var }
             # we could instantiate this as a V2::Parameter or a V3_0::Parameter
@@ -168,7 +182,7 @@ module Scorpio
             }
           end
         end
-        parameters
+        parameters.freeze
       end
 
       # instantiates a {Scorpio::Request} for this operation.
@@ -341,7 +355,7 @@ module Scorpio
         # @return [#to_hash]
         # @raise [Scorpio::OpenAPI::SemanticError] if there's more than one body param
         def body_parameter
-          body_parameters = (parameters || []).select { |parameter| parameter['in'] == 'body' }
+          body_parameters = inherited_parameters.select { |parameter| parameter['in'] == 'body' }
           if body_parameters.size == 0
             nil
           elsif body_parameters.size == 1
