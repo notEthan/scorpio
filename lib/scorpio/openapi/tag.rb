@@ -19,6 +19,15 @@ module Scorpio
         end
       end
 
+      # each operation tagged with this tag, a child tag of this, or any further descendent tag.
+      # @yield [OpenAPI::Operation]
+      def each_descendent_tag_operation(&block)
+        return(to_enum(__method__)) unless block
+        each_operation(&block)
+        child_tags.each { |tag| tag.each_descendent_operation(&block) }
+        nil
+      end
+
       # @return [OpenAPI::Tag, nil]
       def parent_tag
         self['parent'] ? openapi_document.tags.named(self['parent']) : nil
