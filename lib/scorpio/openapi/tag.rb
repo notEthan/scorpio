@@ -45,6 +45,11 @@ module Scorpio
       def named(name)
         detect { |tag| tag.name == name }
       end
+
+      # @return [Enumerable<OpenAPI::Tag>]
+      def with_kind(kind)
+        select { |tag| tag['kind'] == kind }
+      end
     end
   end
 end
