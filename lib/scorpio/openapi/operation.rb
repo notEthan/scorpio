@@ -73,9 +73,8 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        return(@path_template_str = nil) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
-        return(@path_template_str = nil) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::Paths)
-        @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
+        path_item = jsi_ancestor_nodes.detect { |n| n.is_a?(Scorpio::OpenAPI::PathItem) }
+        @path_template_str = path_item && path_item.jsi_ptr.tokens.last
       end
 
       # the path as an Addressable::Template
