@@ -18,6 +18,16 @@ module Scorpio
           yield(op) if op.tags.respond_to?(:to_ary) && op.tags.include?(name)
         end
       end
+
+      # @return [OpenAPI::Tag, nil]
+      def parent_tag
+        self['parent'] ? openapi_document.tags.named(self['parent']) : nil
+      end
+
+      # @return [Enumerable<OpenAPI::Tag>]
+      def child_tags
+        openapi_document.tags.select { |t| t['parent'] == name }
+      end
     end
 
     module Tags
