@@ -102,7 +102,6 @@ module Scorpio
       # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        return(@http_method = nil) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 

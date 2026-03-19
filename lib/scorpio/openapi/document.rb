@@ -117,6 +117,7 @@ module Scorpio
               yield(operation)
             end
           end
+          (path_item['additionalOperations'] || {}).each_value(&block) # only OAS v3.2+
         end
       end
 
