@@ -10,6 +10,7 @@ module Scorpio
         @operations = OperationsScope.new(each_operation)
       end
 
+      # @yield [OpenAPI::Operation]
       def each_operation(&block)
         return(to_enum(__method__)) unless block
 
@@ -21,7 +22,7 @@ module Scorpio
 
     module Tags
       # a tag with the given name
-      # @return [Tag, nil]
+      # @return [OpenAPI::Tag, nil]
       def named(name)
         detect { |tag| tag.name == name }
       end
