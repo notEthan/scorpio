@@ -295,13 +295,15 @@ module Scorpio
           end
         end
 
-        # @return [JSI::Schema]
+        # @return [JSI::Schema, nil]
         def response_schema(status: , media_type: )
-          oa_response = self.oa_response(status: status)
-          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3_*::MediaTypes
-          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3_*::MediaType
-          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # JSI::Schema, Scorpio::OpenAPI::V3_*::Schema
-          oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
+          oa_response = self.oa_response(status: status) || return
+          oa_media_types = oa_response['content'] || return # Scorpio::OpenAPI::V3_*::MediaTypes
+          oa_media_type = oa_media_types[media_type] # Scorpio::OpenAPI::V3_*::MediaType
+          oa_media_type ||= oa_media_types[-"#{::Ur::ContentType.new(media_type).type}/*"]
+          oa_media_type ||= oa_media_types['*/*'] || return
+          oa_schema = oa_media_type['schema'] || return # JSI::Schema, Scorpio::OpenAPI::V3_*::Schema
+          JSI::Schema.ensure_schema(oa_schema)
         end
 
         # @return [JSI::SchemaSet]
