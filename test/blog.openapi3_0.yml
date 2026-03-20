@@ -30,7 +30,7 @@ paths:
         default:
           description: default response
           content:
-            application/json:
+            '*/*':
               schema:
                 type: array
                 items:
@@ -43,7 +43,7 @@ paths:
         2XX:
           description: ok
           content:
-            application/json:
+            'application/*':
               schema:
                 $ref: '#/components/schemas/article'
         4XX:
