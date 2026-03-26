@@ -13,6 +13,7 @@ module Scorpio
         # @param given_server_variables [Hash<String, String>]
         # @return [Addressable::URI] the expanded url
         def expanded_url(given_server_variables)
+          given_server_variables = JSI::Util.stringify_symbol_keys(given_server_variables)
           if variables
             server_variables = {}
             (given_server_variables.keys | variables.keys).each do |key|
