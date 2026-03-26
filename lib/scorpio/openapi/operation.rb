@@ -25,6 +25,18 @@ module Scorpio
           openapi_document.user_agent
         end
 
+        attr_writer(:accept)
+        def accept
+          return @accept if instance_variable_defined?(:@accept)
+          openapi_document.accept
+        end
+
+        attr_writer(:authorization)
+        def authorization
+          return @authorization if instance_variable_defined?(:@authorization)
+          openapi_document.authorization
+        end
+
         attr_writer :faraday_builder
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)

@@ -56,6 +56,18 @@ module Scorpio
           -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
         end
 
+        attr_writer(:accept)
+        def accept
+          return @accept if instance_variable_defined?(:@accept)
+          nil
+        end
+
+        attr_writer(:authorization)
+        def authorization
+          return @authorization if instance_variable_defined?(:@authorization)
+          nil
+        end
+
         attr_writer :faraday_builder
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
