@@ -314,9 +314,9 @@ module Scorpio
         def response_schema(status: , media_type: )
           oa_response = self.oa_response(status: status) || return
           oa_media_types = oa_response['content'] || return # Scorpio::OpenAPI::V3_*::MediaTypes
-          oa_media_type = oa_media_types[media_type] # Scorpio::OpenAPI::V3_*::MediaType
-          oa_media_type ||= oa_media_types[-"#{::Ur::ContentType.new(media_type).type}/*"]
-          oa_media_type ||= oa_media_types['*/*'] || return
+          oa_media_type = oa_media_types[media_type] ||
+            oa_media_types[-"#{::Ur::ContentType.new(media_type).type}/*"] ||
+            oa_media_types['*/*'] || return # Scorpio::OpenAPI::V3_*::MediaType
           oa_schema = oa_media_type['schema'] || return # JSI::Schema, Scorpio::OpenAPI::V3_*::Schema
           JSI::Schema.ensure_schema(oa_schema)
         end
