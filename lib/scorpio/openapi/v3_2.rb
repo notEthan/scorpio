@@ -62,17 +62,13 @@ module Scorpio
         document_schema_module
       end
 
-      def self.document_schema_module_by_dialect_id(dialect_id)
-        document_schema_modules_by_dialect_id[JSI::Util.uri(dialect_id)]
-      end
-
       # Instantiates `instance` v3.2 OAD with schemas of the dialect indicated by `jsonSchemaDialect`
       # @param instance [#to_hash]
       # @return [JSI::Base + Scorpio::OpenAPI::V3_2::Document]
       def self.new_document(instance, **new_param)
         #jsonSchemaDialect = Scorpio::OpenAPI::V3_2::Unscoped::Document.new_jsi(instance, **new_param).jsonSchemaDialect(use_default: true)
         jsonSchemaDialect = instance.fetch('jsonSchemaDialect') { Unscoped::Document.properties['jsonSchemaDialect'].default }
-        document_schema_module = document_schema_module_by_dialect_id(jsonSchemaDialect)
+        document_schema_module = document_schema_modules_by_dialect_id[jsonSchemaDialect]
 
         document_schema_module.new_jsi(instance, **new_param)
       end
@@ -197,7 +193,7 @@ module Scorpio
 
       set_up_document_schema_module(Ext::Document)
       document_name_subschemas(Ext::Document, Ext)
-      # note: without this mapping set, document_schema_module_by_dialect_id(Ext::MetaSchema.schema_uri)
+      # note: without this mapping set, document_schema_modules_by_dialect_id[Ext::MetaSchema.schema_uri]
       # would be   Unscoped::Document.with_dynamic_scope_from(Ext::Unscoped::MetaSchema)
       # instead of Unscoped::Document.with_dynamic_scope_from(Ext::ExtDocument)
       # schemas in OADs with this jsonSchemaDialect would have the right dialect, but
