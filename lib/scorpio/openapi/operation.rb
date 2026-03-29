@@ -198,21 +198,21 @@ module Scorpio
       end
 
       # instantiates a {Scorpio::Request} for this operation.
-      # parameters are all passed to {Scorpio::Request#initialize}.
+      # configuration is passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
       def build_request(**configuration, &b)
         Scorpio::Request.new(self, **configuration, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
-      # parameters are all passed to {Scorpio::Request#initialize}.
+      # configuration is passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Ur] response ur
       def run_ur(**configuration, &b)
         build_request(**configuration, &b).run_ur
       end
 
       # runs a {Scorpio::Request} for this operation - see {Scorpio::Request#run}.
-      # parameters are all passed to {Scorpio::Request#initialize}.
+      # configuration is passed to {Scorpio::Request#initialize}.
       # @return response body object
       def run(mutable: false, **configuration, &b)
         build_request(**configuration, &b).run(mutable: mutable)
