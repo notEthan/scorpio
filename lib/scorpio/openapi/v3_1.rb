@@ -4,10 +4,13 @@ module Scorpio
   module OpenAPI
     module V3_1
       class << self
-        attr_accessor(:document_schema_modules_by_dialect_id)
+        attr_reader(:document_schema_modules_by_dialect_id)
       end
 
-      self.document_schema_modules_by_dialect_id = {}
+      @document_schema_modules_by_dialect_id = Hash.new do |h, dialect_id|
+        document_schema_module = OpenAPI::Document.document_schema_module_with_meta(Unscoped::Document, dialect_id)
+        h[dialect_id] = set_up_document_schema_module(document_schema_module)
+      end
 
       def self.document_name_subschemas(document_schema_module, namespace)
         namespace.const_set(:Info,         document_schema_module.defs['info'])
@@ -59,10 +62,7 @@ module Scorpio
       end
 
       def self.document_schema_module_by_dialect_id(dialect_id)
-        document_schema_modules_by_dialect_id[JSI::Util.uri(dialect_id)] ||= begin
-          document_schema_module = OpenAPI::Document.document_schema_module_with_meta(Unscoped::Document, dialect_id)
-          set_up_document_schema_module(document_schema_module)
-        end
+        document_schema_modules_by_dialect_id[JSI::Util.uri(dialect_id)]
       end
 
       # Instantiates `instance` v3.1 OAD with schemas of the dialect indicated by `jsonSchemaDialect`
