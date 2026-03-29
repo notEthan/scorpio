@@ -4,6 +4,8 @@ module Scorpio
   module OpenAPI
     module V3_2
       class << self
+        # map of `dialect_id` (as in `jsonSchemaDialect`) to `document_schema_module`
+        # @api private
         attr_reader(:document_schema_modules_by_dialect_id)
       end
 
