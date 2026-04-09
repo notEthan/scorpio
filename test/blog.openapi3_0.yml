@@ -62,6 +62,7 @@ paths:
       parameters:
         - name: note
           in: header
+          schema: {}
       responses:
         default:
           description: default response
