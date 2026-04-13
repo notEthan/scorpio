@@ -57,6 +57,12 @@ module Scorpio
       end
 
       attr_writer :base_url
+      # The base URL to which API operation paths are appended.
+      #
+      # For OpenAPI v3, constructed from {Request::Configurables#server} and {Request::Configurables#server_variables}.
+      #
+      # For OpenAPI v2, constructed from the document's `host`, `basePath`, and `schemes` or configurable {Request::Configurables#scheme}.
+      # @return [Addressable::URI]
       def base_url
         return @base_url if instance_variable_defined?(:@base_url)
         operation.base_url(scheme: scheme, server: server, server_variables: server_variables)

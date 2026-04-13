@@ -182,9 +182,6 @@ module Scorpio
             nil
           end
 
-          # the base url to which paths are appended.
-          # by default this looks at the openapi document's schemes, picking https or http first.
-          # it looks at the openapi_document's host and basePath.
           def base_url(scheme: self.scheme, server: nil, server_variables: nil)
             return @base_url if instance_variable_defined?(:@base_url)
             if host && scheme
