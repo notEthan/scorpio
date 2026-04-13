@@ -49,6 +49,11 @@ module Scorpio
       end
 
       module Configurables
+        attr_writer(:base_url)
+        def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
+          fail(NotImplementedError) # overridden
+        end
+
         attr_writer :request_headers
         def request_headers
           return @request_headers if instance_variable_defined?(:@request_headers)
@@ -143,7 +148,7 @@ module Scorpio
             return @server_variables if instance_variable_defined?(:@server_variables)
             {}.freeze
           end
-          attr_writer :base_url
+
           def base_url(scheme: nil, server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
             server.expanded_url(server_variables)
@@ -177,7 +182,6 @@ module Scorpio
             nil
           end
 
-          attr_writer :base_url
           # the base url to which paths are appended.
           # by default this looks at the openapi document's schemes, picking https or http first.
           # it looks at the openapi_document's host and basePath.
