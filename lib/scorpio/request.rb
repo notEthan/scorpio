@@ -39,18 +39,21 @@ module Scorpio
       end
 
       attr_writer :scheme
+      # @return [#to_str, nil]
       def scheme
         return @scheme if instance_variable_defined?(:@scheme)
         operation.scheme
       end
 
       attr_writer :server
+      # @return [OpenAPI::Server, nil]
       def server
         return @server if instance_variable_defined?(:@server)
         operation.server
       end
 
       attr_writer :server_variables
+      # @return [#to_hash, nil]
       def server_variables
         return @server_variables if instance_variable_defined?(:@server_variables)
         operation.server_variables
