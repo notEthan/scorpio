@@ -91,9 +91,9 @@ module Scorpio
       def self.new_document(instance, **new_param)
         #jsonSchemaDialect = Scorpio::OpenAPI::V3_1::Unscoped::Document.new_jsi(instance, **new_param).jsonSchemaDialect(use_default: true)
         jsonSchemaDialect = instance.fetch('jsonSchemaDialect') { Unscoped::Document.properties['jsonSchemaDialect'].default }
-        document_schema = document_schema_module_by_dialect_id(jsonSchemaDialect)
+        document_schema_module = document_schema_module_by_dialect_id(jsonSchemaDialect)
 
-        document_schema.new_jsi(instance, **new_param)
+        document_schema_module.new_jsi(instance, **new_param)
       end
 
 
