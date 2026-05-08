@@ -107,4 +107,11 @@ module Scorpio
   autoload :ResourceBase, 'scorpio/resource_base'
   autoload :Request, 'scorpio/request'
   autoload :Response, 'scorpio/response'
+
+  class << self
+    # (see OpenAPI::Document.new_document)
+    def new_document(instance, **new_param)
+      OpenAPI::Document.new_document(instance, **new_param)
+    end
+  end
 end

@@ -13,7 +13,7 @@ module Scorpio
         #
         # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
         # @return [JSI::Base + Scorpio::OpenAPI::Document]
-        def from_instance(instance, **new_param)
+        def new_document(instance, **new_param)
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
           elsif instance.is_a?(JSI::Base)
@@ -33,6 +33,11 @@ module Scorpio
           else
             raise(TypeError, "instance does not look like a hash (json object)")
           end
+        end
+
+        # @deprecated after v0.8.0. use `new_document`.
+        def from_instance(instance, **kw)
+          Scorpio.new_document(instance, **kw)
         end
       end
 

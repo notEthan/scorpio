@@ -85,7 +85,7 @@ module Scorpio
       end
 
       def openapi_document=(openapi_document)
-        openapi_document = OpenAPI::Document.from_instance(openapi_document)
+        openapi_document = Scorpio.new_document(openapi_document)
 
         begin
           singleton_class.instance_exec { remove_method(:openapi_document) }

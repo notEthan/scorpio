@@ -128,7 +128,7 @@ You do not have to define resource classes as above to use Scorpio to interact w
 
 This representation uses [JSI](https://github.com/notEthan/jsi) with the JSON schema describing OpenAPI documents (for the relevant version of the OpenAPI specification). Scorpio's API client functionality is implemented using these schemas, and the result is that the instantiated OpenAPI document is itself the client to the service it describes.
 
-To consume the Pet Store service, we start by instantiating the OpenAPI document. {Scorpio::OpenAPI::Document.from_instance} returns a JSI instance described by the appropriate V2 or V3 OpenAPI document schema.
+To consume the Pet Store service, we start by instantiating the OpenAPI document. {Scorpio.new_document} returns a JSI instance described by the appropriate OpenAPI document schema.
 
 ```ruby
 require 'scorpio'
@@ -247,7 +247,7 @@ When these are set, Scorpio::ResourceBase looks through the API description and 
 If you need a more complete representation of the HTTP request and/or response, {Scorpio::OpenAPI::Operation#run_ur} will return a representation of the request and response defined by the gem [Ur](https://github.com/notEthan/ur). See that link for more detail. Relating to the example above titled "Pet Store (without Scorpio::ResourceBase)", this code will return an Ur:
 
 ```ruby
-inventory_op = Scorpio::OpenAPI::Document.from_instance(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)).paths['/store/inventory']['get']
+inventory_op = Scorpio.new_document(JSON.parse(Faraday.get('https://petstore.swagger.io/v2/swagger.json').body, freeze: true)).paths['/store/inventory']['get']
 inventory_ur = inventory_op.run_ur
 # => #{<Scorpio::Ur fragment="#"> ...}
 ```
