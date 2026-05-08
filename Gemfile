@@ -57,6 +57,6 @@ group(:test) do
 end
 
 group(:doc) do
-  gem('yard')
-  gem('redcarpet')
+  gem('yard', platform: 'mri')
+  gem('redcarpet', platform: 'mri')
 end
