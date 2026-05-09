@@ -119,12 +119,6 @@ module Scorpio
       module Unscoped::Document
       end
 
-      set_up_document_schema_module(Unscoped::Document)
-      document_name_subschemas(Unscoped::Document, Unscoped)
-      # if jsonSchemaDialect is explicit nil, instantiate a document with no meta-schema in dynamic scope.
-      # note the default when jsonSchemaDialect is absent is not nil, it is Unscoped::Document.properties['jsonSchemaDialect'].default.
-      document_schema_modules_by_dialect_id[nil] = Unscoped::Document
-
 
       # "Ext" is abbreviation for the "OpenAPI extension schema dialect" that extends JSON Schema draft 2020-12
       # and defines keywords: `discriminator`, `example`, `externalDocs`, `xml`.
