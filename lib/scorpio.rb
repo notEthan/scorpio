@@ -9,6 +9,7 @@ require "pathname"
 require "pp"
 
 module Scorpio
+  # @private
   def self.root
     @root ||= Pathname.new(__FILE__).dirname.parent.expand_path
   end
