@@ -73,15 +73,19 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
+        @path_template_str = path_template_str_find || raise(NotImplementedError, -"could not determine path template for operation: #{self}")
+      end
+
+      # @return [String, nil]
+      private def path_template_str_find
         path_item = jsi_ancestor_nodes.detect { |n| n.is_a?(Scorpio::OpenAPI::PathItem) }
-        @path_template_str = path_item && path_item.jsi_ptr.tokens.last
+        path_item && path_item.jsi_ptr.tokens.last
       end
 
       # the path as an Addressable::Template
       # @return [Addressable::Template]
       def path_template
         return @path_template if instance_variable_defined?(:@path_template)
-        return(@path_template = nil) if !path_template_str
         @path_template = Addressable::Template.new(path_template_str)
       end
 
@@ -147,7 +151,7 @@ module Scorpio
       # a short identifier for this operation appropriate for an error message
       # @return [String]
       def human_id
-        operationId || -"path: #{path_template_str}, method: #{http_method}"
+        operationId || -"path: #{path_template_str_find}, method: #{http_method}"
       end
 
       # @param status [String, Integer]
@@ -245,7 +249,7 @@ module Scorpio
       private
 
       def jsi_object_group_text
-        [*super, http_method, path_template_str].compact.freeze
+        [*super, http_method, path_template_str_find].compact.freeze
       end
     end
 
