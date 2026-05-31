@@ -42,10 +42,16 @@ module Scorpio
           Scorpio.new_document(instance, **kw)
         end
 
+        # Returns the schema module for a schema equal to the schema of the given `document_schema_module`,
+        # but with dynamic anchor `meta` resolving to the meta-schema indicated by `dialect_id`.
+        #
         # This is pretty much: `document_schema_module.with_dynamic_scope_from(JSI.registry.find(dialect_id))`
         #
         # However, this also supports a dialect whose meta-schema isn't aware of dynamic scope and doesn't
         # have a `$dynamicAnchor: "meta"`, e.g. `jsonSchemaDialect: "http://json-schema.org/draft-07/schema"`.
+# This allows support for a document with schemas in a dialect that isn't aware of
+# dynamic scope and whose meta-schema doesn't have a `$dynamicAnchor: "meta"`,
+# e.g. with `jsonSchemaDialect: "http://json-schema.org/draft-07/schema"`.
         #
         # A schema like {OpenAPI::V3_1::Ext::ExtDocument} exists to `$ref` to
         # {OpenAPI::V3_1::Unscoped::Document} with anchor `meta` in dynamic scope, with the
