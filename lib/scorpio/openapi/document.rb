@@ -131,9 +131,6 @@ module Scorpio
     module Document
       module V3Methods
         module Configurables
-          def scheme
-            nil
-          end
           attr_writer :server
           def server
             return @server if instance_variable_defined?(:@server)
@@ -173,13 +170,6 @@ module Scorpio
               # prefer https, then http, then anything else since we probably don't support.
               schemes.sort_by { |s| ['https', 'http'].index(s) || (1.0 / 0) }.first
             end
-          end
-
-          def server
-            nil
-          end
-          def server_variables
-            nil
           end
 
           def base_url(scheme: self.scheme, server: nil, server_variables: nil)
