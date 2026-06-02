@@ -148,7 +148,6 @@ module Scorpio
     #   operation.
     def initialize(operation, **configuration, &b)
       @operation = operation
-      configuration = JSI::Util.stringify_symbol_keys(configuration)
       configuration.each do |name, value|
         if Configurables.public_method_defined?(:"#{name}=")
           public_send(:"#{name}=", value)
