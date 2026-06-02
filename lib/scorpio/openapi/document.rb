@@ -135,7 +135,7 @@ module Scorpio
             if servers.respond_to?(:to_ary) && servers.size == 1
               servers.first
             else
-              nil
+              raise(ConfigError, "configuration required: server (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#server-instance_method )")
             end
           end
           attr_writer :server_variables
@@ -146,9 +146,7 @@ module Scorpio
           attr_writer :base_url
           def base_url(scheme: nil, server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
-            if server
-              server.expanded_url(server_variables)
-            end
+            server.expanded_url(server_variables)
           end
 
           attr_accessor(:request_media_type)
