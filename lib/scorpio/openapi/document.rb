@@ -49,8 +49,28 @@ module Scorpio
       end
 
       module Configurables
+        attr_writer(:scheme)
+        def scheme
+          nil # overridden for v2
+        end
+
+        attr_writer(:server)
+        def server
+          nil # overridden for v3
+        end
+
+        attr_writer(:server_variables)
+        def server_variables
+          nil # overridden for v3
+        end
+
         attr_writer(:base_url)
         def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
+          fail(NotImplementedError) # overridden
+        end
+
+        attr_writer(:request_media_type)
+        def request_media_type
           fail(NotImplementedError) # overridden
         end
 
@@ -130,8 +150,6 @@ module Scorpio
 
     module Document
       module V3Methods
-        module Configurables
-          attr_writer :server
           def server
             return @server if instance_variable_defined?(:@server)
             if servers.respond_to?(:to_ary) && servers.size == 1
@@ -140,7 +158,7 @@ module Scorpio
               raise(ConfigError, "configuration required: server (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#server-instance_method )")
             end
           end
-          attr_writer :server_variables
+
           def server_variables
             return @server_variables if instance_variable_defined?(:@server_variables)
             {}.freeze
@@ -151,17 +169,14 @@ module Scorpio
             server.expanded_url(server_variables)
           end
 
-          attr_accessor(:request_media_type)
-        end
-        include Configurables
+          attr_reader(:request_media_type)
+
         include(OpenAPI::Document)
       end
     end
 
     module Document
       module V2Methods
-        module Configurables
-          attr_writer :scheme
           def scheme
             return @scheme if instance_variable_defined?(:@scheme)
             if schemes.nil?
@@ -185,7 +200,6 @@ module Scorpio
             end
           end
 
-          attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if consumes.respond_to?(:to_ary)
@@ -194,8 +208,7 @@ module Scorpio
               nil
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Document)
       end
     end

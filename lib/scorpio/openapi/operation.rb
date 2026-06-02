@@ -7,10 +7,33 @@ module Scorpio
     # Scorpio::OpenAPI::Operation is a module common to V2 and V3 operations.
     module Operation
       module Configurables
+        attr_writer(:scheme)
+        def scheme
+          return @scheme if instance_variable_defined?(:@scheme)
+          openapi_document.scheme
+        end
+
+        attr_writer(:server)
+        def server
+          return @server if instance_variable_defined?(:@server)
+          openapi_document.server
+        end
+
+        attr_writer(:server_variables)
+        def server_variables
+          return @server_variables if instance_variable_defined?(:@server_variables)
+          openapi_document.server_variables
+        end
+
         attr_writer :base_url
         def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
           return @base_url if instance_variable_defined?(:@base_url)
           openapi_document.base_url(scheme: scheme, server: server, server_variables: server_variables)
+        end
+
+        attr_writer(:request_media_type)
+        def request_media_type
+          fail(NotImplementedError) # overridden
         end
 
         attr_writer :request_headers
@@ -251,25 +274,6 @@ module Scorpio
 
     module Operation
       module V3Methods
-        module Configurables
-          def scheme
-            # not applicable; for OpenAPI v3, scheme is specified by servers.
-            nil
-          end
-
-          attr_writer :server
-          def server
-            return @server if instance_variable_defined?(:@server)
-            openapi_document.server
-          end
-
-          attr_writer :server_variables
-          def server_variables
-            return @server_variables if instance_variable_defined?(:@server_variables)
-            openapi_document.server_variables
-          end
-
-          attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if requestBody && requestBody['content']
@@ -278,8 +282,7 @@ module Scorpio
               openapi_document.request_media_type
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Operation)
 
         # @return [JSI::Schema]
@@ -338,20 +341,6 @@ module Scorpio
 
     module Operation
       module V2Methods
-        module Configurables
-          attr_writer :scheme
-          def scheme
-            return @scheme if instance_variable_defined?(:@scheme)
-            openapi_document.scheme
-          end
-          def server
-            nil
-          end
-          def server_variables
-            nil
-          end
-
-          attr_writer :request_media_type
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if key?('consumes')
@@ -360,8 +349,7 @@ module Scorpio
               openapi_document.request_media_type
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Operation)
 
         # the body parameter
