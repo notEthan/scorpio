@@ -39,6 +39,7 @@ module Scorpio
       end
 
       attr_writer :scheme
+      # HTTP scheme (OpenAPI v2 only)
       # @return [#to_str, nil]
       def scheme
         return @scheme if instance_variable_defined?(:@scheme)
@@ -46,6 +47,9 @@ module Scorpio
       end
 
       attr_writer :server
+      # API server (OpenAPI v3 only)
+      #
+      # If the OpenAPI document's `servers` define _one_ server, defaults to that server.
       # @return [OpenAPI::Server, nil]
       def server
         return @server if instance_variable_defined?(:@server)
@@ -53,6 +57,7 @@ module Scorpio
       end
 
       attr_writer :server_variables
+      # API server variables, interpolated into the `url` template of the {#server} object (OpenAPI v3 only)
       # @return [#to_hash, nil]
       def server_variables
         return @server_variables if instance_variable_defined?(:@server_variables)
