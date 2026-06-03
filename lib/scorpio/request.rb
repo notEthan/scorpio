@@ -213,9 +213,6 @@ module Scorpio
     # @return [Addressable::URI]
     def url
       return @url if instance_variable_defined?(:@url)
-      unless base_url
-        raise(ArgumentError, "no base_url has been specified for request")
-      end
       # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
       # we use File.join just to deal with consecutive slashes.
       Addressable::URI.parse(File.join(base_url, path)).freeze

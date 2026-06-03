@@ -189,6 +189,8 @@ module Scorpio
                 host: host,
                 path: basePath,
               ).freeze
+            else
+              raise(ConfigError, "configuration required: base_url (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#base_url-instance_method )")
             end
           end
 
