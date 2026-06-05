@@ -72,6 +72,14 @@ module Scorpio
       def url=(url)
         @url = JSI::Util.uri(url)
       end
+      # the full URL for this request
+      # @return [Addressable::URI]
+      def url
+        return @url if instance_variable_defined?(:@url)
+        # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
+        # we use File.join just to deal with consecutive slashes.
+        Addressable::URI.parse(File.join(base_url, path)).freeze
+      end
 
       attr_writer :body
       def body
@@ -213,15 +221,6 @@ module Scorpio
         path.query_values = query_params
       end
       path.freeze
-    end
-
-    # the full URL for this request
-    # @return [Addressable::URI]
-    def url
-      return @url if instance_variable_defined?(:@url)
-      # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
-      # we use File.join just to deal with consecutive slashes.
-      Addressable::URI.parse(File.join(base_url, path)).freeze
     end
 
     # the value of the request Content-Type header
