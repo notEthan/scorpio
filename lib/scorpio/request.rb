@@ -27,12 +27,16 @@ module Scorpio
 
     module Configurables
       attr_writer :path_params
+      # parameters interpolated into the {Request#path_template}
+      # @return [#to_hash]
       def path_params
         return @path_params if instance_variable_defined?(:@path_params)
         {}.freeze
       end
 
       attr_writer :query_params
+      # parameters that compose the query of the request URI
+      # @return [#to_hash, nil]
       def query_params
         return @query_params if instance_variable_defined?(:@query_params)
         nil
@@ -90,6 +94,9 @@ module Scorpio
       end
 
       attr_writer :body
+      # The request body. This may be set directly as a string, or may be generated from the
+      # request {#body_object}.
+      # @return [#to_str, nil]
       def body
         return @body if instance_variable_defined?(:@body)
         if instance_variable_defined?(:@body_object)
@@ -113,54 +120,83 @@ module Scorpio
       end
 
       attr_writer(:body_object)
+      # An object from which the request {#body} is generated, according to the configured
+      # request {#media_type}.
       def body_object
         return @body_object if instance_variable_defined?(:@body_object)
         nil
       end
 
       attr_writer :headers
+      # Request headers
+      # @return [#to_hash<#to_str, #to_str>]
       def headers
         return @headers if instance_variable_defined?(:@headers)
         operation.request_headers
       end
 
       attr_writer :media_type
+      # Request media type informs the Content-Type request header and
+      # the generation of request {#body} from {#body_object}.
+      # @return [#to_str, nil]
       def media_type
         return @media_type if instance_variable_defined?(:@media_type)
         content_type_header ? content_type_header.media_type : operation.request_media_type
       end
 
       attr_writer :user_agent
+      # `User-Agent` request header
+      #
+      # Defaults to {Request::DEFAULT_USER_AGENT}.
+      # @return [#to_str, nil]
       def user_agent
         return @user_agent if instance_variable_defined?(:@user_agent)
         operation.user_agent
       end
 
       attr_writer(:accept)
+      # `Accept` request header
+      # @return [#to_str, nil]
       def accept
         return @accept if instance_variable_defined?(:@accept)
         operation.accept
       end
 
       attr_writer(:authorization)
+      # `Authorization` request header
+      # @return [#to_str, nil]
       def authorization
         return @authorization if instance_variable_defined?(:@authorization)
         operation.authorization
       end
 
       attr_writer :faraday_builder
+      # A proc/callable to set up the Faraday connection the request will use,
+      # in particular to configure middleware. This is called with the builder
+      # object Faraday passes to `Faraday.new`
+      #
+      # This should not set the adapter; instead set {#faraday_adapter}.
+      # @return [#call, nil]
       def faraday_builder
         return @faraday_builder if instance_variable_defined?(:@faraday_builder)
         operation.faraday_builder
       end
 
       attr_writer :faraday_adapter
+      # Faraday connection adapter. The adapter is specified as a Symbol (e.g. `:net_http`) or
+      # a class (e.g. `Faraday::Adapter::NetHttp`). `faraday_adapter`'s value is splatted as
+      # arguments to `Faraday::RackBuilder#adapter` so may be an array with additional arguments.
+      #
+      # By default uses `Faraday.default_adapter` which defaults to `:net_http`.
       def faraday_adapter
         return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
         operation.faraday_adapter
       end
 
       attr_writer :logger
+      # A logger, only used to set metadata of current logger tags if applicable (Scorpio does not do any logging itself).
+      #
+      # Defaults to `Rails.logger`, if that is defined.
       def logger
         return @logger if instance_variable_defined?(:@logger)
         operation.logger
