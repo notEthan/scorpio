@@ -162,6 +162,7 @@ module Scorpio
 
     module Document
       module V3Methods
+          # @private (doc on Configurables)
           def server
             return @server if instance_variable_defined?(:@server)
             if servers.respond_to?(:to_ary) && servers.size == 1
@@ -171,16 +172,19 @@ module Scorpio
             end
           end
 
+          # @private (doc on Configurables)
           def server_variables
             return @server_variables if instance_variable_defined?(:@server_variables)
             {}.freeze
           end
 
+          # @private (doc on Configurables)
           def base_url(scheme: nil, server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
             server.expanded_url(server_variables)
           end
 
+          # @private (doc on Configurables)
           attr_reader(:request_media_type)
 
         include(OpenAPI::Document)
@@ -189,6 +193,7 @@ module Scorpio
 
     module Document
       module V2Methods
+          # @private (doc on Configurables)
           def scheme
             return @scheme if instance_variable_defined?(:@scheme)
             if schemes.nil?
@@ -199,6 +204,7 @@ module Scorpio
             end
           end
 
+          # @private (doc on Configurables)
           def base_url(scheme: self.scheme, server: nil, server_variables: nil)
             return @base_url if instance_variable_defined?(:@base_url)
             if host && scheme
@@ -212,6 +218,7 @@ module Scorpio
             end
           end
 
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if consumes.respond_to?(:to_ary)

@@ -286,6 +286,7 @@ module Scorpio
 
     module Operation
       module V3Methods
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if requestBody && requestBody['content']
@@ -353,6 +354,7 @@ module Scorpio
 
     module Operation
       module V2Methods
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if key?('consumes')
