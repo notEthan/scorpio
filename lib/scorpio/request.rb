@@ -69,9 +69,7 @@ module Scorpio
       end
 
       # overriding url will cause all of path_params, query_params, querystring, scheme, server, server_variables, and base_url to be ignored
-      def url=(url)
-        @url = JSI::Util.uri(url)
-      end
+      attr_writer(:url)
       # the full URL for this request
       # @return [Addressable::URI]
       def url
