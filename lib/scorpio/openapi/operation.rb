@@ -6,6 +6,9 @@ module Scorpio
     #
     # Scorpio::OpenAPI::Operation is a module common to V2 and V3 operations.
     module Operation
+      # Configurable attributes set on an operation override configurable attributes inherited from
+      # its OpenAPI document (via {OpenAPI::Document::Configurables}) and are inherited as
+      # configurable attributes of each request from the operation (via {Request::Configurables}).
       module Configurables
         attr_writer(:scheme)
         # see {Request::Configurables#scheme}

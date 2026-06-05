@@ -48,6 +48,9 @@ module Scorpio
         end
       end
 
+      # Configurable attributes set on a document are inherited as configurable attributes
+      # of each operation of the document (via {OpenAPI::Operation::Configurables})
+      # and each request from an operation of the document (via {Request::Configurables}).
       module Configurables
         attr_writer(:scheme)
         # see {Request::Configurables#scheme}

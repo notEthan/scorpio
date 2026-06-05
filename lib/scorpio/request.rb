@@ -25,6 +25,11 @@ module Scorpio
       end
     end
 
+    # Configurable attributes set per request.
+    #
+    # Many of these inherit from configurable attributes of the request's
+    # {#operation} (via {OpenAPI::Operation::Configurables}) and from the operation's
+    # OpenAPI document (via {OpenAPI::Document::Configurables}), unless overridden.
     module Configurables
       attr_writer :path_params
       # parameters interpolated into the {Request#path_template}
