@@ -8,71 +8,83 @@ module Scorpio
     module Operation
       module Configurables
         attr_writer(:scheme)
+        # see {Request::Configurables#scheme}
         def scheme
           return @scheme if instance_variable_defined?(:@scheme)
           openapi_document.scheme
         end
 
         attr_writer(:server)
+        # see {Request::Configurables#server}
         def server
           return @server if instance_variable_defined?(:@server)
           openapi_document.server
         end
 
         attr_writer(:server_variables)
+        # see {Request::Configurables#server_variables}
         def server_variables
           return @server_variables if instance_variable_defined?(:@server_variables)
           openapi_document.server_variables
         end
 
         attr_writer :base_url
+        # see {Request::Configurables#base_url}
         def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
           return @base_url if instance_variable_defined?(:@base_url)
           openapi_document.base_url(scheme: scheme, server: server, server_variables: server_variables)
         end
 
         attr_writer(:request_media_type)
+        # see {Request::Configurables#media_type}
         def request_media_type
           fail(NotImplementedError) # overridden
         end
 
         attr_writer :request_headers
+        # see {Request::Configurables#headers}
         def request_headers
           return @request_headers if instance_variable_defined?(:@request_headers)
           openapi_document.request_headers
         end
 
         attr_writer :user_agent
+        # see {Request::Configurables#user_agent}
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
           openapi_document.user_agent
         end
 
         attr_writer(:accept)
+        # see {Request::Configurables#accept}
         def accept
           return @accept if instance_variable_defined?(:@accept)
           openapi_document.accept
         end
 
         attr_writer(:authorization)
+        # see {Request::Configurables#authorization}
         def authorization
           return @authorization if instance_variable_defined?(:@authorization)
           openapi_document.authorization
         end
 
         attr_writer :faraday_builder
+        # see {Request::Configurables#faraday_builder}
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
           openapi_document.faraday_builder
         end
 
         attr_writer :faraday_adapter
+        # see {Request::Configurables#faraday_adapter}
         def faraday_adapter
           return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
           openapi_document.faraday_adapter
         end
 
         attr_writer :logger
+        # see {Request::Configurables#logger}
         def logger
           return @logger if instance_variable_defined?(:@logger)
           openapi_document.logger

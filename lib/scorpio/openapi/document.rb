@@ -50,67 +50,79 @@ module Scorpio
 
       module Configurables
         attr_writer(:scheme)
+        # see {Request::Configurables#scheme}
         def scheme
           nil # overridden for v2
         end
 
         attr_writer(:server)
+        # see {Request::Configurables#server}
         def server
           nil # overridden for v3
         end
 
         attr_writer(:server_variables)
+        # see {Request::Configurables#server_variables}
         def server_variables
           nil # overridden for v3
         end
 
         attr_writer(:base_url)
+        # see {Request::Configurables#base_url}
         def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
           fail(NotImplementedError) # overridden
         end
 
         attr_writer(:request_media_type)
+        # see {Request::Configurables#media_type}
         def request_media_type
           fail(NotImplementedError) # overridden
         end
 
         attr_writer :request_headers
+        # see {Request::Configurables#headers}
         def request_headers
           return @request_headers if instance_variable_defined?(:@request_headers)
           {}.freeze
         end
 
         attr_writer :user_agent
+        # see {Request::Configurables#user_agent}
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
           Request::DEFAULT_USER_AGENT
         end
 
         attr_writer(:accept)
+        # see {Request::Configurables#accept}
         def accept
           return @accept if instance_variable_defined?(:@accept)
           nil
         end
 
         attr_writer(:authorization)
+        # see {Request::Configurables#authorization}
         def authorization
           return @authorization if instance_variable_defined?(:@authorization)
           nil
         end
 
         attr_writer :faraday_builder
+        # see {Request::Configurables#faraday_builder}
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
           nil
         end
 
         attr_writer :faraday_adapter
+        # see {Request::Configurables#faraday_adapter}
         def faraday_adapter
           return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
           [Faraday.default_adapter].freeze
         end
 
         attr_writer :logger
+        # see {Request::Configurables#logger}
         def logger
           return @logger if instance_variable_defined?(:@logger)
           (Object.const_defined?(:Rails) && ::Rails.respond_to?(:logger) ? ::Rails.logger : nil)
