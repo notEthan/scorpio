@@ -104,7 +104,11 @@ module Scorpio
         end
       end
 
-      attr_accessor :body_object
+      attr_writer(:body_object)
+      def body_object
+        return @body_object if instance_variable_defined?(:@body_object)
+        nil
+      end
 
       attr_writer :headers
       def headers
