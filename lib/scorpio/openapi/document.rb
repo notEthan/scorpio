@@ -82,7 +82,7 @@ module Scorpio
         attr_writer :faraday_adapter
         def faraday_adapter
           return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
-          [Faraday.default_adapter].freeze
+          Faraday.default_adapter
         end
 
         attr_writer :logger
