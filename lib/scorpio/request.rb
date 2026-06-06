@@ -12,6 +12,8 @@ module Scorpio
 
     FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'.freeze
 
+    DEFAULT_USER_AGENT = -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+
     # see also Faraday::Env::MethodsWithBodies
     METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
 

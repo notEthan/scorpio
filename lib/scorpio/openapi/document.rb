@@ -53,7 +53,7 @@ module Scorpio
         attr_writer :user_agent
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
-          -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+          Request::DEFAULT_USER_AGENT
         end
 
         attr_writer(:accept)
