@@ -43,6 +43,10 @@ paths:
           description: default response
           schema:
             "$ref": "#/definitions/article"
+        '422':
+          description: error
+          schema:
+            "$ref": "#/definitions/error"
   "/articles_with_root":
     get:
       tags:
@@ -99,6 +103,10 @@ paths:
           description: default response
           schema:
             "$ref": "#/definitions/article"
+        '422':
+          description: error
+          schema:
+            "$ref": "#/definitions/error"
   "/clean":
     post:
       tags:
@@ -117,3 +125,5 @@ definitions:
         type: string
       author_id:
         type: integer
+  error:
+    title: error

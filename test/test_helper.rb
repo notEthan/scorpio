@@ -46,6 +46,7 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
+Minitest::Test.make_my_diffs_pretty!
 
 class ScorpioSpec < Minitest::Spec
   if ENV['SCORPIO_TEST_ALPHA']

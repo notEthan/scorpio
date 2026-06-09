@@ -25,12 +25,14 @@ jobs:
       fail-fast: false
       matrix:
         ruby-version:
-        - jruby
+        - jruby-10.0
         - truffleruby
         - truffleruby+graalvm
         - '2.5'
-        - '2.7'
+        - '2'
         - '3.0'
+        - '3'
+        - ruby # latest release
         - head
         runs-on:
         - ubuntu-latest

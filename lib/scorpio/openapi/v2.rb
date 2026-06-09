@@ -3,6 +3,8 @@
 module Scorpio
   module OpenAPI
     module V2
+      autoload(:DIALECT, 'scorpio/openapi/v2/dialect')
+
       describe_schema_ptrs = Set[
         # this schema (Scorpio::OpenAPI::V2::Schema) describes schemas in an OpenAPI document.
         JSI::Ptr['definitions', 'schema'],
@@ -15,7 +17,7 @@ module Scorpio
       ).read, freeze: true))
 
       describe_schema_ptrs.each do |ptr|
-        (Document / ptr).describes_schema!(JSI::Schema::Draft04::DIALECT)
+        (Document / ptr).describes_schema!(DIALECT)
       end
 
       # naming these is not strictly necessary, but is nice to have.
@@ -112,6 +114,10 @@ module Scorpio
       module PathItem
         include(OpenAPI::PathItem)
         include(OpenAPI::Reference)
+      end
+
+      module Response
+        include(OpenAPI::Response)
       end
     end
   end

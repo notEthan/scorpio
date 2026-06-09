@@ -2,7 +2,7 @@
 
 module Scorpio
   module OpenAPI
-    class Error < StandardError
+    class Error < Scorpio::Error
     end
     # an error in the semantics of an openapi document. for example, an Operation with
     # two body parameters (in v2, not possible in v3) is a SemanticError. an Operation
@@ -21,6 +21,9 @@ module Scorpio
     autoload(:Tags, 'scorpio/openapi/tag')
     autoload(:Server, 'scorpio/openapi/server')
     autoload :OperationsScope, 'scorpio/openapi/operations_scope'
+
+    module Response
+    end
 
     module Paths
     end
@@ -47,5 +50,7 @@ module Scorpio
     autoload(:V3, 'scorpio/openapi/v3_0')
     autoload(:V3_0, 'scorpio/openapi/v3_0')
     autoload(:V3_1, 'scorpio/openapi/v3_1')
+
+    autoload(:SchemaElements, 'scorpio/openapi/schema_elements')
   end
 end

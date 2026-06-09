@@ -13,7 +13,7 @@ module Scorpio
         #
         # @param instance [#to_hash] the document to represent as a Scorpio OpenAPI Document
         # @return [JSI::Base + Scorpio::OpenAPI::Document]
-        def from_instance(instance, **new_param)
+        def new_document(instance, **new_param)
           if instance.is_a?(Scorpio::OpenAPI::Document)
             instance
           elsif instance.is_a?(JSI::Base)
@@ -34,6 +34,11 @@ module Scorpio
             raise(TypeError, "instance does not look like a hash (json object)")
           end
         end
+
+        # @deprecated after v0.8.0. use `new_document`.
+        def from_instance(instance, **kw)
+          Scorpio.new_document(instance, **kw)
+        end
       end
 
       module Descendent
@@ -53,7 +58,19 @@ module Scorpio
         attr_writer :user_agent
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
-          -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+          Request::DEFAULT_USER_AGENT
+        end
+
+        attr_writer(:accept)
+        def accept
+          return @accept if instance_variable_defined?(:@accept)
+          nil
+        end
+
+        attr_writer(:authorization)
+        def authorization
+          return @authorization if instance_variable_defined?(:@authorization)
+          nil
         end
 
         attr_writer :faraday_builder
@@ -81,7 +98,7 @@ module Scorpio
       end
 
       def v3?
-        is_a?(OpenAPI::V3_0::Document)
+        is_a?(OpenAPI::Document::V3Methods)
       end
 
       def operations

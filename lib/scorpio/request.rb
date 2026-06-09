@@ -12,6 +12,8 @@ module Scorpio
 
     FALLBACK_CONTENT_TYPE = 'application/x-www-form-urlencoded'.freeze
 
+    DEFAULT_USER_AGENT = -"Scorpio/#{Scorpio::VERSION} (https://github.com/notEthan/scorpio) Faraday/#{Faraday::VERSION} Ruby/#{RUBY_VERSION}"
+
     # see also Faraday::Env::MethodsWithBodies
     METHODS_WITH_BODIES = %w(post put patch options).map(&:freeze).freeze
 
@@ -21,13 +23,6 @@ module Scorpio
       else
         SUPPORTED_MEDIA_TYPES.detect { |mt| media_types.include?(mt) }
       end
-    end
-
-    # @param http_method [String]
-    # @return [Boolean]
-    def self.method_with_body?(http_method)
-      raise(ArgumentError) unless http_method.is_a?(String)
-      METHODS_WITH_BODIES.include?(http_method.downcase)
     end
 
     module Configurables
@@ -115,7 +110,17 @@ module Scorpio
         operation.user_agent
       end
 
-      attr_accessor(:accept)
+      attr_writer(:accept)
+      def accept
+        return @accept if instance_variable_defined?(:@accept)
+        operation.accept
+      end
+
+      attr_writer(:authorization)
+      def authorization
+        return @authorization if instance_variable_defined?(:@authorization)
+        operation.authorization
+      end
 
       attr_writer :faraday_builder
       def faraday_builder
@@ -170,6 +175,11 @@ module Scorpio
     # @return [String]
     def http_method
       operation.http_method
+    end
+
+    # @return [Boolean]
+    def http_method_with_body?
+      METHODS_WITH_BODIES.include?(http_method.to_str.downcase)
     end
 
     # the template for the request's path, to be expanded with {Configurables#path_params} and appended to
@@ -333,7 +343,7 @@ module Scorpio
       elsif param_in == 'query'
         query_params ? query_params[name] : nil
       elsif param_in == 'header'
-        _, value = headers.detect { |headername, _| headername.downcase == name.downcase }
+        _, value = headers.detect { |headername, _| headername.casecmp?(name) }
         value
       elsif param_in == 'cookie'
         raise(NotImplementedError, -"cookies not implemented: #{name.inspect}")
@@ -351,6 +361,7 @@ module Scorpio
         headers['User-Agent'] = user_agent
       end
       headers['Accept'] = accept if accept
+      headers['Authorization'] = authorization if authorization
       if !content_type_header
         if media_type
           headers['Content-Type'] = media_type

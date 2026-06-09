@@ -22,8 +22,8 @@ describe("Scorpio::OpenAPI::Reference") do
               schema:
                 type: string
         YAML
-      oad_remoteA = Scorpio::OpenAPI::Document.from_instance(YAML.safe_load(oad_remoteA_yml), root_uri: 'tag:remoteA', register: true)
-      oad = Scorpio::OpenAPI::Document.from_instance(YAML.safe_load(<<~YAML
+      oad_remoteA = Scorpio.new_document(YAML.safe_load(oad_remoteA_yml), root_uri: 'tag:remoteA', register: true)
+      oad = Scorpio.new_document(YAML.safe_load(<<~YAML
         openapi: 3.0.0
         info: {title: '', version: ''}
         paths:

@@ -28,7 +28,7 @@ module Scorpio
     # raises a generic HTTPError otherwise.
     #
     # @raise [Scorpio::HTTPError]
-    # @return [void]
+    # @return [nil]
     def raise_on_http_error
       error_class = Scorpio.error_classes_by_status[response.status]
       error_class ||= if (400..499).include?(response.status)

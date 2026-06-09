@@ -11,6 +11,8 @@ module Scorpio
     )
 
     # naming these is not strictly necessary, but is nice to have.
+
+
     DirectoryList = DISCOVERY_REST_DESCRIPTION.schemas['DirectoryList'].jsi_schema_module
     JsonSchema     = DISCOVERY_REST_DESCRIPTION.schemas['JsonSchema'].jsi_schema_module
     RestDescription = DISCOVERY_REST_DESCRIPTION.schemas['RestDescription'].jsi_schema_module
@@ -26,8 +28,8 @@ module Scorpio
       Response = properties['response']
 
       # these only contain a $ref to a schema, but that is enough to use them as schemas
-      Request.schema.describes_schema!([JSI::Schema::Draft04])
-      Response.schema.describes_schema!([JSI::Schema::Draft04])
+      Request.describes_schema!(JSI::Schema::Draft04::DIALECT)
+      Response.describes_schema!(JSI::Schema::Draft04::DIALECT)
     end
 
     module HasMethodsAndResources

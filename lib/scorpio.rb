@@ -9,6 +9,7 @@ require "pathname"
 require "pp"
 
 module Scorpio
+  # @private
   def self.root
     @root ||= Pathname.new(__FILE__).dirname.parent.expand_path
   end
@@ -17,6 +18,7 @@ end
 module Scorpio
   # generally put in code paths that are not expected to be valid control flow paths.
   # rather a NotImplementedCorrectlyError. but that's too long.
+  # @private
   class Bug < NotImplementedError
   end
 
@@ -31,12 +33,9 @@ module Scorpio
     # @param status [Integer] if specified, sets the HTTP status the class represents
     # @return [Integer] the HTTP status the class represents
     def self.status(status = nil)
-      if status
-        @status = status
-        Scorpio.error_classes_by_status[status] = self
-      else
-        @status
-      end
+      return @status if !status
+      Scorpio.error_classes_by_status[status] = self
+      @status = status
     end
     attr_accessor :ur, :response_object
   end
@@ -107,4 +106,11 @@ module Scorpio
   autoload :ResourceBase, 'scorpio/resource_base'
   autoload :Request, 'scorpio/request'
   autoload :Response, 'scorpio/response'
+
+  class << self
+    # (see OpenAPI::Document.new_document)
+    def new_document(instance, **new_param)
+      OpenAPI::Document.new_document(instance, **new_param)
+    end
+  end
 end

@@ -73,8 +73,9 @@ module Scorpio
       end
 
       # overrides JSI::Base#[] to implicitly resolve this Reference, except when
-      # the given token is present in this Reference's instance (this should usually
-      # only apply to the token '$ref')
+      # the given token is present in this Reference's instance.
+      # the token '$ref' will always come from this reference, not its resolution.
+      # tokens 'summary' and 'description' may also be in some references.
       def [](token, **kw)
         if respond_to?(:to_hash) && !key?(token)
           resolve do |resolved|
@@ -89,9 +90,9 @@ module Scorpio
         jsi_child_token_present?('$ref')
       end
 
-      # yields or returns the target of this reference
+      # yields or returns the target of this reference. returns nil and does not yield if `$ref` is not present.
       # @yield [JSI::Base] if a block is given
-      # @return [JSI::Base]
+      # @return [JSI::Base, nil]
       def resolve
         return unless has_ref?
 

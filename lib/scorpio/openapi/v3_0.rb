@@ -3,6 +3,8 @@
 module Scorpio
   module OpenAPI
     module V3_0
+      autoload(:DIALECT, 'scorpio/openapi/v3_0/dialect')
+
       describe_schema_ptrs = Set[
         # this schema (Scorpio::OpenAPI::V3_0::Schema) describes schemas in an OpenAPI document.
         JSI::Ptr['definitions', 'Schema'],
@@ -17,7 +19,7 @@ module Scorpio
       ).read))
 
       describe_schema_ptrs.each do |ptr|
-        (Document / ptr).describes_schema!(JSI::Schema::Draft04::DIALECT)
+        (Document / ptr).describes_schema!(DIALECT)
       end
 
       # naming these is not strictly necessary, but is nice to have.
@@ -46,9 +48,7 @@ module Scorpio
       SecurityRequirement = Document.definitions['SecurityRequirement']
       Tag                  = Document.definitions['Tag']
       ExternalDocumentation = Document.definitions['ExternalDocumentation']
-      ExampleXORExamples   = Document.definitions['ExampleXORExamples']
-      SchemaXORContent    = Document.definitions['SchemaXORContent']
-      Parameter          = Document.definitions['Parameter']
+      Parameter           = Document.definitions['Parameter']
       PathParameter      = Document.definitions['PathParameter']
       QueryParameter      = Document.definitions['QueryParameter']
       HeaderParameter      = Document.definitions['HeaderParameter']
@@ -67,6 +67,10 @@ module Scorpio
       Link                      = Document.definitions['Link']
       Callback                 = Document.definitions['Callback']
       Encoding                = Document.definitions['Encoding']
+
+      module Response
+        include(OpenAPI::Response)
+      end
 
       # Describes a single API operation on a path.
       #

@@ -79,6 +79,9 @@ describe 'blog' do
       Article.patch({id: blog_article.id, title: 'politics?'})
     end
     assert_equal({"title" => ["with gusto!"]}, JSI::Util.as_json(err.response_object['errors']))
+    unless BlogModel.openapi_document['kind'] == "discovery#restDescription"
+      assert(err.response_object.jsi_schemas.any? { |s| s['title'] == 'error' })
+    end
     assert_match(/with gusto!/, err.message)
     assert_equal('sports!', Article.read(id: blog_article.id).title)
   end

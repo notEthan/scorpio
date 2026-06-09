@@ -45,6 +45,7 @@ module Scorpio
 
       def self.set_up_document_schema_module(document_schema_module)
         document_schema_module.include(OpenAPI::V3_1::Document)
+        document_schema_module.defs['response'].include(OpenAPI::Response)
         document_schema_module.defs['operation'].include(OpenAPI::Operation::V3Methods)
         document_schema_module.defs['reference'].include(OpenAPI::Reference)
         document_schema_module.defs['tag'].include(OpenAPI::Tag)
@@ -90,9 +91,9 @@ module Scorpio
       def self.new_document(instance, **new_param)
         #jsonSchemaDialect = Scorpio::OpenAPI::V3_1::Unscoped::Document.new_jsi(instance, **new_param).jsonSchemaDialect(use_default: true)
         jsonSchemaDialect = instance.fetch('jsonSchemaDialect') { Unscoped::Document.properties['jsonSchemaDialect'].default }
-        document_schema = document_schema_module_by_dialect_id(jsonSchemaDialect)
+        document_schema_module = document_schema_module_by_dialect_id(jsonSchemaDialect)
 
-        document_schema.new_jsi(instance, **new_param)
+        document_schema_module.new_jsi(instance, **new_param)
       end
 
 
@@ -117,12 +118,6 @@ module Scorpio
       # - $id: `https://spec.openapis.org/oas/3.1/schema/2025-11-23`
       module Unscoped::Document
       end
-
-      set_up_document_schema_module(Unscoped::Document)
-      document_name_subschemas(Unscoped::Document, Unscoped)
-      # if jsonSchemaDialect is explicit nil, instantiate a document with no meta-schema in dynamic scope.
-      # note the default when jsonSchemaDialect is absent is not nil, it is Unscoped::Document.properties['jsonSchemaDialect'].default.
-      document_schema_modules_by_dialect_id[nil] = Unscoped::Document
 
 
       # "Ext" is abbreviation for the "OpenAPI extension schema dialect" that extends JSON Schema draft 2020-12
@@ -220,8 +215,10 @@ module Scorpio
 
       set_up_document_schema_module(Ext::Document)
       document_name_subschemas(Ext::Document, Ext)
-      # note: without this mapping, schemas in OADs with this jsonSchemaDialect would have
-      # the right dialect (see comment on `document_schema_module_by_dialect_id`), but
+      # note: without this mapping set, document_schema_module_by_dialect_id(Ext::MetaSchema.schema_uri)
+      # would be   Unscoped::Document.with_dynamic_scope_from(Ext::Unscoped::MetaSchema)
+      # instead of Unscoped::Document.with_dynamic_scope_from(Ext::ExtDocument)
+      # schemas in OADs with this jsonSchemaDialect would have the right dialect, but
       # Ext::ExtDocument does also validate OAD jsonSchemaDialect and schema $schema properties.
       document_schema_modules_by_dialect_id[Ext::MetaSchema.schema_uri] = Ext::ExtDocument
 

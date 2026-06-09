@@ -25,6 +25,18 @@ module Scorpio
           openapi_document.user_agent
         end
 
+        attr_writer(:accept)
+        def accept
+          return @accept if instance_variable_defined?(:@accept)
+          openapi_document.accept
+        end
+
+        attr_writer(:authorization)
+        def authorization
+          return @authorization if instance_variable_defined?(:@authorization)
+          openapi_document.authorization
+        end
+
         attr_writer :faraday_builder
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
@@ -49,7 +61,7 @@ module Scorpio
       # openapi v3?
       # @return [Boolean]
       def v3?
-        is_a?(OpenAPI::V3_0::Operation)
+        is_a?(OpenAPI::Operation::V3Methods)
       end
 
       # openapi v2?
@@ -61,9 +73,8 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
-        return(@path_template_str = nil) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
-        return(@path_template_str = nil) unless jsi_parent_node.jsi_parent_node.is_a?(Scorpio::OpenAPI::Paths)
-        @path_template_str = jsi_parent_node.jsi_ptr.tokens.last
+        path_item = jsi_ancestor_nodes.detect { |n| n.is_a?(Scorpio::OpenAPI::PathItem) }
+        @path_template_str = path_item && path_item.jsi_ptr.tokens.last
       end
 
       # the path as an Addressable::Template
@@ -140,22 +151,36 @@ module Scorpio
       end
 
       # @param status [String, Integer]
-      # @return [Scorpio::OpenAPI::V3_0::Response, Scorpio::OpenAPI::V2::Response]
+      # @return [OpenAPI::Response, nil]
       def oa_response(status: )
+        return nil if !responses
         status = status.to_s if status.is_a?(Numeric)
-        if responses
-          _, oa_response = responses.detect { |k, v| k.to_s == status }
-          oa_response ||= responses['default']
+        responses.each do |k, v|
+          return v if k.to_s == status
         end
-        oa_response
+        responses[-"#{status[0]}XX"] || responses['default']
+      end
+
+      # operation parameters + path item parameters
+      #
+      # @api private
+      # @return [#to_ary<#to_hash>]
+      def inherited_parameters
+        parameters = []
+        parameters.concat(self.parameters.to_ary) if self.parameters
+        path_item = jsi_ancestor_nodes.detect { |n| n.is_a?(OpenAPI::PathItem) }
+        parameters.concat((path_item && path_item.parameters || []).select do |pip|
+          parameters.none? { |p| p['in'] == pip['in'] && p['name'] == pip['name'] }
+        end)
+        parameters.freeze
       end
 
       # the parameters specified for this operation, plus any others scorpio considers to be parameters.
       #
       # @api private
-      # @return [#to_ary<#to_h>]
+      # @return [#to_ary<#to_hash>]
       def inferred_parameters
-        parameters = self.parameters ? self.parameters.to_a.dup : []
+        parameters = inherited_parameters.dup
         path_template.variables.each do |var|
           unless parameters.any? { |p| p['in'] == 'path' && p['name'] == var }
             # we could instantiate this as a V2::Parameter or a V3_0::Parameter
@@ -168,34 +193,33 @@ module Scorpio
             }
           end
         end
-        parameters
+        parameters.freeze
       end
 
       # instantiates a {Scorpio::Request} for this operation.
-      # parameters are all passed to {Scorpio::Request#initialize}.
+      # configuration is passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Request]
       def build_request(**configuration, &b)
         Scorpio::Request.new(self, **configuration, &b)
       end
 
       # runs a {Scorpio::Request} for this operation, returning a {Scorpio::Ur}.
-      # parameters are all passed to {Scorpio::Request#initialize}.
+      # configuration is passed to {Scorpio::Request#initialize}.
       # @return [Scorpio::Ur] response ur
       def run_ur(**configuration, &b)
         build_request(**configuration, &b).run_ur
       end
 
       # runs a {Scorpio::Request} for this operation - see {Scorpio::Request#run}.
-      # parameters are all passed to {Scorpio::Request#initialize}.
+      # configuration is passed to {Scorpio::Request#initialize}.
       # @return response body object
       def run(mutable: false, **configuration, &b)
         build_request(**configuration, &b).run(mutable: mutable)
       end
 
       # Runs this operation with the given request config, and yields the resulting {Scorpio::Ur}.
-      # If the response contains a `Link` header with a `next` link (and that link's URL
-      # corresponds to this operation), this operation is run again to that link's URL, that
-      # request's Ur yielded, and a `next` link in that response is followed.
+      # If the response contains a `Link` header with a `next` link, this operation is run again to
+      # that link's URL, that request's Ur yielded, and a `next` link in that response is followed.
       # This repeats until a response does not contain a `Link` header with a `next` link.
       #
       # @param configuration (see Scorpio::Request#initialize)
@@ -282,13 +306,15 @@ module Scorpio
           end
         end
 
-        # @return [JSI::Schema]
+        # @return [JSI::Schema, nil]
         def response_schema(status: , media_type: )
-          oa_response = self.oa_response(status: status)
-          oa_media_types = oa_response ? oa_response['content'] : nil # Scorpio::OpenAPI::V3_0::MediaTypes
-          oa_media_type = oa_media_types ? oa_media_types[media_type] : nil # Scorpio::OpenAPI::V3_0::MediaType
-          oa_schema = oa_media_type ? oa_media_type['schema'] : nil # Scorpio::OpenAPI::V3_0::Schema
-          oa_schema ? JSI::Schema.ensure_schema(oa_schema) : nil
+          oa_response = self.oa_response(status: status) || return
+          oa_media_types = oa_response['content'] || return # Scorpio::OpenAPI::V3_*::MediaTypes
+          oa_media_type = oa_media_types[media_type] # Scorpio::OpenAPI::V3_*::MediaType
+          oa_media_type ||= oa_media_types[-"#{::Ur::ContentType.new(media_type).type}/*"]
+          oa_media_type ||= oa_media_types['*/*'] || return
+          oa_schema = oa_media_type['schema'] || return # JSI::Schema, Scorpio::OpenAPI::V3_*::Schema
+          JSI::Schema.ensure_schema(oa_schema)
         end
 
         # @return [JSI::SchemaSet]
@@ -342,7 +368,7 @@ module Scorpio
         # @return [#to_hash]
         # @raise [Scorpio::OpenAPI::SemanticError] if there's more than one body param
         def body_parameter
-          body_parameters = (parameters || []).select { |parameter| parameter['in'] == 'body' }
+          body_parameters = inherited_parameters.select { |parameter| parameter['in'] == 'body' }
           if body_parameters.size == 0
             nil
           elsif body_parameters.size == 1

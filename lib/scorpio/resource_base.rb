@@ -85,7 +85,7 @@ module Scorpio
       end
 
       def openapi_document=(openapi_document)
-        openapi_document = OpenAPI::Document.from_instance(openapi_document)
+        openapi_document = Scorpio.new_document(openapi_document)
 
         begin
           singleton_class.instance_exec { remove_method(:openapi_document) }
@@ -344,7 +344,7 @@ module Scorpio
           end
         else
           if other_params
-            if Request.method_with_body?(request.http_method)
+            if request.http_method_with_body?
               request.body_object = other_params
             else
               if other_params.respond_to?(:to_hash)

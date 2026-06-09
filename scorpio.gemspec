@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "Scorpio web API client"
   spec.description   = "Scorpio offers a client interface to any web API described by an OpenAPI description, following ORM conventions for RESTful resources."
   spec.homepage      = "https://github.com/notEthan/scorpio"
-  spec.license       = "AGPL-3.0"
+  spec.license       = "AGPL-3.0-only"
 
   spec.files = [
     'LICENSE.md',
@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
     'scorpio.gemspec',
     *Dir['lib/**/*'],
     *Dir['documents/**/*'],
+    *Dir['pages/**/*'],
   ].reject { |f| File.lstat(f).ftype == 'directory' }
 
   spec.require_paths = ["lib"]

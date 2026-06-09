@@ -15,28 +15,17 @@ class BlogModel < Scorpio::ResourceBase
 
   blog_port = $blog_port || raise('$blog_port is nil')
 
-  if ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'rest_description'
-    self.openapi_document = YAML.load_file('test/blog.rest_description.yml')
+  self.openapi_document = YAML.load_file(-"test/blog.#{ENV['SCORPIO_API_DESCRIPTION_FORMAT'] || 'openapi3_1'}.yml")
+  if openapi_document['kind'] == 'discovery#restDescription'
     self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.servicePath)
-  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi2'
-    self.openapi_document = YAML.load_file('test/blog.openapi2.yml')
+  elsif openapi_document.v2?
     self.openapi_document.base_url = File.join("http://localhost:#{blog_port}/", openapi_document.basePath)
-  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3.0' || ENV['SCORPIO_API_DESCRIPTION_FORMAT'].nil?
-    self.openapi_document = YAML.load_file('test/blog.openapi3_0.yml')
-    self.openapi_document.server_variables = {
-      'scheme' => 'http',
-      'host' => 'localhost',
-      'port' => blog_port,
-    }
-  elsif ENV['SCORPIO_API_DESCRIPTION_FORMAT'] == 'openapi3.1'
-    self.openapi_document = YAML.load_file('test/blog.openapi3_1.yml')
-    self.openapi_document.server_variables = {
-      'scheme' => 'http',
-      'host' => 'localhost',
-      'port' => blog_port,
-    }
   else
-    abort("bad SCORPIO_API_DESCRIPTION_FORMAT")
+    self.openapi_document.server_variables = {
+      'scheme' => 'http',
+      'host' => 'localhost',
+      'port' => blog_port,
+    }
   end
   self.faraday_builder = -> (conn) {
     conn.request(:api_hammer_request_logger, logger)
