@@ -513,6 +513,8 @@ module Scorpio
             include(mod)
           end
 
+          define_singleton_method(:container_schemas) { schemas }
+
           schemas.each do |schema|
             include(JSI::SchemaClasses.schema_property_reader_module(schema, conflicting_modules: modules + [Container]))
             include(JSI::SchemaClasses.schema_property_writer_module(schema, conflicting_modules: modules + [Container]))
@@ -535,6 +537,22 @@ module Scorpio
           container_class = @container_classes[{modules: container_modules.freeze, schemas: object.jsi_schemas}]
 
           container_class.new(object, openapi_document_class, options)
+        end
+
+        # @return [String]
+        def inspect
+          return super unless respond_to?(:container_schemas)
+          schema_names = container_schemas.map do |schema|
+            mod_name = schema.jsi_schema_module_name_from_ancestor
+            next -"#{mod_name} <#{schema.jsi_resource_uri}>" if mod_name && schema.jsi_resource_uri
+            mod_name || -"<#{schema.schema_uri || schema.jsi_ptr.uri}>"
+          end
+          -"(#{[superclass, *schema_names].join(' + ')})"
+        end
+
+        # @return [String]
+        def to_s
+          inspect
         end
       end
     end

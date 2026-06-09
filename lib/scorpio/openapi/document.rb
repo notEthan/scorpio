@@ -84,44 +84,84 @@ module Scorpio
         end
       end
 
+      # Configurable attributes set on a document are inherited as configurable attributes
+      # of each operation of the document (via {OpenAPI::Operation::Configurables})
+      # and each request from an operation of the document (via {Request::Configurables}).
       module Configurables
+        attr_writer(:scheme)
+        # see {Request::Configurables#scheme}
+        def scheme
+          nil # overridden for v2
+        end
+
+        attr_writer(:server)
+        # see {Request::Configurables#server}
+        def server
+          nil # overridden for v3
+        end
+
+        attr_writer(:server_variables)
+        # see {Request::Configurables#server_variables}
+        def server_variables
+          nil # overridden for v3
+        end
+
+        attr_writer(:base_url)
+        # see {Request::Configurables#base_url}
+        def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
+          fail(NotImplementedError) # overridden
+        end
+
+        attr_writer(:request_media_type)
+        # see {Request::Configurables#media_type}
+        def request_media_type
+          fail(NotImplementedError) # overridden
+        end
+
         attr_writer :request_headers
+        # see {Request::Configurables#headers}
         def request_headers
           return @request_headers if instance_variable_defined?(:@request_headers)
           {}.freeze
         end
 
         attr_writer :user_agent
+        # see {Request::Configurables#user_agent}
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
           Request::DEFAULT_USER_AGENT
         end
 
         attr_writer(:accept)
+        # see {Request::Configurables#accept}
         def accept
           return @accept if instance_variable_defined?(:@accept)
           nil
         end
 
         attr_writer(:authorization)
+        # see {Request::Configurables#authorization}
         def authorization
           return @authorization if instance_variable_defined?(:@authorization)
           nil
         end
 
         attr_writer :faraday_builder
+        # see {Request::Configurables#faraday_builder}
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
           nil
         end
 
         attr_writer :faraday_adapter
+        # see {Request::Configurables#faraday_adapter}
         def faraday_adapter
           return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
-          [Faraday.default_adapter].freeze
+          Faraday.default_adapter
         end
 
         attr_writer :logger
+        # see {Request::Configurables#logger}
         def logger
           return @logger if instance_variable_defined?(:@logger)
           (Object.const_defined?(:Rails) && ::Rails.respond_to?(:logger) ? ::Rails.logger : nil)
@@ -174,43 +214,38 @@ module Scorpio
 
     module Document
       module V3Methods
-        module Configurables
-          def scheme
-            nil
-          end
-          attr_writer :server
+          # @private (doc on Configurables)
           def server
             return @server if instance_variable_defined?(:@server)
             if servers.respond_to?(:to_ary) && servers.size == 1
               servers.first
             else
-              nil
+              raise(ConfigError, "configuration required: server (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#server-instance_method )")
             end
           end
-          attr_writer :server_variables
+
+          # @private (doc on Configurables)
           def server_variables
             return @server_variables if instance_variable_defined?(:@server_variables)
             {}.freeze
           end
-          attr_writer :base_url
+
+          # @private (doc on Configurables)
           def base_url(scheme: nil, server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
-            if server
-              server.expanded_url(server_variables)
-            end
+            server.expanded_url(server_variables)
           end
 
-          attr_accessor(:request_media_type)
-        end
-        include Configurables
+          # @private (doc on Configurables)
+          attr_reader(:request_media_type)
+
         include(OpenAPI::Document)
       end
     end
 
     module Document
       module V2Methods
-        module Configurables
-          attr_writer :scheme
+          # @private (doc on Configurables)
           def scheme
             return @scheme if instance_variable_defined?(:@scheme)
             if schemes.nil?
@@ -221,17 +256,7 @@ module Scorpio
             end
           end
 
-          def server
-            nil
-          end
-          def server_variables
-            nil
-          end
-
-          attr_writer :base_url
-          # the base url to which paths are appended.
-          # by default this looks at the openapi document's schemes, picking https or http first.
-          # it looks at the openapi_document's host and basePath.
+          # @private (doc on Configurables)
           def base_url(scheme: self.scheme, server: nil, server_variables: nil)
             return @base_url if instance_variable_defined?(:@base_url)
             if host && scheme
@@ -240,10 +265,12 @@ module Scorpio
                 host: host,
                 path: basePath,
               ).freeze
+            else
+              raise(ConfigError, "configuration required: base_url (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#base_url-instance_method )")
             end
           end
 
-          attr_writer :request_media_type
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if consumes.respond_to?(:to_ary)
@@ -252,8 +279,7 @@ module Scorpio
               nil
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Document)
       end
     end
