@@ -2,7 +2,7 @@
 
 Scorpio aims to offer flexibility in how applications can configure requests. Requests are initiated from an Operation object (e.g. {Scorpio::OpenAPI::Operation#run}), utilizing the Operation and the OpenAPI document that contains it for configuration. Many configurable attributes can be set with varying granularity, on the document (applying to all requests from all operations, unless overridden), on the operation (applying to all requests from that operation), or on the request itself.
 
-Configurable attributes are defined on several modules: for a request, {Scorpio::Request::Configurables}; for an operation, {Scorpio::OpenAPI::Operation::Configurables}; and for a document {Scorpio::OpenAPI::Document::Configurables} and {Scorpio::OpenAPI::Operation::V3Methods::Configurables} or {Scorpio::OpenAPI::Operation::V2Methods::Configurables}.
+Configurable attributes are defined and documented on the module {Scorpio::Request::Configurables}. Modules {Scorpio::OpenAPI::Document::Configurables} and {Scorpio::OpenAPI::Operation::Configurables} define configurable attributes of a document and an operation, respectively, and document their relationship to Request configurables.
 
 {Scorpio::Request#initialize} and methods that instantiate a request (such as {Scorpio::OpenAPI::Operation#run}) take a keyword hash of configuration, which may include attributes defined on the Configurables module, or parameters defined by the operation (except where parameter names conflict with configurable attributes, or are ambiguous).
 

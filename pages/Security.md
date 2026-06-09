@@ -1,6 +1,6 @@
 # API Security
 
-Scorpio does not currently implement an interface for any particular API security mechanism, which an OpenAPI description might specify using an operation's Security Requirement and corresponding Security Scheme. Scorpio offers flexibility in how applications may authenticate using common mechanisms - for more general guidance see {file:Request_Configuration Request Configuration}.
+Scorpio does not currently implement an interface for any particular API security mechanism, which an OpenAPI description might specify using an operation's [Security Requirement](https://spec.openapis.org/oas/v3.2.0.html#security-requirement-object) and corresponding [Security Scheme](https://spec.openapis.org/oas/v3.2.0.html#security-scheme-object). Scorpio offers flexibility in how applications may authenticate using common mechanisms - for more general guidance see {file:Request_Configuration Request Configuration}.
 
 ### Authorization header
 
