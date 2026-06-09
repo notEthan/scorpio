@@ -12,6 +12,7 @@ task 'test:each_format' do
     openapi2
     openapi3_0
     openapi3_1
+    openapi3_2
   )
 
   require 'term/ansicolor'

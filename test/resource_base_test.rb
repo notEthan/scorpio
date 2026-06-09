@@ -191,3 +191,13 @@ describe(Scorpio::ResourceBase) do
     end
   end
 end
+
+describe("ResourceBase::Container class") do
+  describe(".to_s") do
+    it("shows schemas") do
+      Article.post('title' => "!")
+      articles = Article.index_with_root
+      assert_match(%r(\A\(Scorpio::ResourceBase::Container \+ <[^>]*>\)\z), articles.articles.class.to_s)
+    end
+  end
+end

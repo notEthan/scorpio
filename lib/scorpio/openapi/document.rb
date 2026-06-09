@@ -25,6 +25,8 @@ module Scorpio
               Scorpio::OpenAPI::V3_0::Document.new_jsi(instance, **new_param)
             elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.1(\.|\z)/) || instance['openapi'] == 3.1
               Scorpio::OpenAPI::V3_1.new_document(instance, **new_param)
+            elsif (instance['openapi'].is_a?(String) && instance['openapi'] =~ /\A3\.2(\.|\z)/) || instance['openapi'] == 3.2
+              Scorpio::OpenAPI::V3_2.new_document(instance, **new_param)
             elsif instance['kind'] == 'discovery#restDescription'
               Scorpio::Google::RestDescription.new_jsi(instance, register: true, **new_param)
             else
@@ -39,6 +41,34 @@ module Scorpio
         def from_instance(instance, **kw)
           Scorpio.new_document(instance, **kw)
         end
+
+        # This is pretty much: `document_schema_module.with_dynamic_scope_from(JSI.registry.find(dialect_id))`
+        #
+        # However, this also supports a dialect whose meta-schema isn't aware of dynamic scope and doesn't
+        # have a `$dynamicAnchor: "meta"`, e.g. `jsonSchemaDialect: "http://json-schema.org/draft-07/schema"`.
+        #
+        # A schema like {OpenAPI::V3_1::Ext::ExtDocument} exists to `$ref` to
+        # {OpenAPI::V3_1::Unscoped::Document} with anchor `meta` in dynamic scope, with the
+        # `$dynamicAnchor: "meta"` schema `$ref`ing to {OpenAPI::V3_1::Ext::MetaSchema}.
+        # This method obviates the need for such a schema, directly applying dynamic scope.
+        #
+        # @api private
+        # @param document_schema_module [JSI::SchemaModule]
+        # @param dialect_id [#to_str]
+        # @return [JSI::SchemaModule]
+        def document_schema_module_with_meta(document_schema_module, dialect_id)
+          metaschema = JSI.registry.find(dialect_id)
+          dynamic_anchor_map = metaschema.jsi_next_schema_dynamic_anchor_map
+          unless dynamic_anchor_map.key?('meta')
+            # hax: pretend that the identified meta-schema has `$dynamicAnchor: "meta"`.
+            # this enables e.g. `jsonSchemaDialect: "http://json-schema.org/draft-07/schema"` to work.
+            # this is non-API JSI internals.
+            dynamic_anchor_map = dynamic_anchor_map.merge({
+              'meta' => [metaschema, [].freeze].freeze,
+            }).freeze
+          end
+          document_schema_module.schema.jsi_with_schema_dynamic_anchor_map(dynamic_anchor_map).jsi_schema_module
+        end
       end
 
       module Descendent
@@ -48,44 +78,84 @@ module Scorpio
         end
       end
 
+      # Configurable attributes set on a document are inherited as configurable attributes
+      # of each operation of the document (via {OpenAPI::Operation::Configurables})
+      # and each request from an operation of the document (via {Request::Configurables}).
       module Configurables
+        attr_writer(:scheme)
+        # see {Request::Configurables#scheme}
+        def scheme
+          nil # overridden for v2
+        end
+
+        attr_writer(:server)
+        # see {Request::Configurables#server}
+        def server
+          nil # overridden for v3
+        end
+
+        attr_writer(:server_variables)
+        # see {Request::Configurables#server_variables}
+        def server_variables
+          nil # overridden for v3
+        end
+
+        attr_writer(:base_url)
+        # see {Request::Configurables#base_url}
+        def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
+          fail(NotImplementedError) # overridden
+        end
+
+        attr_writer(:request_media_type)
+        # see {Request::Configurables#media_type}
+        def request_media_type
+          fail(NotImplementedError) # overridden
+        end
+
         attr_writer :request_headers
+        # see {Request::Configurables#headers}
         def request_headers
           return @request_headers if instance_variable_defined?(:@request_headers)
           {}.freeze
         end
 
         attr_writer :user_agent
+        # see {Request::Configurables#user_agent}
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
           Request::DEFAULT_USER_AGENT
         end
 
         attr_writer(:accept)
+        # see {Request::Configurables#accept}
         def accept
           return @accept if instance_variable_defined?(:@accept)
           nil
         end
 
         attr_writer(:authorization)
+        # see {Request::Configurables#authorization}
         def authorization
           return @authorization if instance_variable_defined?(:@authorization)
           nil
         end
 
         attr_writer :faraday_builder
+        # see {Request::Configurables#faraday_builder}
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
           nil
         end
 
         attr_writer :faraday_adapter
+        # see {Request::Configurables#faraday_adapter}
         def faraday_adapter
           return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
-          [Faraday.default_adapter].freeze
+          Faraday.default_adapter
         end
 
         attr_writer :logger
+        # see {Request::Configurables#logger}
         def logger
           return @logger if instance_variable_defined?(:@logger)
           (Object.const_defined?(:Rails) && ::Rails.respond_to?(:logger) ? ::Rails.logger : nil)
@@ -115,6 +185,7 @@ module Scorpio
               yield(operation)
             end
           end
+          (path_item['additionalOperations'] || {}).each_value(&block) # only OAS v3.2+
         end
       end
 
@@ -123,45 +194,52 @@ module Scorpio
       end
     end
 
+    # an OAD with a `$self` property that indicates its resource URI
+    module Document::SelfURI
+      # overrides JSI::Base#jsi_each_resource_uri_compute.
+      # this is more into JSI internals than I prefer but currently this is the way to accomplish this.
+      private def jsi_each_resource_uri_compute
+        if respond_to?(:to_hash) && key?('$self')
+          yield jsi_base_uri ? jsi_base_uri.join(jsi_node_content['$self']) : JSI::URI[jsi_node_content['$self']]
+        end
+        super
+      end
+    end
+
     module Document
       module V3Methods
-        module Configurables
-          def scheme
-            nil
-          end
-          attr_writer :server
+          # @private (doc on Configurables)
           def server
             return @server if instance_variable_defined?(:@server)
             if servers.respond_to?(:to_ary) && servers.size == 1
               servers.first
             else
-              nil
+              raise(ConfigError, "configuration required: server (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#server-instance_method )")
             end
           end
-          attr_writer :server_variables
+
+          # @private (doc on Configurables)
           def server_variables
             return @server_variables if instance_variable_defined?(:@server_variables)
             {}.freeze
           end
-          attr_writer :base_url
+
+          # @private (doc on Configurables)
           def base_url(scheme: nil, server: self.server, server_variables: self.server_variables)
             return @base_url if instance_variable_defined?(:@base_url)
-            if server
-              server.expanded_url(server_variables)
-            end
+            server.expanded_url(server_variables)
           end
 
-          attr_accessor(:request_media_type)
-        end
-        include Configurables
+          # @private (doc on Configurables)
+          attr_reader(:request_media_type)
+
         include(OpenAPI::Document)
       end
     end
 
     module Document
       module V2Methods
-        module Configurables
-          attr_writer :scheme
+          # @private (doc on Configurables)
           def scheme
             return @scheme if instance_variable_defined?(:@scheme)
             if schemes.nil?
@@ -172,17 +250,7 @@ module Scorpio
             end
           end
 
-          def server
-            nil
-          end
-          def server_variables
-            nil
-          end
-
-          attr_writer :base_url
-          # the base url to which paths are appended.
-          # by default this looks at the openapi document's schemes, picking https or http first.
-          # it looks at the openapi_document's host and basePath.
+          # @private (doc on Configurables)
           def base_url(scheme: self.scheme, server: nil, server_variables: nil)
             return @base_url if instance_variable_defined?(:@base_url)
             if host && scheme
@@ -191,10 +259,12 @@ module Scorpio
                 host: host,
                 path: basePath,
               ).freeze
+            else
+              raise(ConfigError, "configuration required: base_url (see https://rubydoc.info/gems/scorpio/Scorpio/Request/Configurables#base_url-instance_method )")
             end
           end
 
-          attr_writer :request_media_type
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if consumes.respond_to?(:to_ary)
@@ -203,8 +273,7 @@ module Scorpio
               nil
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Document)
       end
     end

@@ -25,49 +25,89 @@ module Scorpio
       end
     end
 
+    # Configurable attributes set per request.
+    #
+    # Many of these inherit from configurable attributes of the request's
+    # {#operation} (via {OpenAPI::Operation::Configurables}) and from the operation's
+    # OpenAPI document (via {OpenAPI::Document::Configurables}), unless overridden.
     module Configurables
       attr_writer :path_params
+      # parameters interpolated into the {Request#path_template}
+      # @return [#to_hash]
       def path_params
         return @path_params if instance_variable_defined?(:@path_params)
         {}.freeze
       end
 
       attr_writer :query_params
+      # parameters that compose the query of the request URI
+      # @return [#to_hash, nil]
       def query_params
         return @query_params if instance_variable_defined?(:@query_params)
         nil
       end
 
+      attr_writer(:querystring)
+      def querystring
+        return @querystring if instance_variable_defined?(:@querystring)
+        nil
+      end
+
       attr_writer :scheme
+      # HTTP scheme (OpenAPI v2 only)
+      # @return [#to_str, nil]
       def scheme
         return @scheme if instance_variable_defined?(:@scheme)
         operation.scheme
       end
 
       attr_writer :server
+      # API server (OpenAPI v3 only)
+      #
+      # If the OpenAPI document's `servers` define _one_ server, defaults to that server.
+      # @return [OpenAPI::Server, nil]
       def server
         return @server if instance_variable_defined?(:@server)
         operation.server
       end
 
       attr_writer :server_variables
+      # API server variables, interpolated into the `url` template of the {#server} object (OpenAPI v3 only)
+      # @return [#to_hash, nil]
       def server_variables
         return @server_variables if instance_variable_defined?(:@server_variables)
         operation.server_variables
       end
 
       attr_writer :base_url
+      # The base URL to which API operation paths are appended.
+      #
+      # For OpenAPI v3, constructed from {Request::Configurables#server} and {Request::Configurables#server_variables}.
+      #
+      # For OpenAPI v2, constructed from the document's `host`, `basePath`, and `schemes` or configurable {Request::Configurables#scheme}.
+      # @return [Addressable::URI]
       def base_url
         return @base_url if instance_variable_defined?(:@base_url)
         operation.base_url(scheme: scheme, server: server, server_variables: server_variables)
       end
 
-      # overriding url will cause all of path_params, query_params, querystring, scheme, server, server_variables, and base_url to be ignored
-      def url=(url)
-        @url = JSI::Util.uri(url)
+      attr_writer(:url)
+      # The full request URL.
+      #
+      # This is constructed using configured {#path_params}, {#query_params}, {#querystring}, {#scheme}, {#server}, {#server_variables}, and {#base_url}.
+      # Overriding `url` will cause those to be ignored.
+      # @return [Addressable::URI]
+      def url
+        return @url if instance_variable_defined?(:@url)
+        # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
+        # we use File.join just to deal with consecutive slashes.
+        Addressable::URI.parse(File.join(base_url, path)).freeze
       end
 
       attr_writer :body
+      # The request body. This may be set directly as a string, or may be generated from the
+      # request {#body_object}.
+      # @return [#to_str, nil]
       def body
         return @body if instance_variable_defined?(:@body)
         if instance_variable_defined?(:@body_object)
@@ -90,51 +130,84 @@ module Scorpio
         end
       end
 
-      attr_accessor :body_object
+      attr_writer(:body_object)
+      # An object from which the request {#body} is generated, according to the configured
+      # request {#media_type}.
+      def body_object
+        return @body_object if instance_variable_defined?(:@body_object)
+        nil
+      end
 
       attr_writer :headers
+      # Request headers
+      # @return [#to_hash<#to_str, #to_str>]
       def headers
         return @headers if instance_variable_defined?(:@headers)
         operation.request_headers
       end
 
       attr_writer :media_type
+      # Request media type informs the Content-Type request header and
+      # the generation of request {#body} from {#body_object}.
+      # @return [#to_str, nil]
       def media_type
         return @media_type if instance_variable_defined?(:@media_type)
         content_type_header ? content_type_header.media_type : operation.request_media_type
       end
 
       attr_writer :user_agent
+      # `User-Agent` request header
+      #
+      # Defaults to {Request::DEFAULT_USER_AGENT}.
+      # @return [#to_str, nil]
       def user_agent
         return @user_agent if instance_variable_defined?(:@user_agent)
         operation.user_agent
       end
 
       attr_writer(:accept)
+      # `Accept` request header
+      # @return [#to_str, nil]
       def accept
         return @accept if instance_variable_defined?(:@accept)
         operation.accept
       end
 
       attr_writer(:authorization)
+      # `Authorization` request header
+      # @return [#to_str, nil]
       def authorization
         return @authorization if instance_variable_defined?(:@authorization)
         operation.authorization
       end
 
       attr_writer :faraday_builder
+      # A proc/callable to set up the Faraday connection the request will use,
+      # in particular to configure middleware. This is called with the builder
+      # object Faraday passes to `Faraday.new`
+      #
+      # This should not set the adapter; instead set {#faraday_adapter}.
+      # @return [#call, nil]
       def faraday_builder
         return @faraday_builder if instance_variable_defined?(:@faraday_builder)
         operation.faraday_builder
       end
 
       attr_writer :faraday_adapter
+      # Faraday connection adapter. The adapter is specified as a Symbol (e.g. `:net_http`) or
+      # a class (e.g. `Faraday::Adapter::NetHttp`). `faraday_adapter`'s value is splatted as
+      # arguments to `Faraday::RackBuilder#adapter` so may be an array with additional arguments.
+      #
+      # By default uses `Faraday.default_adapter` which defaults to `:net_http`.
       def faraday_adapter
         return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
         operation.faraday_adapter
       end
 
       attr_writer :logger
+      # A logger, only used to set metadata of current logger tags if applicable (Scorpio does not do any logging itself).
+      #
+      # Defaults to `Rails.logger`, if that is defined.
       def logger
         return @logger if instance_variable_defined?(:@logger)
         operation.logger
@@ -148,7 +221,6 @@ module Scorpio
     #   operation.
     def initialize(operation, **configuration, &b)
       @operation = operation
-      configuration = JSI::Util.stringify_symbol_keys(configuration)
       configuration.each do |name, value|
         if Configurables.public_method_defined?(:"#{name}=")
           public_send(:"#{name}=", value)
@@ -203,22 +275,14 @@ module Scorpio
       end
 
       path = path_template.expand(path_params)
+      raise(AmbiguousParameter, "query_params + querystring both specified") if query_params && querystring
       if query_params
         path.query_values = query_params
       end
-      path.freeze
-    end
-
-    # the full URL for this request
-    # @return [Addressable::URI]
-    def url
-      return @url if instance_variable_defined?(:@url)
-      unless base_url
-        raise(ArgumentError, "no base_url has been specified for request")
+      if querystring
+        path.query = querystring
       end
-      # we do not use Addressable::URI#join as the paths should just be concatenated, not resolved.
-      # we use File.join just to deal with consecutive slashes.
-      Addressable::URI.parse(File.join(base_url, path)).freeze
+      path.freeze
     end
 
     # the value of the request Content-Type header
@@ -320,6 +384,8 @@ module Scorpio
         self.path_params = self.path_params.merge(name => value)
       elsif param_in == 'query'
         self.query_params = (self.query_params || {}).merge(name => value)
+      elsif param_in == 'querystring'
+        self.querystring = value
       elsif param_in == 'header'
         self.headers = self.headers.merge(name => value.to_str)
       elsif param_in == 'cookie'
@@ -342,6 +408,8 @@ module Scorpio
         path_params[name]
       elsif param_in == 'query'
         query_params ? query_params[name] : nil
+      elsif param_in == 'querystring'
+        querystring
       elsif param_in == 'header'
         _, value = headers.detect { |headername, _| headername.casecmp?(name) }
         value

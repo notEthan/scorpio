@@ -55,6 +55,10 @@ class ScorpioSpec < Minitest::Spec
     # :nocov:
   end
 
+  before do
+    JSI.registry = JSI::DEFAULT_REGISTRY.dup
+  end
+
   after do
     BlogClean.clean
   end

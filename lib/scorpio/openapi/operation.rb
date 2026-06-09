@@ -6,50 +6,88 @@ module Scorpio
     #
     # Scorpio::OpenAPI::Operation is a module common to V2 and V3 operations.
     module Operation
+      # Configurable attributes set on an operation override configurable attributes inherited from
+      # its OpenAPI document (via {OpenAPI::Document::Configurables}) and are inherited as
+      # configurable attributes of each request from the operation (via {Request::Configurables}).
       module Configurables
+        attr_writer(:scheme)
+        # see {Request::Configurables#scheme}
+        def scheme
+          return @scheme if instance_variable_defined?(:@scheme)
+          openapi_document.scheme
+        end
+
+        attr_writer(:server)
+        # see {Request::Configurables#server}
+        def server
+          return @server if instance_variable_defined?(:@server)
+          openapi_document.server
+        end
+
+        attr_writer(:server_variables)
+        # see {Request::Configurables#server_variables}
+        def server_variables
+          return @server_variables if instance_variable_defined?(:@server_variables)
+          openapi_document.server_variables
+        end
+
         attr_writer :base_url
+        # see {Request::Configurables#base_url}
         def base_url(scheme: self.scheme, server: self.server, server_variables: self.server_variables)
           return @base_url if instance_variable_defined?(:@base_url)
           openapi_document.base_url(scheme: scheme, server: server, server_variables: server_variables)
         end
 
+        attr_writer(:request_media_type)
+        # see {Request::Configurables#media_type}
+        def request_media_type
+          fail(NotImplementedError) # overridden
+        end
+
         attr_writer :request_headers
+        # see {Request::Configurables#headers}
         def request_headers
           return @request_headers if instance_variable_defined?(:@request_headers)
           openapi_document.request_headers
         end
 
         attr_writer :user_agent
+        # see {Request::Configurables#user_agent}
         def user_agent
           return @user_agent if instance_variable_defined?(:@user_agent)
           openapi_document.user_agent
         end
 
         attr_writer(:accept)
+        # see {Request::Configurables#accept}
         def accept
           return @accept if instance_variable_defined?(:@accept)
           openapi_document.accept
         end
 
         attr_writer(:authorization)
+        # see {Request::Configurables#authorization}
         def authorization
           return @authorization if instance_variable_defined?(:@authorization)
           openapi_document.authorization
         end
 
         attr_writer :faraday_builder
+        # see {Request::Configurables#faraday_builder}
         def faraday_builder
           return @faraday_builder if instance_variable_defined?(:@faraday_builder)
           openapi_document.faraday_builder
         end
 
         attr_writer :faraday_adapter
+        # see {Request::Configurables#faraday_adapter}
         def faraday_adapter
           return @faraday_adapter if instance_variable_defined?(:@faraday_adapter)
           openapi_document.faraday_adapter
         end
 
         attr_writer :logger
+        # see {Request::Configurables#logger}
         def logger
           return @logger if instance_variable_defined?(:@logger)
           openapi_document.logger
@@ -73,15 +111,19 @@ module Scorpio
       # @return [String]
       def path_template_str
         return @path_template_str if instance_variable_defined?(:@path_template_str)
+        @path_template_str = path_template_str_find || raise(NotImplementedError, -"could not determine path template for operation: #{self}")
+      end
+
+      # @return [String, nil]
+      private def path_template_str_find
         path_item = jsi_ancestor_nodes.detect { |n| n.is_a?(Scorpio::OpenAPI::PathItem) }
-        @path_template_str = path_item && path_item.jsi_ptr.tokens.last
+        path_item && path_item.jsi_ptr.tokens.last
       end
 
       # the path as an Addressable::Template
       # @return [Addressable::Template]
       def path_template
         return @path_template if instance_variable_defined?(:@path_template)
-        return(@path_template = nil) if !path_template_str
         @path_template = Addressable::Template.new(path_template_str)
       end
 
@@ -102,7 +144,6 @@ module Scorpio
       # @return [String]
       def http_method
         return @http_method if instance_variable_defined?(:@http_method)
-        return(@http_method = nil) unless jsi_parent_node.is_a?(Scorpio::OpenAPI::PathItem)
         @http_method = jsi_ptr.tokens.last
       end
 
@@ -147,7 +188,7 @@ module Scorpio
       # a short identifier for this operation appropriate for an error message
       # @return [String]
       def human_id
-        operationId || -"path: #{path_template_str}, method: #{http_method}"
+        operationId || -"path: #{path_template_str_find}, method: #{http_method}"
       end
 
       # @param status [String, Integer]
@@ -245,31 +286,13 @@ module Scorpio
       private
 
       def jsi_object_group_text
-        [*super, http_method, path_template_str].compact.freeze
+        [*super, http_method, path_template_str_find].compact.freeze
       end
     end
 
     module Operation
       module V3Methods
-        module Configurables
-          def scheme
-            # not applicable; for OpenAPI v3, scheme is specified by servers.
-            nil
-          end
-
-          attr_writer :server
-          def server
-            return @server if instance_variable_defined?(:@server)
-            openapi_document.server
-          end
-
-          attr_writer :server_variables
-          def server_variables
-            return @server_variables if instance_variable_defined?(:@server_variables)
-            openapi_document.server_variables
-          end
-
-          attr_writer :request_media_type
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if requestBody && requestBody['content']
@@ -278,8 +301,7 @@ module Scorpio
               openapi_document.request_media_type
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Operation)
 
         # @return [JSI::Schema]
@@ -310,9 +332,9 @@ module Scorpio
         def response_schema(status: , media_type: )
           oa_response = self.oa_response(status: status) || return
           oa_media_types = oa_response['content'] || return # Scorpio::OpenAPI::V3_*::MediaTypes
-          oa_media_type = oa_media_types[media_type] # Scorpio::OpenAPI::V3_*::MediaType
-          oa_media_type ||= oa_media_types[-"#{::Ur::ContentType.new(media_type).type}/*"]
-          oa_media_type ||= oa_media_types['*/*'] || return
+          oa_media_type = oa_media_types[media_type] ||
+            oa_media_types[-"#{::Ur::ContentType.new(media_type).type}/*"] ||
+            oa_media_types['*/*'] || return # Scorpio::OpenAPI::V3_*::MediaType
           oa_schema = oa_media_type['schema'] || return # JSI::Schema, Scorpio::OpenAPI::V3_*::Schema
           JSI::Schema.ensure_schema(oa_schema)
         end
@@ -338,20 +360,7 @@ module Scorpio
 
     module Operation
       module V2Methods
-        module Configurables
-          attr_writer :scheme
-          def scheme
-            return @scheme if instance_variable_defined?(:@scheme)
-            openapi_document.scheme
-          end
-          def server
-            nil
-          end
-          def server_variables
-            nil
-          end
-
-          attr_writer :request_media_type
+          # @private (doc on Configurables)
           def request_media_type
             return @request_media_type if instance_variable_defined?(:@request_media_type)
             if key?('consumes')
@@ -360,8 +369,7 @@ module Scorpio
               openapi_document.request_media_type
             end
           end
-        end
-        include Configurables
+
         include(OpenAPI::Operation)
 
         # the body parameter

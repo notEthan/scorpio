@@ -27,7 +27,15 @@ module Scorpio
             server_variables = given_server_variables
           end
           template = Addressable::Template.new(url)
-          template.expand(server_variables).freeze
+          expanded_url = template.expand(server_variables).freeze
+          if expanded_url.relative?
+            raise(Error, -"server URL is relative with no base URL. server: #{inspect}") if !openapi_document.jsi_base_uri
+            # note: this uses the OAD jsi_base_uri, not this server object's, because OAS 3.2
+            # excludes $self uri as the base for API urls including server url
+            # https://spec.openapis.org/oas/v3.2.0.html#relative-references-in-api-urls
+            expanded_url = openapi_document.jsi_base_uri.join(expanded_url)
+          end
+          expanded_url
         end
       end
   end

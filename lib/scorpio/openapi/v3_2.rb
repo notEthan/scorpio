@@ -2,7 +2,7 @@
 
 module Scorpio
   module OpenAPI
-    module V3_1
+    module V3_2
       class << self
         attr_reader(:document_schema_modules_by_dialect_id)
       end
@@ -23,15 +23,16 @@ module Scorpio
         namespace.const_set(:PathItem,            document_schema_module.defs['path-item'])
         namespace.const_set(:Operation,            document_schema_module.defs['operation'])
         namespace.const_set(:ExternalDocumentation, document_schema_module.defs['external-documentation'])
-        namespace.const_set(:Parameter,            document_schema_module.defs['parameter'])
-        namespace.const_set(:RequestBody,         document_schema_module.defs['request-body'])
-        namespace.const_set(:Content,            document_schema_module.defs['content'])
-        namespace.const_set(:MediaType,         document_schema_module.defs['media-type'])
-        namespace.const_set(:Encoding,         document_schema_module.defs['encoding'])
-        namespace.const_set(:Responses,       document_schema_module.defs['responses'])
-        namespace.const_set(:Response,       document_schema_module.defs['response'])
-        namespace.const_set(:Callbacks,     document_schema_module.defs['callbacks'])
-        namespace.const_set(:Example,      document_schema_module.defs['example'])
+        namespace.const_set(:Parameters,           document_schema_module.defs['parameters'])
+        namespace.const_set(:Parameter,           document_schema_module.defs['parameter'])
+        namespace.const_set(:RequestBody,        document_schema_module.defs['request-body'])
+        namespace.const_set(:Content,           document_schema_module.defs['content'])
+        namespace.const_set(:MediaType,        document_schema_module.defs['media-type'])
+        namespace.const_set(:Encoding,        document_schema_module.defs['encoding'])
+        namespace.const_set(:Responses,      document_schema_module.defs['responses'])
+        namespace.const_set(:Response,      document_schema_module.defs['response'])
+        namespace.const_set(:Callbacks,    document_schema_module.defs['callbacks'])
+        namespace.const_set(:Example,     document_schema_module.defs['example'])
         namespace.const_set(:Link,         document_schema_module.defs['link'])
         namespace.const_set(:Header,        document_schema_module.defs['header'])
         namespace.const_set(:Tag,            document_schema_module.defs['tag'])
@@ -47,7 +48,7 @@ module Scorpio
       end
 
       def self.set_up_document_schema_module(document_schema_module)
-        document_schema_module.include(OpenAPI::V3_1::Document)
+        document_schema_module.include(OpenAPI::V3_2::Document)
         document_schema_module.defs['response'].include(OpenAPI::Response)
         document_schema_module.defs['operation'].include(OpenAPI::Operation::V3Methods)
         document_schema_module.defs['reference'].include(OpenAPI::Reference)
@@ -61,11 +62,11 @@ module Scorpio
         document_schema_module
       end
 
-      # Instantiates `instance` v3.1 OAD with schemas of the dialect indicated by `jsonSchemaDialect`
+      # Instantiates `instance` v3.2 OAD with schemas of the dialect indicated by `jsonSchemaDialect`
       # @param instance [#to_hash]
-      # @return [JSI::Base + Scorpio::OpenAPI::V3_1::Document]
+      # @return [JSI::Base + Scorpio::OpenAPI::V3_2::Document]
       def self.new_document(instance, **new_param)
-        #jsonSchemaDialect = Scorpio::OpenAPI::V3_1::Unscoped::Document.new_jsi(instance, **new_param).jsonSchemaDialect(use_default: true)
+        #jsonSchemaDialect = Scorpio::OpenAPI::V3_2::Unscoped::Document.new_jsi(instance, **new_param).jsonSchemaDialect(use_default: true)
         jsonSchemaDialect = instance.fetch('jsonSchemaDialect') { Unscoped::Document.properties['jsonSchemaDialect'].default }
         document_schema_module = document_schema_modules_by_dialect_id[jsonSchemaDialect]
 
@@ -75,6 +76,7 @@ module Scorpio
 
       module Document
         include(OpenAPI::Document::V3Methods)
+        include(OpenAPI::Document::SelfURI)
       end
 
 
@@ -83,7 +85,7 @@ module Scorpio
       end
 
       Unscoped::Document = JSI.new_schema_module(
-        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.1/schema.yaml').read),
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/schema.yaml').read),
       )
       # Schema module: describes an OpenAPI document, but not normally instantiated.
       #
@@ -91,7 +93,7 @@ module Scorpio
       # meta-schema. Schemas in the document described by this are just `type: [object, boolean]`,
       # have no dialect, and are not usable schemas.
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/schema/2025-11-23`
+      # - $id: `https://spec.openapis.org/oas/3.2/schema/2025-11-23`
       module Unscoped::Document
       end
 
@@ -104,7 +106,7 @@ module Scorpio
 
       # vocabulary for implementation of keywords: `discriminator`, `example`, `externalDocs`, `xml`
       Ext::VOCAB = JSI::Schema::Vocabulary.new(
-        id: "https://spec.openapis.org/oas/3.1/vocab/base",
+        id: "https://spec.openapis.org/oas/3.2/vocab/base",
         elements: [
           # TODO:
           # - discriminator
@@ -117,18 +119,18 @@ module Scorpio
 
 
       Ext::ExtDocument = JSI.new_schema_module(
-        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.1/schema-base.yaml').read),
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/schema-base.yaml').read),
       )
       # Schema module: Describes an OAD with schemas of the OpenAPI extension schema dialect.
       # This exists to dynamically scope the `meta` anchor
-      # for {Unscoped::Document} `<https://spec.openapis.org/oas/3.1/schema/2025-11-23>`
-      # to {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
+      # for {Unscoped::Document} `<https://spec.openapis.org/oas/3.2/schema/2025-11-23>`
+      # to {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
       # via `<#/$defs/schema>` {Ext::ExtDocument::Schema}.
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/schema-base/2025-11-23`
-      # - $ref: {Ext::Document} `<https://spec.openapis.org/oas/3.1/schema/2025-11-23>`
+      # - $id: `https://spec.openapis.org/oas/3.2/schema-base/2025-11-23`
+      # - $ref: {Ext::Document} `<https://spec.openapis.org/oas/3.2/schema/2025-11-23>`
       # - $dynamicAnchor: `meta` in `/$defs/schema` ({Ext::ExtDocument::Schema})
-      # - properties: jsonSchemaDialect const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
+      # - properties: jsonSchemaDialect const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
       module Ext::ExtDocument
       end
 
@@ -136,8 +138,8 @@ module Scorpio
       # Schema module: Describes schemas in an Ext::Document
       #
       # - $dynamicAnchor: `meta`
-      # - $ref: {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
-      # - properties: $schema const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.1/dialect/2024-11-10>`
+      # - $ref: {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
+      # - properties: $schema const {Ext::MetaSchema} `<https://spec.openapis.org/oas/3.2/dialect/2025-09-17>`
       module Ext::ExtDocument::Schema
       end
 
@@ -148,7 +150,7 @@ module Scorpio
       end
 
       Ext::Unscoped::VocabSchema = JSI.new_schema_module(
-        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.1/meta/base.schema.yaml').read),
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/meta.yaml').read),
       )
       module Ext::Unscoped::VocabSchema
       end
@@ -156,14 +158,14 @@ module Scorpio
       Ext::VocabSchema = Ext::Unscoped::VocabSchema.with_dynamic_scope_from(Ext::ExtDocument)
       # Schema module: vocabulary schema for {Ext::VOCAB}
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/meta/2024-11-10`
+      # - $id: `https://spec.openapis.org/oas/3.2/meta/2025-09-17`
       # - $dynamicAnchor: `meta` (unused)
       # - properties (schema keywords) discriminator, example, externalDocs, xml
       module Ext::VocabSchema
       end
 
       Ext::Unscoped::MetaSchema = JSI.new_schema_module(
-        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.1/dialect/base.schema.yaml').read),
+        YAML.safe_load(Scorpio.root.join('documents/spec.openapis.org/oas/3.2/dialect.yaml').read),
       )
       module Ext::Unscoped::MetaSchema
       end
@@ -172,14 +174,14 @@ module Scorpio
       Ext::MetaSchema.describes_schema!
       # Schema module: Meta-schema describing schemas within an OpenAPI document with the OpenAPI extension schema dialect
       #
-      # - $id: `https://spec.openapis.org/oas/3.1/dialect/2024-11-10`
+      # - $id: `https://spec.openapis.org/oas/3.2/dialect/2025-09-17`
       # - $dynamicAnchor: `meta` (overridden by dynamic scope with `meta` → {Ext::ExtDocument::Schema})
       # - $vocabulary:
       #   - The draft/2020-12 vocabularies - core, applicator, validation, etc (required: true)
-      #   - {Ext::VOCAB} `<https://spec.openapis.org/oas/3.1/vocab/base>` (required: false)
+      #   - {Ext::VOCAB} `<https://spec.openapis.org/oas/3.2/vocab/base>` (required: false)
       # - allOf:
       #   - $ref: {Ext::JSONSchemaDraft202012} `<https://json-schema.org/draft/2020-12/schema>`
-      #   - $ref: {Ext::VocabSchema} `<https://spec.openapis.org/oas/3.1/meta/2024-11-10>`
+      #   - $ref: {Ext::VocabSchema} `<https://spec.openapis.org/oas/3.2/meta/2025-09-17>`
       module Ext::MetaSchema
       end
 

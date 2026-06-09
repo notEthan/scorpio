@@ -43,4 +43,48 @@ describe("Request") do
       assert_raises(Scorpio::AmbiguousParameter) { oad.operations.first.build_request(a: 'A') }
     end
   end
+
+  describe("querystring") do
+    it("sets") do
+      oad = Scorpio::OpenAPI::Document.from_instance(YAML.safe_load(<<~YAML
+        openapi: 3.2.0
+        paths:
+          '/':
+            get:
+              parameters:
+                - name: param1
+                  in: querystring
+        YAML
+      ))
+
+      request = oad.operations.first.build_request(param1: 'x')
+      assert_equal('x', request.get_param('param1'))
+      assert_equal('x', request.querystring)
+      assert_equal('/?x', request.path.to_s)
+    end
+
+    it("with in: query param") do
+      oad = Scorpio::OpenAPI::Document.from_instance(YAML.safe_load(<<~YAML
+        openapi: 3.2.0
+        paths:
+          '/':
+            get:
+              parameters:
+                - name: param1
+                  in: querystring
+                - name: param2
+                  in: query
+        YAML
+      ))
+
+      # it builds the request and sets querystring and query_params, but errors when constructing Request#path.
+      # in future might change Request#query_params= and Request#querystring= to raise instead.
+      request = oad.operations.first.build_request(param1: 'x', param2: 'y')
+      assert_equal('x', request.get_param('param1'))
+      assert_equal('x', request.querystring)
+      assert_equal('y', request.get_param('param2'))
+      assert_equal({'param2' => 'y'}, request.query_params)
+      assert_raises(Scorpio::AmbiguousParameter) { request.path }
+    end
+  end
 end
